@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server.admin;
 
 import static org.hamcrest.core.Is.is;
@@ -39,31 +21,14 @@ import org.apache.zookeeper.test.ClientBase;
 import org.junit.Test;
 
 public class CommandsTest extends ClientBase {
-    /**
-     * Checks that running a given Command returns the expected Map. Asserts
-     * that all specified keys are present with values of the specified types
-     * and that there are no extra entries.
-     *
-     * @param cmdName
-     *            - the primary name of the command
-     * @param kwargs
-     *            - keyword arguments to the command
-     * @param keys
-     *            - the keys that are expected in the returned Map
-     * @param types
-     *            - the classes of the values in the returned Map. types[i] is
-     *            the type of the value for keys[i].
-     * @throws IOException
-     * @throws InterruptedException
-     */
+    
     public void testCommand(String cmdName, Map<String, String> kwargs, Field... fields)
             throws IOException, InterruptedException {
         ZooKeeperServer zks = serverFactory.getZooKeeperServer();
         Map<String, Object> result = Commands.runCommand(cmdName, zks, kwargs).toMap();
 
         assertTrue(result.containsKey("command"));
-        // This is only true because we're setting cmdName to the primary name
-        assertEquals(cmdName, result.remove("command"));
+                assertEquals(cmdName, result.remove("command"));
         assertTrue(result.containsKey("error"));
         assertNull("error: " + result.get("error"), result.remove("error"));
 
@@ -250,24 +215,17 @@ public class CommandsTest extends ClientBase {
 
     @Test
     public void testConsCommandSecureOnly() {
-        // Arrange
-        Commands.ConsCommand cmd = new Commands.ConsCommand();
+                Commands.ConsCommand cmd = new Commands.ConsCommand();
         ZooKeeperServer zkServer = mock(ZooKeeperServer.class);
         ServerCnxnFactory cnxnFactory = mock(ServerCnxnFactory.class);
         when(zkServer.getSecureServerCnxnFactory()).thenReturn(cnxnFactory);
 
-        // Act
-        CommandResponse response = cmd.run(zkServer, null);
+                CommandResponse response = cmd.run(zkServer, null);
 
-        // Assert
-        assertThat(response.toMap().containsKey("connections"), is(true));
+                assertThat(response.toMap().containsKey("connections"), is(true));
         assertThat(response.toMap().containsKey("secure_connections"), is(true));
     }
-    /**
-     * testing Stat command, when only SecureClientPort is defined by the user and there is no
-     * regular (non-SSL port) open. In this case zkServer.getServerCnxnFactory === null
-     * see: ZOOKEEPER-3633
-     */
+    
     @Test
     public void testStatCommandSecureOnly() {
         Commands.StatCommand cmd = new Commands.StatCommand();

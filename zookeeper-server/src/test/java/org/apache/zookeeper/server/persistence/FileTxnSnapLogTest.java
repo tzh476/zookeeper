@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server.persistence;
 
 import org.apache.jute.Record;
@@ -84,20 +66,17 @@ public class FileTxnSnapLogTest {
         logVersionDir = createVersionDir(logDir);
         snapVersionDir = createVersionDir(snapDir);
 
-        // transaction log files in log dir
-        createLogFile(logVersionDir,1);
+                createLogFile(logVersionDir,1);
         createLogFile(logVersionDir,2);
 
-        // snapshot files in snap dir
-        createSnapshotFile(snapVersionDir,1);
+                createSnapshotFile(snapVersionDir,1);
         createSnapshotFile(snapVersionDir,2);
     }
 
     private void singleDirSetupWithCorrectFiles() throws IOException {
         logVersionDir = createVersionDir(logDir);
 
-        // transaction log and snapshot files in the same dir
-        createLogFile(logVersionDir,1);
+                createLogFile(logVersionDir,1);
         createLogFile(logVersionDir,2);
         createSnapshotFile(logVersionDir,1);
         createSnapshotFile(logVersionDir,2);
@@ -123,10 +102,7 @@ public class FileTxnSnapLogTest {
         return fileTxnSnapLog;
     }
 
-    /**
-     * Test verifies the auto creation of log dir and snap dir.
-     * Sets "zookeeper.datadir.autocreate" to true.
-     */
+    
     @Test
     public void testWithAutoCreateDataDir() throws IOException {
         Assert.assertFalse("log directory already exists", logDir.exists());
@@ -140,10 +116,7 @@ public class FileTxnSnapLogTest {
         Assert.assertTrue(fileTxnSnapLog.getSnapDir().exists());
     }
 
-    /**
-     * Test verifies server should fail when log dir or snap dir doesn't exist.
-     * Sets "zookeeper.datadir.autocreate" to false.
-     */
+    
     @Test(expected = FileTxnSnapLog.DatadirException.class)
     public void testWithoutAutoCreateDataDir() throws Exception {
         Assert.assertFalse("log directory already exists", logDir.exists());
@@ -154,8 +127,7 @@ public class FileTxnSnapLogTest {
         } catch (FileTxnSnapLog.DatadirException e) {
             Assert.assertFalse(logDir.exists());
             Assert.assertFalse(snapDir.exists());
-            // rethrow exception
-            throw e;
+                        throw e;
         }
         Assert.fail("Expected exception from FileTxnSnapLog");
     }
@@ -204,8 +176,7 @@ public class FileTxnSnapLogTest {
     public void testDirCheckWithSnapFilesInLogDir() throws IOException {
         twoDirSetupWithCorrectFiles();
 
-        // add snapshot files to the log version dir
-        createSnapshotFile(logVersionDir,3);
+                createSnapshotFile(logVersionDir,3);
         createSnapshotFile(logVersionDir,4);
 
         createFileTxnSnapLogWithNoAutoCreateDataDir(logDir, snapDir);
@@ -215,8 +186,7 @@ public class FileTxnSnapLogTest {
     public void testDirCheckWithLogFilesInSnapDir() throws IOException {
         twoDirSetupWithCorrectFiles();
 
-        // add transaction log files to the snap version dir
-        createLogFile(snapVersionDir,3);
+                createLogFile(snapVersionDir,3);
         createLogFile(snapVersionDir,4);
 
         createFileTxnSnapLogWithNoAutoCreateDataDir(logDir, snapDir);

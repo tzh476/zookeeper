@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.apache.zookeeper.server.quorum;
 
 import java.io.BufferedInputStream;
@@ -82,8 +65,7 @@ public class UnifiedServerSocketTest extends BaseX509ParameterizedTestCase {
     private X509Util x509Util;
     private InetSocketAddress localServerAddress;
     private final Object handshakeCompletedLock = new Object();
-    // access only inside synchronized(handshakeCompletedLock) { ... } blocks
-    private boolean handshakeCompleted = false;
+        private boolean handshakeCompleted = false;
 
     public UnifiedServerSocketTest(
             final X509KeyType caKeyType,
@@ -165,17 +147,14 @@ public class UnifiedServerSocketTest extends BaseX509ParameterizedTestCase {
                     unifiedSocket.setSoTimeout(TIMEOUT);
                     final boolean keepAlive = rnd.nextBoolean();
                     unifiedSocket.setKeepAlive(keepAlive);
-                    // Note: getting the input stream should not block the thread or trigger mode detection.
-                    BufferedInputStream bis = new BufferedInputStream(unifiedSocket.getInputStream());
+                                        BufferedInputStream bis = new BufferedInputStream(unifiedSocket.getInputStream());
                     workerPool.submit(new Runnable() {
                         @Override
                         public void run() {
                             try {
                                 byte[] buf = new byte[1024];
                                 int bytesRead = unifiedSocket.getInputStream().read(buf, 0, 1024);
-                                // Make sure the settings applied above before the socket was potentially upgraded to
-                                // TLS still apply.
-                                Assert.assertEquals(tcpNoDelay, unifiedSocket.getTcpNoDelay());
+                                                                                                Assert.assertEquals(tcpNoDelay, unifiedSocket.getTcpNoDelay());
                                 Assert.assertEquals(TIMEOUT, unifiedSocket.getSoTimeout());
                                 Assert.assertEquals(keepAlive, unifiedSocket.getKeepAlive());
                                 if (bytesRead > 0) {
@@ -204,8 +183,7 @@ public class UnifiedServerSocketTest extends BaseX509ParameterizedTestCase {
         }
 
         public void shutdown(long millis) throws InterruptedException {
-            forceClose(serverSocket); // this should break the run() loop
-            workerPool.awaitTermination(millis, TimeUnit.MILLISECONDS);
+            forceClose(serverSocket);             workerPool.awaitTermination(millis, TimeUnit.MILLISECONDS);
             this.join(millis);
         }
 
@@ -270,14 +248,8 @@ public class UnifiedServerSocketTest extends BaseX509ParameterizedTestCase {
         return socket;
     }
 
-    // In the tests below, a "Strict" server means a UnifiedServerSocket that
-    // does not allow plaintext connections (in other words, it's SSL-only).
-    // A "Non Strict" server means a UnifiedServerSocket that allows both
-    // plaintext and SSL incoming connections.
-
-    /**
-     * Attempting to connect to a SSL-or-plaintext server with SSL should work.
-     */
+                
+    
     @Test
     public void testConnectWithSSLToNonStrictServer() throws Exception {
         UnifiedServerThread serverThread = new UnifiedServerThread(
@@ -306,9 +278,7 @@ public class UnifiedServerSocketTest extends BaseX509ParameterizedTestCase {
         }
     }
 
-    /**
-     * Attempting to connect to a SSL-only server with SSL should work.
-     */
+    
     @Test
     public void testConnectWithSSLToStrictServer() throws Exception {
         UnifiedServerThread serverThread = new UnifiedServerThread(
@@ -338,9 +308,7 @@ public class UnifiedServerSocketTest extends BaseX509ParameterizedTestCase {
         }
     }
 
-    /**
-     * Attempting to connect to a SSL-or-plaintext server without SSL should work.
-     */
+    
     @Test
     public void testConnectWithoutSSLToNonStrictServer() throws Exception {
         UnifiedServerThread serverThread = new UnifiedServerThread(
@@ -362,12 +330,7 @@ public class UnifiedServerSocketTest extends BaseX509ParameterizedTestCase {
         }
     }
 
-    /**
-     * Attempting to connect to a SSL-or-plaintext server without SSL with a
-     * small initial data write should work. This makes sure that sending
-     * less than 5 bytes does not break the logic in the server's initial 5
-     * byte read.
-     */
+    
     @Test
     public void testConnectWithoutSSLToNonStrictServerPartialWrite() throws Exception {
         UnifiedServerThread serverThread = new UnifiedServerThread(
@@ -376,10 +339,7 @@ public class UnifiedServerSocketTest extends BaseX509ParameterizedTestCase {
 
         Socket socket = connectWithoutSSL();
         try {
-            // Write only 2 bytes of the message, wait a bit, then write the rest.
-            // This makes sure that writes smaller than 5 bytes don't break the plaintext mode on the server
-            // once it decides that the input doesn't look like a TLS handshake.
-            socket.getOutputStream().write(DATA_FROM_CLIENT, 0, 2);
+                                                socket.getOutputStream().write(DATA_FROM_CLIENT, 0, 2);
             socket.getOutputStream().flush();
             Thread.sleep(TIMEOUT / 2);
             socket.getOutputStream().write(DATA_FROM_CLIENT, 2, DATA_FROM_CLIENT.length - 2);
@@ -395,9 +355,7 @@ public class UnifiedServerSocketTest extends BaseX509ParameterizedTestCase {
         }
     }
 
-    /**
-     * Attempting to connect to a SSL-only server without SSL should fail.
-     */
+    
     @Test
     public void testConnectWithoutSSLToStrictServer() throws Exception {
         UnifiedServerThread serverThread = new UnifiedServerThread(
@@ -411,36 +369,21 @@ public class UnifiedServerSocketTest extends BaseX509ParameterizedTestCase {
         try {
             int bytesRead = socket.getInputStream().read(buf, 0, buf.length);
             if(bytesRead == -1) {
-                // Using the NioSocketImpl after JDK 13, the expected behaviour on the client side
-                // is to reach the end of the stream (bytesRead == -1), without a socket exception.
-                return;
+                                                return;
             }
         } catch (SocketException e) {
-            // Using the old PlainSocketImpl (prior to JDK 13) we expect to get Socket Exception
-            return;
+                        return;
         } finally {
             forceClose(socket);
             serverThread.shutdown(TIMEOUT);
 
-            // independently of the client socket implementation details, we always make sure the
-            // server didn't receive any data during the test
-            Assert.assertFalse("The strict server accepted connection without SSL.",
+                                    Assert.assertFalse("The strict server accepted connection without SSL.",
                                serverThread.receivedAnyDataFromClient());
         }
         Assert.fail("Expected server to hang up the connection. Read from server succeeded unexpectedly.");
     }
 
-    /**
-     * This test makes sure that UnifiedServerSocket used properly (a single
-     * thread accept()-ing connections and handing the resulting sockets to
-     * other threads for processing) is not vulnerable to blocking the
-     * accept() thread while doing mode detection if a misbehaving client
-     * connects. A misbehaving client is one that either disconnects
-     * immediately, or connects but does not send any data.
-     *
-     * This version of the test uses a non-strict server socket (i.e. it
-     * accepts both TLS and plaintext connections).
-     */
+    
     @Test
     public void testTLSDetectionNonBlockingNonStrictServerIdleClient() throws Exception {
         Socket badClientSocket = null;
@@ -451,8 +394,7 @@ public class UnifiedServerSocketTest extends BaseX509ParameterizedTestCase {
         serverThread.start();
 
         try {
-            badClientSocket = connectWithoutSSL(); // Leave the bad client socket idle
-
+            badClientSocket = connectWithoutSSL(); 
             clientSocket = connectWithoutSSL();
             clientSocket.getOutputStream().write(DATA_FROM_CLIENT);
             clientSocket.getOutputStream().flush();
@@ -489,10 +431,7 @@ public class UnifiedServerSocketTest extends BaseX509ParameterizedTestCase {
         }
     }
 
-    /**
-     * Like the above test, but with a strict server socket (closes non-TLS
-     * connections after seeing that there is no handshake).
-     */
+    
     @Test
     public void testTLSDetectionNonBlockingStrictServerIdleClient() throws Exception {
         Socket badClientSocket = null;
@@ -502,8 +441,7 @@ public class UnifiedServerSocketTest extends BaseX509ParameterizedTestCase {
         serverThread.start();
 
         try {
-            badClientSocket = connectWithoutSSL(); // Leave the bad client socket idle
-
+            badClientSocket = connectWithoutSSL(); 
             secureClientSocket = connectWithSSL();
             secureClientSocket.getOutputStream().write(DATA_FROM_CLIENT);
             secureClientSocket.getOutputStream().flush();
@@ -526,10 +464,7 @@ public class UnifiedServerSocketTest extends BaseX509ParameterizedTestCase {
         }
     }
 
-    /**
-     * Similar to the tests above, but the bad client disconnects immediately
-     * without sending any data.
-     */
+    
     @Test
     public void testTLSDetectionNonBlockingNonStrictServerDisconnectedClient() throws Exception {
         Socket clientSocket = null;
@@ -540,8 +475,7 @@ public class UnifiedServerSocketTest extends BaseX509ParameterizedTestCase {
 
         try {
             Socket badClientSocket = connectWithoutSSL();
-            forceClose(badClientSocket); // close the bad client socket immediately
-
+            forceClose(badClientSocket); 
             clientSocket = connectWithoutSSL();
             clientSocket.getOutputStream().write(DATA_FROM_CLIENT);
             clientSocket.getOutputStream().flush();
@@ -577,10 +511,7 @@ public class UnifiedServerSocketTest extends BaseX509ParameterizedTestCase {
         }
     }
 
-    /**
-     * Like the above test, but with a strict server socket (closes non-TLS
-     * connections after seeing that there is no handshake).
-     */
+    
     @Test
     public void testTLSDetectionNonBlockingStrictServerDisconnectedClient() throws Exception {
         Socket secureClientSocket = null;
@@ -590,8 +521,7 @@ public class UnifiedServerSocketTest extends BaseX509ParameterizedTestCase {
 
         try {
             Socket badClientSocket = connectWithoutSSL();
-            forceClose(badClientSocket); // close the bad client socket immediately
-
+            forceClose(badClientSocket); 
             secureClientSocket = connectWithSSL();
             secureClientSocket.getOutputStream().write(DATA_FROM_CLIENT);
             secureClientSocket.getOutputStream().flush();

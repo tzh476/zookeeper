@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.apache.zookeeper.server.quorum;
 
 import java.io.IOException;
@@ -33,10 +16,7 @@ import org.apache.zookeeper.server.ZKDatabase;
 import org.apache.zookeeper.server.ZooKeeperServer;
 import org.apache.zookeeper.server.persistence.FileTxnSnapLog;
 
-/**
- * Abstract base class for all ZooKeeperServers that participate in
- * a quorum.
- */
+
 public abstract class QuorumZooKeeperServer extends ZooKeeperServer {
 
     public final QuorumPeer self;
@@ -58,13 +38,7 @@ public abstract class QuorumZooKeeperServer extends ZooKeeperServer {
 
     public Request checkUpgradeSession(Request request)
             throws IOException, KeeperException {
-        // If this is a request for a local session and it is to
-        // create an ephemeral node, then upgrade the session and return
-        // a new session request for the leader.
-        // This is called by the request processor thread (either follower
-        // or observer request processor), which is unique to a learner.
-        // So will not be called concurrently by two threads.
-        if ((request.type != OpCode.create && request.type != OpCode.create2 && request.type != OpCode.multi) ||
+                                                        if ((request.type != OpCode.create && request.type != OpCode.create2 && request.type != OpCode.multi) ||
             !upgradeableSessionTracker.isLocalSession(request.sessionId)) {
             return null;
         }
@@ -99,8 +73,7 @@ public abstract class QuorumZooKeeperServer extends ZooKeeperServer {
             }
         }
 
-        // Uh oh.  We need to upgrade before we can proceed.
-        if (!self.isLocalSessionsUpgradingEnabled()) {
+                if (!self.isLocalSessionsUpgradingEnabled()) {
             throw new KeeperException.EphemeralOnLocalSessionException();
         }
 
@@ -108,10 +81,7 @@ public abstract class QuorumZooKeeperServer extends ZooKeeperServer {
     }
 
     private Request makeUpgradeRequest(long sessionId) {
-        // Make sure to atomically check local session status, upgrade
-        // session, and make the session creation request.  This is to
-        // avoid another thread upgrading the session in parallel.
-        synchronized (upgradeableSessionTracker) {
+                                synchronized (upgradeableSessionTracker) {
             if (upgradeableSessionTracker.isLocalSession(sessionId)) {
                 int timeout = upgradeableSessionTracker.upgradeSession(sessionId);
                 ByteBuffer to = ByteBuffer.allocate(4);
@@ -123,29 +93,21 @@ public abstract class QuorumZooKeeperServer extends ZooKeeperServer {
         return null;
     }
 
-    /**
-     * Implements the SessionUpgrader interface,
-     *
-     * @param sessionId
-     */
+    
     public void upgrade(long sessionId) {
         Request request = makeUpgradeRequest(sessionId);
         if (request != null) {
             LOG.info("Upgrading session 0x" + Long.toHexString(sessionId));
-            // This must be a global request
-            submitRequest(request);
+                        submitRequest(request);
         }
     }
 
     @Override
     protected void setLocalSessionFlag(Request si) {
-        // We need to set isLocalSession to tree for these type of request
-        // so that the request processor can process them correctly.
-        switch (si.type) {
+                        switch (si.type) {
         case OpCode.createSession:
             if (self.areLocalSessionsEnabled()) {
-                // All new sessions local by default.
-                si.setLocalSession(true);
+                                si.setLocalSession(true);
             }
             break;
         case OpCode.closeSession:

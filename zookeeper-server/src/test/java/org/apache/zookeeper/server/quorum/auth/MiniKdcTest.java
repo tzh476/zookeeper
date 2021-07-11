@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server.quorum.auth;
 
 import org.apache.kerby.kerberos.kerb.keytab.Keytab;
@@ -37,13 +19,7 @@ import java.util.HashSet;
 import java.util.HashMap;
 import java.util.Arrays;
 
-/*
- * This code is originally from HDFS, see the file name TestMiniKdc there
- * in case of bug fixing, history, etc.
- *
- * Branch : trunk
- * Github Revision: 916140604ffef59466ba30832478311d3e6249bd
- */
+
 public class MiniKdcTest extends KerberosSecurityTestcase {
     private static final boolean IBM_JAVA = System.getProperty("java.vendor")
             .contains("IBM");
@@ -144,8 +120,7 @@ public class MiniKdcTest extends KerberosSecurityTestcase {
             Set<Principal> principals = new HashSet<Principal>();
             principals.add(new KerberosPrincipal(principal));
 
-            // client login
-            Subject subject = new Subject(false, principals,
+                        Subject subject = new Subject(false, principals,
                     new HashSet<Object>(), new HashSet<Object>());
             loginContext = new LoginContext("", subject, null,
                     KerberosConfiguration.createClientConfig(principal,
@@ -159,8 +134,7 @@ public class MiniKdcTest extends KerberosSecurityTestcase {
                     subject.getPrincipals().iterator().next().getName());
             loginContext.logout();
 
-            // server login
-            subject = new Subject(false, principals, new HashSet<Object>(),
+                        subject = new Subject(false, principals, new HashSet<Object>(),
                     new HashSet<Object>());
             loginContext = new LoginContext("", subject, null,
                     KerberosConfiguration.createServerConfig(principal,

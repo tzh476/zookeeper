@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.test;
 
 import java.util.HashMap;
@@ -34,12 +16,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Tests learners configured to use local sessions only. Expected
- * behavior is that sessions created on the learner will never be
- * made global.  Operations requiring a global session (e.g.
- * creation of ephemeral nodes) will fail with an error.
- */
+
 public class LocalSessionsOnlyTest extends ZKTestCase {
     protected static final Logger LOG = LoggerFactory
             .getLogger(LocalSessionsOnlyTest.class);
@@ -88,33 +65,26 @@ public class LocalSessionsOnlyTest extends ZKTestCase {
 
         long localSessionId = zk.getSessionId();
 
-        // Try creating some data.
-        for (int i = 0; i < 5; i++) {
+                for (int i = 0; i < 5; i++) {
             zk.create(nodePrefix + i, new byte[0],
                       ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         }
 
-        // Now, try an ephemeral node.  This should fail since we
-        // cannot create ephemeral nodes on a local session.
-        try {
+                        try {
             zk.create(nodePrefix + "ephemeral", new byte[0],
                       ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
             Assert.fail("Ephemeral node creation should fail.");
         } catch (KeeperException.EphemeralOnLocalSessionException e) {
         }
 
-        // Close the session.
-        zk.close();
+                zk.close();
 
-        // Validate data on both follower and leader
-        HashMap<String, Integer> peers = new HashMap<String, Integer>();
+                HashMap<String, Integer> peers = new HashMap<String, Integer>();
         peers.put("leader", leaderIdx);
         peers.put("follower", followerIdx);
         for (Entry<String, Integer> entry: peers.entrySet()) {
             watcher.reset();
-            // Try reconnecting with a new session.
-            // The data should be persisted, even though the session was not.
-            zk = qb.createClient(watcher, hostPorts[entry.getValue()],
+                                    zk = qb.createClient(watcher, hostPorts[entry.getValue()],
                                  CONNECTION_TIMEOUT);
             watcher.waitForConnected(CONNECTION_TIMEOUT);
 
@@ -126,8 +96,7 @@ public class LocalSessionsOnlyTest extends ZKTestCase {
                         zk.exists(nodePrefix + i, null));
             }
 
-            // We may get the correct exception but the txn may go through
-            Assert.assertNull("Data exists in " + entry.getKey(),
+                        Assert.assertNull("Data exists in " + entry.getKey(),
                     zk.exists(nodePrefix + "ephemeral", null));
 
             zk.close();

@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.test;
 
 import java.io.IOException;
@@ -61,8 +43,7 @@ public class ClientHammerTest extends ClientBase {
             byte b[] = new byte[256];
             try {
                 for (; current < count; current++) {
-                    // Simulate a bit of network latency...
-                    Thread.sleep(HAMMERTHREAD_LATENCY);
+                                        Thread.sleep(HAMMERTHREAD_LATENCY);
                     zk.create(prefix + current, b, Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
                 }
             } catch (Throwable t) {
@@ -110,11 +91,7 @@ public class ClientHammerTest extends ClientBase {
         }
     }
 
-    /**
-     * Separate threads each creating a number of nodes. Each thread
-     * is using a non-shared (owned by thread) client for all node creations.
-     * @throws Throwable
-     */
+    
     @Test
     public void testHammerBasic() throws Throwable {
         runHammer(10, 1000);
@@ -146,11 +123,7 @@ public class ClientHammerTest extends ClientBase {
         }
     }
 
-    /**
-     * Separate threads each creating a number of nodes. Each thread
-     * is creating a new client for each node creation.
-     * @throws Throwable
-     */
+    
     @Test
     public void testHammerSuper() throws Throwable {
         try {
@@ -188,8 +161,7 @@ public class ClientHammerTest extends ClientBase {
     public void verifyHammer(long start, HammerThread[] threads, int childCount)
         throws IOException, InterruptedException, KeeperException
     {
-        // look for the clients to finish their create operations
-        LOG.info("Starting check for completed hammers");
+                LOG.info("Starting check for completed hammers");
         int workingCount = threads.length;
         for (int i = 0; i < 120; i++) {
             Thread.sleep(10000);

@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.test;
 
 import static org.apache.zookeeper.test.ClientBase.CONNECTION_TIMEOUT;
@@ -41,9 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * Standalone server tests.
- */
+
 public class StandaloneTest extends QuorumPeerTestBase implements Watcher{
     protected static final Logger LOG =
         LoggerFactory.getLogger(StandaloneTest.class);
@@ -51,15 +31,11 @@ public class StandaloneTest extends QuorumPeerTestBase implements Watcher{
     @Before
     public void setup() {
         System.setProperty("zookeeper.DigestAuthenticationProvider.superDigest",
-                "super:D/InIHSb7yEEbrWz8b9l71RjZJU="/* password is 'test'*/);
+                "super:D/InIHSb7yEEbrWz8b9l71RjZJU=");
         QuorumPeerConfig.setReconfigEnabled(true);
     }
 
-    /**
-     * This test wouldn't create any dynamic config.
-     * However, it adds a "clientPort=XXX" in static config file.
-     * It checks the standard way of standalone mode.
-     */
+    
     @Test
     public void testNoDynamicConfig() throws Exception {
         ClientBase.setupTestEnv();
@@ -70,14 +46,7 @@ public class StandaloneTest extends QuorumPeerTestBase implements Watcher{
         verifyStandalone(mt, CLIENT_PORT);
     }
 
-    /**
-     * This test creates a dynamic config of new format.
-     * The dynamic config is written in dynamic config file.
-     * It checks that the client port will be read from the dynamic config.
-     *
-     * This handles the case of HBase, which adds a single server line to the config.
-     * Maintain b/w compatibility.
-     */
+    
     @Test
     public void testClientPortInDynamicFile() throws Exception {
         ClientBase.setupTestEnv();
@@ -91,11 +60,7 @@ public class StandaloneTest extends QuorumPeerTestBase implements Watcher{
         verifyStandalone(mt, CLIENT_PORT);
     }
 
-    /**
-     * This test creates a dynamic config of new format.
-     * The dynamic config is written in static config file.
-     * It checks that the client port will be read from the dynamic config.
-     */
+    
     @Test
     public void testClientPortInStaticFile() throws Exception {
         ClientBase.setupTestEnv();
@@ -122,10 +87,7 @@ public class StandaloneTest extends QuorumPeerTestBase implements Watcher{
         }
     }
 
-    /**
-     * Verify that reconfiguration in standalone mode fails with
-     * KeeperException.UnimplementedException.
-     */
+    
     @Test
     public void testStandaloneReconfigFails() throws Exception {
         ClientBase.setupTestEnv();
@@ -148,15 +110,13 @@ public class StandaloneTest extends QuorumPeerTestBase implements Watcher{
 
         List<String> joiners = new ArrayList<String>();
         joiners.add("server.2=localhost:1234:1235;1236");
-        // generate some transactions that will get logged
-        try {
+                try {
             zkAdmin.addAuthInfo("digest", "super:test".getBytes());
             zkAdmin.reconfigure(joiners, null, null, -1, new Stat());
             Assert.fail("Reconfiguration in standalone should trigger " +
                         "UnimplementedException");
         } catch (KeeperException.UnimplementedException ex) {
-            // expected
-        }
+                    }
         zk.close();
 
         zks.shutdown();

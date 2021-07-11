@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.test;
 
 import java.io.ByteArrayInputStream;
@@ -89,9 +71,7 @@ public class CnxManagerTest extends ZKTestCase {
         byte requestBytes[] = new byte[28];
         ByteBuffer requestBuffer = ByteBuffer.wrap(requestBytes);
 
-        /*
-         * Building notification packet to send
-         */
+        
 
         requestBuffer.clear();
         requestBuffer.putInt(state);
@@ -220,14 +200,7 @@ public class CnxManagerTest extends ZKTestCase {
         assertFalse(cnxManager.listener.isAlive());
     }
 
-    /**
-     * Tests a bug in QuorumCnxManager that causes a spin lock
-     * when a negative value is sent. This test checks if the
-     * connection is being closed upon a message with negative
-     * length.
-     *
-     * @throws Exception
-     */
+    
     @Test
     public void testCnxManagerSpinLock() throws Exception {
         QuorumPeer peer = new QuorumPeer(peers, peerTmpdir[1], peerTmpdir[1], peerClientPort[1], 3, 1, 1000, 2, 2);
@@ -266,10 +239,7 @@ public class CnxManagerTest extends ZKTestCase {
         Thread.sleep(1000);
 
         try{
-            /*
-             * Write a number of times until it
-             * detects that the socket is broken.
-             */
+            
             for(int i = 0; i < 100; i++){
                 msgBuffer.position(0);
                 sc.write(msgBuffer);
@@ -283,13 +253,7 @@ public class CnxManagerTest extends ZKTestCase {
         assertFalse(cnxManager.listener.isAlive());
     }
 
-    /**
-     * Test for bug described in {@link https://issues.apache.org/jira/browse/ZOOKEEPER-3320}.
-     * Test create peer with address which contains unresolvable DNS name,
-     * leader election listener thread should stop after N errors.
-     *
-     * @throws Exception
-     */
+    
     @Test
     public void testCnxManagerListenerThreadConfigurableRetry() throws Exception {
         final Map<Long,QuorumServer> unresolvablePeers = new HashMap<>();
@@ -304,26 +268,16 @@ public class CnxManagerTest extends ZKTestCase {
         final AtomicBoolean errorHappend = new AtomicBoolean();
         listener.setSocketBindErrorHandler(() -> errorHappend.set(true));
         listener.start();
-        // listener thread should stop and throws error which notify QuorumPeer about error.
-        // QuorumPeer should start shutdown process
-        listener.join(15000); // set wait time, if listener contains bug and thread not stops.
-        assertFalse(listener.isAlive());
+                        listener.join(15000);         assertFalse(listener.isAlive());
         Assert.assertTrue(errorHappend.get());
         assertFalse(QuorumPeer.class.getSimpleName() + " not stopped after "
                            + "listener thread death", listener.isAlive());
     }
 
-    /**
-     * Tests a bug in QuorumCnxManager that causes a NPE when a 3.4.6
-     * observer connects to a 3.5.0 server. 
-     * {@link https://issues.apache.org/jira/browse/ZOOKEEPER-1789}
-     * 
-     * @throws Exception
-     */
+    
     @Test
     public void testCnxManagerNPE() throws Exception {
-        // the connecting peer (id = 2) is a 3.4.6 observer
-        peers.get(2L).type = LearnerType.OBSERVER;
+                peers.get(2L).type = LearnerType.OBSERVER;
         QuorumPeer peer = new QuorumPeer(peers, peerTmpdir[1], peerTmpdir[1],
                 peerClientPort[1], 3, 1, 1000, 2, 2);
         QuorumCnxManager cnxManager = peer.createCnxnManager();
@@ -341,10 +295,7 @@ public class CnxManagerTest extends ZKTestCase {
         SocketChannel sc = SocketChannel.open();
         sc.socket().connect(peers.get(1L).electionAddr, 5000);
 
-        /*
-         * Write id (3.4.6 protocol). This previously caused a NPE in
-         * QuorumCnxManager.
-         */
+        
         byte[] msgBytes = new byte[8];
         ByteBuffer msgBuffer = ByteBuffer.wrap(msgBytes);
         msgBuffer.putLong(2L);
@@ -352,10 +303,8 @@ public class CnxManagerTest extends ZKTestCase {
         sc.write(msgBuffer);
 
         msgBuffer = ByteBuffer.wrap(new byte[8]);
-        // write length of message
-        msgBuffer.putInt(4);
-        // write message
-        msgBuffer.putInt(5);
+                msgBuffer.putInt(4);
+                msgBuffer.putInt(5);
         msgBuffer.position(0);
         sc.write(msgBuffer);
 
@@ -367,9 +316,7 @@ public class CnxManagerTest extends ZKTestCase {
         assertFalse(cnxManager.listener.isAlive());
     }
 
-    /*
-     * Test if a receiveConnection is able to timeout on socket errors
-     */
+    
     @Test
     public void testSocketTimeout() throws Exception {
         QuorumPeer peer = new QuorumPeer(peers, peerTmpdir[1], peerTmpdir[1], peerClientPort[1], 3, 1, 2000, 2, 2);
@@ -387,17 +334,14 @@ public class CnxManagerTest extends ZKTestCase {
         Socket sock = new Socket();
         sock.connect(peers.get(1L).electionAddr, 5000);
         long begin = Time.currentElapsedTime();
-        // Read without sending data. Verify timeout.
-        cnxManager.receiveConnection(sock);
+                cnxManager.receiveConnection(sock);
         long end = Time.currentElapsedTime();
         if((end - begin) > ((peer.getSyncLimit() * peer.getTickTime()) + 500)) Assert.fail("Waited more than necessary");
         cnxManager.halt();
         assertFalse(cnxManager.listener.isAlive());
     }
 
-    /*
-     * Test if Worker threads are getting killed after connection loss
-     */
+    
     @Test
     public void testWorkerThreads() throws Exception {
         ArrayList<QuorumPeer> peerList = new ArrayList<QuorumPeer>();
@@ -414,16 +358,14 @@ public class CnxManagerTest extends ZKTestCase {
             Assert.assertNull(failure, failure);
             for (int myid = 0; myid < 3; myid++) {
                 for (int i = 0; i < 5; i++) {
-                    // halt one of the listeners and verify count
-                    QuorumPeer peer = peerList.get(myid);
+                                        QuorumPeer peer = peerList.get(myid);
                     LOG.info("Round {}, halting peer ",
                             new Object[] { i, peer.getId() });
                     peer.shutdown();
                     peerList.remove(myid);
                     failure = verifyThreadCount(peerList, 2);
                     Assert.assertNull(failure, failure);
-                    // Restart halted node and verify count
-                    peer = new QuorumPeer(peers, peerTmpdir[myid],
+                                        peer = new QuorumPeer(peers, peerTmpdir[myid],
                             peerTmpdir[myid], peerClientPort[myid], 3, myid,
                             1000, 2, 2);
                     LOG.info("Round {}, restarting peer ",
@@ -441,10 +383,7 @@ public class CnxManagerTest extends ZKTestCase {
         }
     }
 
-    /**
-     * Returns null on success, otw the message assoc with the failure
-     * @throws InterruptedException
-     */
+    
     public String verifyThreadCount(ArrayList<QuorumPeer> peerList, long ecnt)
         throws InterruptedException
     {
@@ -481,31 +420,25 @@ public class CnxManagerTest extends ZKTestCase {
         DataOutputStream dout;
         String hostport;
 
-        // message with bad protocol version
-        try {
+                try {
 
-            // the initial message (without the protocol version)
-            hostport = "10.0.0.2:3888";
+                        hostport = "10.0.0.2:3888";
             bos = new ByteArrayOutputStream();
             dout = new DataOutputStream(bos);
-            dout.writeLong(5L); // sid
-            dout.writeInt(hostport.getBytes().length);
+            dout.writeLong(5L);             dout.writeInt(hostport.getBytes().length);
             dout.writeBytes(hostport);
 
-            // now parse it
-            din = new DataInputStream(new ByteArrayInputStream(bos.toByteArray()));
+                        din = new DataInputStream(new ByteArrayInputStream(bos.toByteArray()));
             msg = InitialMessage.parse(-65530L, din);
             Assert.fail("bad protocol version accepted");
         } catch (InitialMessage.InitialMessageException ex) {}
 
-        // message too long
-        try {
+                try {
 
             hostport = createLongString(1048576);
             bos = new ByteArrayOutputStream();
             dout = new DataOutputStream(bos);
-            dout.writeLong(5L); // sid
-            dout.writeInt(hostport.getBytes().length);
+            dout.writeLong(5L);             dout.writeInt(hostport.getBytes().length);
             dout.writeBytes(hostport);
 
             din = new DataInputStream(new ByteArrayInputStream(bos.toByteArray()));
@@ -513,14 +446,12 @@ public class CnxManagerTest extends ZKTestCase {
             Assert.fail("long message accepted");
         } catch (InitialMessage.InitialMessageException ex) {}
 
-        // bad hostport string
-        try {
+                try {
 
             hostport = "what's going on here?";
             bos = new ByteArrayOutputStream();
             dout = new DataOutputStream(bos);
-            dout.writeLong(5L); // sid
-            dout.writeInt(hostport.getBytes().length);
+            dout.writeLong(5L);             dout.writeInt(hostport.getBytes().length);
             dout.writeBytes(hostport);
 
             din = new DataInputStream(new ByteArrayInputStream(bos.toByteArray()));
@@ -528,18 +459,15 @@ public class CnxManagerTest extends ZKTestCase {
             Assert.fail("bad hostport accepted");
         } catch (InitialMessage.InitialMessageException ex) {}
 
-        // good message
-        try {
+                try {
 
             hostport = "10.0.0.2:3888";
             bos = new ByteArrayOutputStream();
             dout = new DataOutputStream(bos);
-            dout.writeLong(5L); // sid
-            dout.writeInt(hostport.getBytes().length);
+            dout.writeLong(5L);             dout.writeInt(hostport.getBytes().length);
             dout.writeBytes(hostport);
 
-            // now parse it
-            din = new DataInputStream(new ByteArrayInputStream(bos.toByteArray()));
+                        din = new DataInputStream(new ByteArrayInputStream(bos.toByteArray()));
             msg = InitialMessage.parse(QuorumCnxManager.PROTOCOL_VERSION, din);
         } catch (InitialMessage.InitialMessageException ex) {
             Assert.fail(ex.toString());

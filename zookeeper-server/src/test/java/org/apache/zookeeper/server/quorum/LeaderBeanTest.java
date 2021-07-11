@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server.quorum;
 
 import org.apache.jute.OutputArchive;
@@ -100,32 +82,25 @@ public class LeaderBeanTest {
 
     @Test
     public void testGetCurrentZxid() {
-        // Arrange
-        zks.setZxid(1);
+                zks.setZxid(1);
 
-        // Assert
-        assertEquals("0x1", leaderBean.getCurrentZxid());
+                assertEquals("0x1", leaderBean.getCurrentZxid());
     }
 
     @Test
     public void testGetElectionTimeTaken() {
-        // Arrange
-        qp.setElectionTimeTaken(1);
+                qp.setElectionTimeTaken(1);
 
-        // Assert
-        assertEquals(1, leaderBean.getElectionTimeTaken());
+                assertEquals(1, leaderBean.getElectionTimeTaken());
     }
 
     @Test
     public void testGetProposalSize() throws IOException, Leader.XidRolloverException {
-        // Arrange
-        Request req = createMockRequest();
+                Request req = createMockRequest();
 
-        // Act
-        leader.propose(req);
+                leader.propose(req);
 
-        // Assert
-        byte[] data = SerializeUtils.serializeRequest(req);
+                byte[] data = SerializeUtils.serializeRequest(req);
         assertEquals(data.length, leaderBean.getLastProposalSize());
         assertEquals(data.length, leaderBean.getMinProposalSize());
         assertEquals(data.length, leaderBean.getMaxProposalSize());
@@ -133,15 +108,12 @@ public class LeaderBeanTest {
 
     @Test
     public void testResetProposalStats() throws IOException, Leader.XidRolloverException {
-        // Arrange
-        int initialProposalSize = leaderBean.getLastProposalSize();
+                int initialProposalSize = leaderBean.getLastProposalSize();
         Request req = createMockRequest();
 
-        // Act
-        leader.propose(req);
+                leader.propose(req);
 
-        // Assert
-        assertNotEquals(initialProposalSize, leaderBean.getLastProposalSize());
+                assertNotEquals(initialProposalSize, leaderBean.getLastProposalSize());
         leaderBean.resetProposalStatistics();
         assertEquals(initialProposalSize, leaderBean.getLastProposalSize());
         assertEquals(initialProposalSize, leaderBean.getMinProposalSize());

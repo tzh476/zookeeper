@@ -1,21 +1,3 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.test;
 
 import static org.apache.zookeeper.client.ZKClientConfig.ENABLE_CLIENT_SASL_KEY;
@@ -116,28 +98,21 @@ public class SaslKerberosAuthOverSSLTest extends ClientBase {
 
     public void initSaslConfig() throws Exception {
 
-        // registering the server and client users in the KDC mini server
-        keytabFileForKerberosPrincipals = new File(KerberosTestUtils.getKeytabFile());
+                keytabFileForKerberosPrincipals = new File(KerberosTestUtils.getKeytabFile());
         String clientPrincipal = KerberosTestUtils.getClientPrincipal();
         String serverPrincipal = KerberosTestUtils.getServerPrincipal();
         clientPrincipal = clientPrincipal.substring(0, clientPrincipal.lastIndexOf("@"));
         serverPrincipal = serverPrincipal.substring(0, serverPrincipal.lastIndexOf("@"));
         kdc.createPrincipal(keytabFileForKerberosPrincipals, clientPrincipal, serverPrincipal);
 
-        // client-side SASL config
-        System.setProperty(ZOOKEEPER_SERVER_PRINCIPAL, KerberosTestUtils.getServerPrincipal());
+                System.setProperty(ZOOKEEPER_SERVER_PRINCIPAL, KerberosTestUtils.getServerPrincipal());
         System.setProperty(ENABLE_CLIENT_SASL_KEY, "true");
         System.setProperty(ZOOKEEPER_SERVER_REALM, KerberosTestUtils.getRealm());
         System.setProperty(LOGIN_CONTEXT_NAME_KEY, "ClientUsingKerberos");
 
-        // server side SASL config
-        System.setProperty("zookeeper.authProvider.1", "org.apache.zookeeper.server.auth.SASLAuthenticationProvider");
+                System.setProperty("zookeeper.authProvider.1", "org.apache.zookeeper.server.auth.SASLAuthenticationProvider");
 
-        // generating the SASL config to use (contains sections both for the client and the server)
-        // note: we use "refreshKrb5Config=true" to refresh the kerberos config in the JVM,
-        // making sure that we use the latest config even if other tests already have been executed
-        // and initialized the kerberos client configs before)
-        try {
+                                        try {
             File tmpDir = createTmpDir();
             saslConfFile = new File(tmpDir, "jaas.conf");
             PrintWriter saslConf = new PrintWriter(new FileWriter(saslConfFile));
@@ -170,9 +145,7 @@ public class SaslKerberosAuthOverSSLTest extends ClientBase {
             LOG.error("could not create tmp directory to hold JAAS conf file, test will fail...", e);
         }
 
-        // refresh the SASL configuration in this JVM (making sure that we use the latest config
-        // even if other tests already have been executed and initialized the SASL configs before)
-        Configuration.getConfiguration().refresh();
+                        Configuration.getConfiguration().refresh();
     }
 
     public void clearSaslConfig() {

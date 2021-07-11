@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.test;
 
 import static org.apache.zookeeper.test.ClientBase.CONNECTION_TIMEOUT;
@@ -45,19 +27,7 @@ public class ACLCountTest extends ZKTestCase{
     private static final String HOSTPORT =
         "127.0.0.1:" + PortAssignment.unique();
 
-    /**
-     *
-     * Create a node and add 4 ACL values to it, but there are only 2 unique ACL values,
-     * and each is repeated once:
-     *
-     *   ACL(ZooDefs.Perms.READ,ZooDefs.Ids.ANYONE_ID_UNSAFE);
-     *   ACL(ZooDefs.Perms.ALL,ZooDefs.Ids.AUTH_IDS);
-     *   ACL(ZooDefs.Perms.READ,ZooDefs.Ids.ANYONE_ID_UNSAFE);
-     *   ACL(ZooDefs.Perms.ALL,ZooDefs.Ids.AUTH_IDS);
-     *
-     * Even though we've added 4 ACL values, there should only be 2 ACLs for that node,
-     * since there are only 2 *unique* ACL values.
-     */
+    
     @Test
     public void testAclCount() throws Exception {
         File tmpDir = ClientBase.createTmpDir();
@@ -101,8 +71,7 @@ public class ACLCountTest extends ZKTestCase{
             Assert.assertEquals(2,acls.size());
         }
         catch (Exception e) {
-          // test failed somehow.
-          Assert.assertTrue(false);
+                    Assert.assertTrue(false);
         }
 
         f.shutdown();

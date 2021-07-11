@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server.quorum;
 
 import java.io.IOException;
@@ -28,10 +10,7 @@ import org.apache.zookeeper.txn.ErrorTxn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Responsible for performing local session upgrade. Only request submitted
- * directly to the leader should go through this processor.
- */
+
 public class LeaderRequestProcessor implements RequestProcessor {
     private static final Logger LOG = LoggerFactory
             .getLogger(LeaderRequestProcessor.class);
@@ -49,9 +28,7 @@ public class LeaderRequestProcessor implements RequestProcessor {
     @Override
     public void processRequest(Request request)
             throws RequestProcessorException {
-        // Check if this is a local session and we are trying to create
-        // an ephemeral node, in which case we upgrade the session
-        Request upgradeRequest = null;
+                        Request upgradeRequest = null;
         try {
             upgradeRequest = lzks.checkUpgradeSession(request);
         } catch (KeeperException ke) {

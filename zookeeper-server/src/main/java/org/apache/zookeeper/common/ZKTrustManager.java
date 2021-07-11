@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.apache.zookeeper.common;
 
 import org.slf4j.Logger;
@@ -29,12 +12,7 @@ import java.net.UnknownHostException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-/**
- * A custom TrustManager that supports hostname verification via org.apache.http.conn.ssl.DefaultHostnameVerifier.
- *
- * We attempt to perform verification using just the IP address first and if that fails will attempt to perform a
- * reverse DNS lookup and verify using the hostname.
- */
+
 public class ZKTrustManager extends X509ExtendedTrustManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(ZKTrustManager.class);
@@ -45,15 +23,7 @@ public class ZKTrustManager extends X509ExtendedTrustManager {
 
     private ZKHostnameVerifier hostnameVerifier;
 
-    /**
-     * Instantiate a new ZKTrustManager.
-     *
-     * @param x509ExtendedTrustManager The trustmanager to use for checkClientTrusted/checkServerTrusted logic
-     * @param serverHostnameVerificationEnabled  If true, this TrustManager should verify hostnames of servers that this
-     *                                 instance connects to.
-     * @param clientHostnameVerificationEnabled  If true, the hostname of a client connecting to this machine will be
-     *                                           verified.
-     */
+    
     ZKTrustManager(X509ExtendedTrustManager x509ExtendedTrustManager, boolean serverHostnameVerificationEnabled,
                    boolean clientHostnameVerificationEnabled) {
         this.x509ExtendedTrustManager = x509ExtendedTrustManager;
@@ -118,14 +88,7 @@ public class ZKTrustManager extends X509ExtendedTrustManager {
         x509ExtendedTrustManager.checkServerTrusted(chain, authType);
     }
 
-    /**
-     * Compares peer's hostname with the one stored in the provided client certificate. Performs verification
-     * with the help of provided HostnameVerifier.
-     *
-     * @param inetAddress Peer's inet address.
-     * @param certificate Peer's certificate
-     * @throws CertificateException Thrown if the provided certificate doesn't match the peer hostname.
-     */
+    
     private void performHostVerification(InetAddress inetAddress, X509Certificate certificate)
             throws CertificateException {
         String hostAddress = "";

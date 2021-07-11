@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.test;
 
 import static org.apache.zookeeper.test.ClientBase.CONNECTION_TIMEOUT;
@@ -49,18 +31,7 @@ public class RecoveryTest extends ZKTestCase implements Watcher {
 
     private volatile CountDownLatch startSignal;
 
-    /**
-     * Verify that if a server goes down that clients will reconnect
-     * automatically after the server is restarted. Note that this requires the
-     * server to restart within the connection timeout period.
-     *
-     * Also note that the client latches are used to eliminate any chance
-     * of spurrious connectionloss exceptions on the read ops. Specifically
-     * a sync operation will throw this exception if the server goes down
-     * (as recognized by the client) during the operation. If the operation
-     * occurs after the server is down, but before the client recognizes
-     * that the server is down (ping) then the op will throw connectionloss.
-     */
+    
     @Test
     public void testRecovery() throws Exception {
         File tmpDir = ClientBase.createTmpDir();
@@ -193,11 +164,7 @@ public class RecoveryTest extends ZKTestCase implements Watcher {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.apache.zookeeper.Watcher#process(org.apache.zookeeper.WatcherEvent)
-     */
+    
     public void process(WatchedEvent event) {
         LOG.info("Event:" + event.getState() + " " + event.getType() + " " + event.getPath());
         if (event.getState() == KeeperState.SyncConnected

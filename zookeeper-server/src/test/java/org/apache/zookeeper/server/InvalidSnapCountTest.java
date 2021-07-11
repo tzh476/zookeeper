@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server;
 
 import static org.apache.zookeeper.test.ClientBase.CONNECTION_TIMEOUT;
@@ -35,10 +17,7 @@ import org.apache.zookeeper.test.ClientBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * Test stand-alone server.
- *
- */
+
 public class InvalidSnapCountTest extends ZKTestCase implements Watcher {
     protected static final Logger LOG =
         LoggerFactory.getLogger(InvalidSnapCountTest.class);
@@ -63,8 +42,7 @@ public class InvalidSnapCountTest extends ZKTestCase implements Watcher {
                 throw new IOException("unable to mkdir " + dataDir);
             }
             
-            // Convert windows path to UNIX to avoid problems with "\"
-            String dir = PathUtils.normalizeFileSystemPath(dataDir.toString());
+                        String dir = PathUtils.normalizeFileSystemPath(dataDir.toString());
             fwriter.write("dataDir=" + dir + "\n");
             
             fwriter.write("clientPort=" + clientPort + "\n");
@@ -80,8 +58,7 @@ public class InvalidSnapCountTest extends ZKTestCase implements Watcher {
             try {
                 main.initializeAndRun(args);
             } catch (Exception e) {
-                // test will still fail even though we just log/ignore
-                LOG.error("unexpected exception in run", e);
+                                LOG.error("unexpected exception in run", e);
             }
         }
 
@@ -96,9 +73,7 @@ public class InvalidSnapCountTest extends ZKTestCase implements Watcher {
         }
     }
 
-    /**
-     * Verify the ability to start a standalone server instance.
-     */
+    
     @Test
     public void testInvalidSnapCount() throws Exception {
 
@@ -118,6 +93,5 @@ public class InvalidSnapCountTest extends ZKTestCase implements Watcher {
     }
 
     public void process(WatchedEvent event) {
-        // ignore for this test
-    }
+            }
 }

@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server.util;
 
 import org.apache.jute.BinaryInputArchive;
@@ -63,9 +45,7 @@ public class SerializeUtils {
         Record txn = null;
         switch (hdr.getType()) {
         case OpCode.createSession:
-            // This isn't really an error txn; it just has the same
-            // format. The error represents the timeout
-            txn = new CreateSessionTxn();
+                                    txn = new CreateSessionTxn();
             break;
         case OpCode.closeSession:
             return null;
@@ -103,15 +83,12 @@ public class SerializeUtils {
             try {
                 txn.deserialize(ia, "txn");
             } catch(EOFException e) {
-                // perhaps this is a V0 Create
-                if (hdr.getType() == OpCode.create) {
+                                if (hdr.getType() == OpCode.create) {
                     CreateTxn create = (CreateTxn)txn;
                     bais.reset();
                     CreateTxnV0 createv0 = new CreateTxnV0();
                     createv0.deserialize(ia, "txn");
-                    // cool now make it V1. a -1 parentCVersion will
-                    // trigger fixup processing in processTxn
-                    create.setPath(createv0.getPath());
+                                                            create.setPath(createv0.getPath());
                     create.setData(createv0.getData());
                     create.setAcl(createv0.getAcl());
                     create.setEphemeral(createv0.getEphemeral());

@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.test;
 
 import org.apache.zookeeper.CreateMode;
@@ -49,14 +31,12 @@ public class SaslAuthFailTest extends ClientBase {
                     "Client {\n" +
                     "       org.apache.zookeeper.server.auth.DigestLoginModule required\n" +
                     "       username=\"super\"\n" +
-                    "       password=\"test1\";\n" + // NOTE: wrong password ('test' != 'test1') : this is to test SASL authentication failure.
-                    "};" + "\n");
+                    "       password=\"test1\";\n" +                     "};" + "\n");
             fwriter.close();
             System.setProperty("java.security.auth.login.config",saslConfFile.getAbsolutePath());
         }
         catch (IOException e) {
-            // could not create tmp directory to hold JAAS conf file.
-        }
+                    }
     }
 
     private CountDownLatch authFailed = new CountDownLatch(1);
@@ -79,16 +59,14 @@ public class SaslAuthFailTest extends ClientBase {
             zk.create("/path1", null, Ids.CREATOR_ALL_ACL, CreateMode.PERSISTENT);
             Assert.fail("Should have gotten exception.");
         } catch (Exception e) {
-            // ok, exception as expected.
-            LOG.info("Got exception as expected: " + e);
+                        LOG.info("Got exception as expected: " + e);
         }
     }
 
     @Test
     public void testBadSaslAuthNotifiesWatch() throws Exception {
         try (ZooKeeper ignored = createClient(new MyWatcher(), hostPort)) {
-            // wait for authFailed event from client's EventThread.
-            authFailed.await();
+                        authFailed.await();
         }
     }
 }

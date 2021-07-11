@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.util;
 
 import java.io.ByteArrayInputStream;
@@ -53,38 +35,17 @@ import static java.util.Base64.getMimeDecoder;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static javax.crypto.Cipher.DECRYPT_MODE;
 
-/**
- * Note: this class is copied from io.airlift.security.pem.PemReader (see
- * https://github.com/airlift/airlift/blob/master/security/src/main/java/io/airlift/security/pem/PemReader.java) with
- * permission of the authors, to avoid adding an extra library dependency to Zookeeper.
- * The file was copied from commit hash 86348546af43217f4d04a0cdad624b0ae4751c2c.
- *
- * The following modifications have been made to the original source code:
- * <ul>
- * <li>imports have been rearranged to match Zookeeper import order style.</li>
- * <li>The dependency on <code>com.google.common.io.Files.asCharSource</code> has been removed.</li>
- * <li>A dependency on <code>java.nio.file.Files</code> has been added.</li>
- * </ul>
- */
+
 public final class PemReader
 {
     private static final Pattern CERT_PATTERN = Pattern.compile(
-            "-+BEGIN\\s+.*CERTIFICATE[^-]*-+(?:\\s|\\r|\\n)+" + // Header
-                    "([a-z0-9+/=\\r\\n]+)" +                    // Base64 text
-                    "-+END\\s+.*CERTIFICATE[^-]*-+",            // Footer
-            CASE_INSENSITIVE);
+            "-+BEGIN\\s+.*CERTIFICATE[^-]*-+(?:\\s|\\r|\\n)+" +                     "([a-z0-9+/=\\r\\n]+)" +                                        "-+END\\s+.*CERTIFICATE[^-]*-+",                        CASE_INSENSITIVE);
 
     private static final Pattern PRIVATE_KEY_PATTERN = Pattern.compile(
-            "-+BEGIN\\s+.*PRIVATE\\s+KEY[^-]*-+(?:\\s|\\r|\\n)+" + // Header
-                    "([a-z0-9+/=\\r\\n]+)" +                       // Base64 text
-                    "-+END\\s+.*PRIVATE\\s+KEY[^-]*-+",            // Footer
-            CASE_INSENSITIVE);
+            "-+BEGIN\\s+.*PRIVATE\\s+KEY[^-]*-+(?:\\s|\\r|\\n)+" +                     "([a-z0-9+/=\\r\\n]+)" +                                           "-+END\\s+.*PRIVATE\\s+KEY[^-]*-+",                        CASE_INSENSITIVE);
 
     private static final Pattern PUBLIC_KEY_PATTERN = Pattern.compile(
-            "-+BEGIN\\s+.*PUBLIC\\s+KEY[^-]*-+(?:\\s|\\r|\\n)+" + // Header
-                    "([a-z0-9+/=\\r\\n]+)" +                      // Base64 text
-                    "-+END\\s+.*PUBLIC\\s+KEY[^-]*-+",            // Footer
-            CASE_INSENSITIVE);
+            "-+BEGIN\\s+.*PUBLIC\\s+KEY[^-]*-+(?:\\s|\\r|\\n)+" +                     "([a-z0-9+/=\\r\\n]+)" +                                          "-+END\\s+.*PUBLIC\\s+KEY[^-]*-+",                        CASE_INSENSITIVE);
 
     private PemReader() {}
 
@@ -173,9 +134,7 @@ public final class PemReader
             encodedKeySpec = new PKCS8EncodedKeySpec(encodedKey);
         }
 
-        // this code requires a key in PKCS8 format which is not the default openssl format
-        // to convert to the PKCS8 format you use : openssl pkcs8 -topk8 ...
-        try {
+                        try {
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             return keyFactory.generatePrivate(encodedKeySpec);
         }

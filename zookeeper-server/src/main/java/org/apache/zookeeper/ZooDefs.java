@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -105,34 +87,23 @@ public class ZooDefs {
 
     @InterfaceAudience.Public
     public interface Ids {
-        /**
-         * This Id represents anyone.
-         */
+        
         public final Id ANYONE_ID_UNSAFE = new Id("world", "anyone");
 
-        /**
-         * This Id is only usable to set ACLs. It will get substituted with the
-         * Id's the client authenticated with.
-         */
+        
         public final Id AUTH_IDS = new Id("auth", "");
 
-        /**
-         * This is a completely open ACL .
-         */
+        
         @SuppressFBWarnings(value = "MS_MUTABLE_COLLECTION", justification = "Cannot break API")
         public final ArrayList<ACL> OPEN_ACL_UNSAFE = new ArrayList<ACL>(
                 Collections.singletonList(new ACL(Perms.ALL, ANYONE_ID_UNSAFE)));
 
-        /**
-         * This ACL gives the creators authentication id's all permissions.
-         */
+        
         @SuppressFBWarnings(value = "MS_MUTABLE_COLLECTION", justification = "Cannot break API")
         public final ArrayList<ACL> CREATOR_ALL_ACL = new ArrayList<ACL>(
                 Collections.singletonList(new ACL(Perms.ALL, AUTH_IDS)));
 
-        /**
-         * This ACL gives the world the ability to read.
-         */
+        
         @SuppressFBWarnings(value = "MS_MUTABLE_COLLECTION", justification = "Cannot break API")
         public final ArrayList<ACL> READ_ACL_UNSAFE = new ArrayList<ACL>(
                 Collections

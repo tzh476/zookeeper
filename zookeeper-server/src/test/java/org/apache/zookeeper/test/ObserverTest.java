@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.test;
 
 import static org.apache.zookeeper.test.ClientBase.CONNECTION_TIMEOUT;
@@ -45,19 +27,11 @@ public class ObserverTest extends QuorumPeerTestBase implements Watcher{
     ZooKeeper zk;
     WatchedEvent lastEvent = null;
           
-    /**
-     * This test ensures two things:
-     * 1. That Observers can successfully proxy requests to the ensemble.
-     * 2. That Observers don't participate in leader elections.
-     * The second is tested by constructing an ensemble where a leader would
-     * be elected if and only if an Observer voted. 
-     * @throws Exception
-     */
+    
     @Test
     public void testObserver() throws Exception {
         ClientBase.setupTestEnv();
-        // We expect two notifications before we want to continue        
-        latch = new CountDownLatch(2);
+                latch = new CountDownLatch(2);
         
         final int PORT_QP1 = PortAssignment.unique();
         final int PORT_QP2 = PortAssignment.unique();
@@ -100,19 +74,16 @@ public class ObserverTest extends QuorumPeerTestBase implements Watcher{
         zk.create("/obstest", "test".getBytes(),Ids.OPEN_ACL_UNSAFE,
                 CreateMode.PERSISTENT);
         
-        // Assert that commands are getting forwarded correctly
-        Assert.assertEquals(new String(zk.getData("/obstest", null, null)), "test");
+                Assert.assertEquals(new String(zk.getData("/obstest", null, null)), "test");
         
-        // Now check that other commands don't blow everything up
-        zk.sync("/", null, null);
+                zk.sync("/", null, null);
         zk.setData("/obstest", "test2".getBytes(), -1);
         zk.getChildren("/", false);
         
         Assert.assertEquals(zk.getState(), States.CONNECTED);
         
         LOG.info("Shutting down server 2");
-        // Now kill one of the other real servers        
-        q2.shutdown();
+                q2.shutdown();
                 
         Assert.assertTrue("Waiting for server 2 to shut down",
                     ClientBase.waitForServerDown("127.0.0.1:"+CLIENT_PORT_QP2, 
@@ -120,8 +91,7 @@ public class ObserverTest extends QuorumPeerTestBase implements Watcher{
 
         LOG.info("Server 2 down");
 
-        // Now the resulting ensemble shouldn't be quorate         
-        latch.await();        
+                latch.await();        
         Assert.assertNotSame("Client is still connected to non-quorate cluster", 
                 KeeperState.SyncConnected,lastEvent.getState());
 
@@ -139,8 +109,7 @@ public class ObserverTest extends QuorumPeerTestBase implements Watcher{
 
         LOG.info("Restarting server 2");
 
-        // Bring it back
-        q2 = new MainThread(2, CLIENT_PORT_QP2, quorumCfgSection);
+                q2 = new MainThread(2, CLIENT_PORT_QP2, quorumCfgSection);
         q2.start();
         
         LOG.info("Waiting for server 2 to come up");
@@ -151,9 +120,7 @@ public class ObserverTest extends QuorumPeerTestBase implements Watcher{
         LOG.info("Server 2 started, waiting for latch");
 
         latch.await();
-        // It's possible our session expired - but this is ok, shows we 
-        // were able to talk to the ensemble
-        Assert.assertTrue("Client didn't reconnect to quorate ensemble (state was" +
+                        Assert.assertTrue("Client didn't reconnect to quorate ensemble (state was" +
                 lastEvent.getState() + ")",
                 (KeeperState.SyncConnected==lastEvent.getState() ||
                 KeeperState.Expired==lastEvent.getState())); 
@@ -179,20 +146,14 @@ public class ObserverTest extends QuorumPeerTestBase implements Watcher{
     
     }
     
-    /**
-     * Implementation of watcher interface.
-     */
+    
     public void process(WatchedEvent event) {
         lastEvent = event;
         latch.countDown();
         LOG.info("Latch got event :: " + event);        
     }    
     
-    /**
-     * This test ensures that an Observer does not elect itself as a leader, or
-     * indeed come up properly, if it is the lone member of an ensemble.
-     * @throws Exception
-     */
+    
     @Test
     public void testObserverOnly() throws Exception {
         ClientBase.setupTestEnv();
@@ -208,10 +169,7 @@ public class ObserverTest extends QuorumPeerTestBase implements Watcher{
         Assert.assertFalse(q1.isAlive());
     }    
     
-    /**
-     * Ensure that observer only comes up when a proper ensemble is configured.
-     * (and will not come up with standalone server).
-     */
+    
     @Test
     public void testObserverWithStandlone() throws Exception {
         ClientBase.setupTestEnv();

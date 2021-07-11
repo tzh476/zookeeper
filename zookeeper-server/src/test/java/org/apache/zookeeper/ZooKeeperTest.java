@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.apache.zookeeper;
 
 import static org.junit.Assert.*;
@@ -39,11 +22,7 @@ import org.apache.zookeeper.test.ClientBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- *
- * Testing ZooKeeper public methods
- *
- */
+
 public class ZooKeeperTest extends ClientBase {
 
     private static final String LINE_SEPARATOR = System.getProperty("line.separator", "\n");
@@ -51,8 +30,7 @@ public class ZooKeeperTest extends ClientBase {
     @Test
     public void testDeleteRecursive() throws IOException, InterruptedException, CliException, KeeperException {
         final ZooKeeper zk = createClient();
-        // making sure setdata works on /
-        zk.setData("/", "some".getBytes(), -1);
+                zk.setData("/", "some".getBytes(), -1);
         zk.create("/a", "some".getBytes(), Ids.OPEN_ACL_UNSAFE,
                 CreateMode.PERSISTENT);
 
@@ -79,9 +57,7 @@ public class ZooKeeperTest extends ClientBase {
         Assert.assertTrue(children.contains("c"));
 
         ZooKeeperMain zkMain = new ZooKeeperMain(zk);
-        // 'rmr' is deprecated, so the test here is just for backwards
-        // compatibility.
-        String cmdstring0 = "rmr /a/b/v";
+                        String cmdstring0 = "rmr /a/b/v";
         String cmdstring1 = "deleteall /a";
         zkMain.cl.parseCommand(cmdstring0);
         Assert.assertFalse(zkMain.processZKCmd(zkMain.cl));
@@ -95,8 +71,7 @@ public class ZooKeeperTest extends ClientBase {
     public void testDeleteRecursiveAsync() throws IOException,
             InterruptedException, KeeperException {
         final ZooKeeper zk = createClient();
-        // making sure setdata works on /
-        zk.setData("/", "some".getBytes(), -1);
+                zk.setData("/", "some".getBytes(), -1);
         zk.create("/a", "some".getBytes(), Ids.OPEN_ACL_UNSAFE,
                 CreateMode.PERSISTENT);
 
@@ -256,12 +231,10 @@ public class ZooKeeperTest extends ClientBase {
         ZooKeeperMain zkMain = new ZooKeeperMain(zk);
         zkMain.cl.parseCommand(cmdString);
 
-        // Verify that the exit code is set properly
-        zkMain.processCmd(zkMain.cl);
+                zkMain.processCmd(zkMain.cl);
         Assert.assertEquals(exitCode, zkMain.exitCode);
 
-        // Verify that the correct exception is thrown
-        try {
+                try {
           zkMain.processZKCmd(zkMain.cl);
           Assert.fail();
         } catch (CliException e) {
@@ -274,23 +247,19 @@ public class ZooKeeperTest extends ClientBase {
     public void testCreateNodeWithoutData() throws Exception {
         final ZooKeeper zk = createClient();
         ZooKeeperMain zkMain = new ZooKeeperMain(zk);
-        // create persistent sequential node
-        String cmdstring = "create -s /node ";
+                String cmdstring = "create -s /node ";
         zkMain.cl.parseCommand(cmdstring);
         Assert.assertTrue("Doesn't create node without data", zkMain
                 .processZKCmd(zkMain.cl));
-        // create ephemeral node
-        cmdstring = "create  -e /node ";
+                cmdstring = "create  -e /node ";
         zkMain.cl.parseCommand(cmdstring);
         Assert.assertTrue("Doesn't create node without data", zkMain
                 .processZKCmd(zkMain.cl));
-        // create ephemeral sequential node
-        cmdstring = "create -s -e /node ";
+                cmdstring = "create -s -e /node ";
         zkMain.cl.parseCommand(cmdstring);
         Assert.assertTrue("Doesn't create node without data", zkMain
                 .processZKCmd(zkMain.cl));
-        // creating ephemeral with wrong option.
-        cmdstring = "create -s y /node";
+                cmdstring = "create -s y /node";
         zkMain.cl.parseCommand(cmdstring);
         try {
             Assert.assertTrue("Created node with wrong option", zkMain
@@ -307,8 +276,7 @@ public class ZooKeeperTest extends ClientBase {
     public void testACLWithExtraAgruments() throws Exception {
         final ZooKeeper zk = createClient();
         ZooKeeperMain zkMain = new ZooKeeperMain(zk);
-        // create persistent sequential node
-        String cmdstring = "create -s /l data ip:10.18.52.144:cdrwa f g h";
+                String cmdstring = "create -s /l data ip:10.18.52.144:cdrwa f g h";
         zkMain.cl.parseCommand(cmdstring);
         Assert.assertTrue(
                 "Not considering the extra arguments after the acls.", zkMain
@@ -364,8 +332,7 @@ public class ZooKeeperTest extends ClientBase {
     public void testInvalidStatCommand() throws Exception {
         final ZooKeeper zk = createClient();
         ZooKeeperMain zkMain = new ZooKeeperMain(zk);
-        // node doesn't exists
-        String cmdstring1 = "stat /node123";
+                String cmdstring1 = "stat /node123";
         zkMain.cl.parseCommand(cmdstring1);
         try {
             Assert.assertFalse(zkMain.processZKCmd(zkMain.cl));
@@ -400,10 +367,8 @@ public class ZooKeeperTest extends ClientBase {
     public void testCheckInvalidAcls() throws Exception {
          final ZooKeeper zk = createClient();
             ZooKeeperMain zkMain = new ZooKeeperMain(zk);
-            String cmdstring = "create -s -e /node data ip:scheme:gggsd"; //invalid acl's
-
-            // For Invalid ACls should not throw exception
-            zkMain.executeLine(cmdstring);
+            String cmdstring = "create -s -e /node data ip:scheme:gggsd"; 
+                        zkMain.executeLine(cmdstring);
     }
 
     @Test
@@ -411,18 +376,14 @@ public class ZooKeeperTest extends ClientBase {
          final ZooKeeper zk = createClient();
             ZooKeeperMain zkMain = new ZooKeeperMain(zk);
             String cmdstring = "create -s -e /node1 data ";
-            String cmdstring1 = "delete /node1 2";//invalid dataversion no
-                 zkMain.executeLine(cmdstring);
+            String cmdstring1 = "delete /node1 2";                 zkMain.executeLine(cmdstring);
 
-            // For Invalid dataversion number should not throw exception
-            zkMain.executeLine(cmdstring1);
+                        zkMain.executeLine(cmdstring1);
     }
 
     @Test
     public void testCliCommandsNotEchoingUsage() throws Exception {
-        // setup redirect out/err streams to get System.in/err, use this judiciously!
-        final PrintStream systemErr = System.err; // get current err
-        final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+                final PrintStream systemErr = System.err;         final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
         System.setErr(new PrintStream(errContent));
         final ZooKeeper zk = createClient();
         ZooKeeperMain zkMain = new ZooKeeperMain(zk);
@@ -432,39 +393,32 @@ public class ZooKeeperTest extends ClientBase {
         zkMain.executeLine(cmd2);
         String cmd3 = "redo";
         zkMain.executeLine(cmd3);
-        // revert redirect of out/err streams - important step!
-        System.setErr(systemErr);
+                System.setErr(systemErr);
         if (errContent.toString().contains("ZooKeeper -server host:port cmd args")) {
             fail("CLI commands (history, redo, connect, printwatches) display usage info!");
         }
     }
 
-    // ZOOKEEPER-2467 : Testing negative number for redo command
-    @Test
+        @Test
     public void testRedoWithNegativeCmdNumber() throws Exception {
         final ZooKeeper zk = createClient();
         ZooKeeperMain zkMain = new ZooKeeperMain(zk);
         String cmd1 = "redo -1";
 
-        // setup redirect out/err streams to get System.in/err, use this
-        // judiciously!
-        final PrintStream systemErr = System.err; // get current err
-        final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+                        final PrintStream systemErr = System.err;         final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
         System.setErr(new PrintStream(errContent));
         try {
             zkMain.executeLine(cmd1);
             Assert.assertEquals("Command index out of range", errContent
                     .toString().trim());
         } finally {
-            // revert redirect of out/err streams - important step!
-            System.setErr(systemErr);
+                        System.setErr(systemErr);
         }
     }
 
     private static void runCommandExpect(CliCommand command, List<String> expectedResults)
             throws Exception {
-        // call command and put result in byteStream
-        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+                ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         PrintStream out = new PrintStream(byteStream);
         command.setOut(out);
         command.exec();
@@ -592,8 +546,7 @@ public class ZooKeeperTest extends ClientBase {
         Assert.assertEquals(Ids.READ_ACL_UNSAFE, zk.getACL("/a/b", new Stat()));
         Assert.assertEquals(Ids.READ_ACL_UNSAFE, zk.getACL("/a/b/c", new Stat()));
         Assert.assertEquals(Ids.READ_ACL_UNSAFE, zk.getACL("/a/d", new Stat()));
-        // /e is unset, its acl should remain the same.
-        Assert.assertEquals(Ids.OPEN_ACL_UNSAFE, zk.getACL("/e", new Stat()));
+                Assert.assertEquals(Ids.OPEN_ACL_UNSAFE, zk.getACL("/e", new Stat()));
     }
 
     @Test

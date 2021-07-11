@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.test;
 
 import java.io.File;
@@ -40,16 +22,11 @@ import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Utility for quorum testing. Setups 2n+1 peers and allows to start/stop all
- * peers, particular peer, n peers etc.
- */
+
 public class QuorumUtil {
 
-    // TODO partitioning of peers and clients
-
-    // TODO refactor QuorumBase to be special case of this
-
+    
+    
     private static final Logger LOG = LoggerFactory.getLogger(QuorumUtil.class);
     private static final Set<QuorumPeer.ServerState> CONNECTED_STATES = new TreeSet<>(
             Arrays.asList(QuorumPeer.ServerState.LEADING, QuorumPeer.ServerState.FOLLOWING, QuorumPeer.ServerState.OBSERVING));
@@ -81,12 +58,7 @@ public class QuorumUtil {
 
     private boolean localSessionEnabled;
 
-    /**
-     * Initializes 2n+1 quorum peers which will form a ZooKeeper ensemble.
-     *
-     * @param n
-     *            number of peers in the ensemble will be 2n+1
-     */
+    
     public QuorumUtil(int n, int syncLimit) throws RuntimeException {
         try {
             ClientBase.setupTestEnv();
@@ -134,8 +106,7 @@ public class QuorumUtil {
         return peers.get(id);
     }
 
-    // This was added to avoid running into the problem of ZOOKEEPER-1539
-    public boolean disableJMXTest = false;
+        public boolean disableJMXTest = false;
     
 
     public void enableLocalSession(boolean localSessionEnabled) {
@@ -156,14 +127,11 @@ public class QuorumUtil {
             LOG.info(hp + " is accepting client connections");
         }
 
-        // This was added to avoid running into the problem of ZOOKEEPER-1539
-        if (disableJMXTest) return;
+                if (disableJMXTest) return;
         
-        // interesting to see what's there...
-        try {
+                try {
             JMXEnv.dump();
-            // make sure we have all servers listed
-            Set<String> ensureNames = new LinkedHashSet<String>();
+                        Set<String> ensureNames = new LinkedHashSet<String>();
             for (int i = 1; i <= ALL; ++i) {
                 ensureNames.add("InMemoryDataTree");
             }
@@ -187,9 +155,7 @@ public class QuorumUtil {
         }
     }
 
-    /**
-     * Start first N+1 peers.
-     */
+    
     public void startQuorum() throws IOException {
         shutdownAll();
         for (int i = 1; i <= N + 1; ++i) {

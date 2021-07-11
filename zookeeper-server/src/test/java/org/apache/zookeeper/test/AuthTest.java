@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.test;
 
 import java.io.IOException;
@@ -34,8 +16,7 @@ import org.junit.Test;
 
 public class AuthTest extends ClientBase {
     static {
-        // password is test
-        System.setProperty("zookeeper.DigestAuthenticationProvider.superDigest",
+                System.setProperty("zookeeper.DigestAuthenticationProvider.superDigest",
                 "super:D/InIHSb7yEEbrWz8b9l71RjZJU=");    
         System.setProperty("zookeeper.authProvider.1", "org.apache.zookeeper.test.InvalidAuthProvider");
     }
@@ -110,37 +91,30 @@ public class AuthTest extends ClientBase {
             zk.create("/path1", null, Ids.CREATOR_ALL_ACL,
                     CreateMode.PERSISTENT);
             zk.close();
-            // verify no auth
-            zk = createClient();
+                        zk = createClient();
             try {
                 zk.getData("/path1", false, null);
                 Assert.fail("auth verification");
             } catch (KeeperException.NoAuthException e) {
-                // expected
-            }
+                            }
             zk.close();
-            // verify bad pass Assert.fails
-            zk = createClient();
+                        zk = createClient();
             zk.addAuthInfo("digest", "pat:pass2".getBytes());
             try {
                 zk.getData("/path1", false, null);
                 Assert.fail("auth verification");
             } catch (KeeperException.NoAuthException e) {
-                // expected
-            }
+                            }
             zk.close();
-            // verify super with bad pass Assert.fails
-            zk = createClient();
+                        zk = createClient();
             zk.addAuthInfo("digest", "super:test2".getBytes());
             try {
                 zk.getData("/path1", false, null);
                 Assert.fail("auth verification");
             } catch (KeeperException.NoAuthException e) {
-                // expected
-            }
+                            }
             zk.close();
-            // verify super with correct pass success
-            zk = createClient();
+                        zk = createClient();
             zk.addAuthInfo("digest", "super:test".getBytes());
             zk.getData("/path1", false, null);
         } finally {
@@ -156,8 +130,7 @@ public class AuthTest extends ClientBase {
              zk.create("/path1", null, Ids.CREATOR_ALL_ACL,
                      CreateMode.PERSISTENT);
              zk.close();
-             // verify super can do anything and ignores ACLs
-             zk = createClient();
+                          zk = createClient();
              zk.addAuthInfo("digest", "super:test".getBytes());
              zk.getData("/path1", false, null);
              

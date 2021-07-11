@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server;
 
 import java.io.ByteArrayOutputStream;
@@ -43,25 +25,16 @@ import org.apache.zookeeper.proto.RequestHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Interface to a Server connection - represents a connection from a client
- * to the server.
- */
+
 public abstract class ServerCnxn implements Stats, Watcher {
-    // This is just an arbitrary object to represent requests issued by
-    // (aka owned by) this class
-    final public static Object me = new Object();
+            final public static Object me = new Object();
     private static final Logger LOG = LoggerFactory.getLogger(ServerCnxn.class);
     
     protected ArrayList<Id> authInfo = new ArrayList<Id>();
 
     private static final byte[] fourBytes = new byte[4];
 
-    /**
-     * If the client is of old version, we don't send r-o mode info to it.
-     * The reason is that if we would, old C client doesn't read it, which
-     * results in TCP RST packet, i.e. "connection reset by peer".
-     */
+    
     boolean isOldClient = true;
 
     abstract int getSessionTimeout();
@@ -70,8 +43,7 @@ public abstract class ServerCnxn implements Stats, Watcher {
 
     public void sendResponse(ReplyHeader h, Record r, String tag) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        // Make space for length
-        BinaryOutputArchive bos = BinaryOutputArchive.getArchive(baos);
+                BinaryOutputArchive bos = BinaryOutputArchive.getArchive(baos);
         try {
             baos.write(fourBytes);
             bos.writeRecord(h, "header");
@@ -89,7 +61,7 @@ public abstract class ServerCnxn implements Stats, Watcher {
         sendBuffer(bb);
     }
 
-    /* notify the client the session is closing and close/cleanup socket */
+    
     abstract void sendCloseSession();
 
     public abstract void process(WatchedEvent event);
@@ -98,7 +70,7 @@ public abstract class ServerCnxn implements Stats, Watcher {
 
     abstract void setSessionId(long sessionId);
 
-    /** auth info for the cnxn, returns an unmodifyable list */
+    
     public List<Id> getAuthInfo() {
         return Collections.unmodifiableList(authInfo);
     }
@@ -206,9 +178,7 @@ public abstract class ServerCnxn implements Stats, Watcher {
     protected synchronized void updateStatsForResponse(long cxid, long zxid,
             String op, long start, long end)
     {
-        // don't overwrite with "special" xids - we're interested
-        // in the clients last real operation
-        if (cxid >= 0) {
+                        if (cxid >= 0) {
             lastCxid = cxid;
         }
         lastZxid = zxid;
@@ -272,11 +242,7 @@ public abstract class ServerCnxn implements Stats, Watcher {
         return lastLatency;
     }
 
-    /**
-     * Prints detailed stats information for the connection.
-     *
-     * @see dumpConnectionInfo(PrintWriter, boolean) for brief stats
-     */
+    
     @Override
     public String toString() {
         StringWriter sw = new StringWriter();
@@ -293,11 +259,7 @@ public abstract class ServerCnxn implements Stats, Watcher {
     public abstract Certificate[] getClientCertificateChain();
     public abstract void setClientCertificateChain(Certificate[] chain);
     
-    /**
-     * Print information about the connection.
-     * @param brief iff true prints brief details, otw full detail
-     * @return information about this connection
-     */
+    
     public synchronized void
     dumpConnectionInfo(PrintWriter pwriter, boolean brief) {
         pwriter.print(" ");
@@ -368,13 +330,7 @@ public abstract class ServerCnxn implements Stats, Watcher {
         return info;
     }
 
-    /**
-     * clean up the socket related to a command and also make sure we flush the
-     * data before we do that
-     *
-     * @param pwriter
-     *            the pwriter for a command socket
-     */
+    
     public void cleanupWriterSocket(PrintWriter pwriter) {
         try {
             if (pwriter != null) {

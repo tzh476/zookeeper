@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.test;
 
 import java.io.IOException;
@@ -239,8 +221,7 @@ public class WatcherFuncTest extends ClientBase {
         Assert.assertNotNull(lsnr.getChildren("/foo", true));
 
         client.create("/foo/bar", "child".getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-        expected.add(EventType.NodeChildrenChanged); // /foo
-        Assert.assertNotNull(lsnr.getChildren("/foo/bar", true));
+        expected.add(EventType.NodeChildrenChanged);         Assert.assertNotNull(lsnr.getChildren("/foo/bar", true));
 
 
         client.setData("/foo", "parent".getBytes(), -1);
@@ -253,9 +234,7 @@ public class WatcherFuncTest extends ClientBase {
         Assert.assertNotNull(lsnr.getChildren("/foo/bar", true));
 
         client.delete("/foo/bar", -1);
-        expected.add(EventType.NodeDeleted); // /foo/bar childwatch
-        expected.add(EventType.NodeChildrenChanged); // /foo
-        client.delete("/foo", -1);
+        expected.add(EventType.NodeDeleted);         expected.add(EventType.NodeChildrenChanged);         client.delete("/foo", -1);
         expected.add(EventType.NodeDeleted);
 
         verify();
@@ -293,8 +272,7 @@ public class WatcherFuncTest extends ClientBase {
         expected.clear();
         e2.clear();
 
-        // default not registered
-        Assert.assertNotNull(lsnr.exists("/foo", w1));
+                Assert.assertNotNull(lsnr.exists("/foo", w1));
 
         Assert.assertNotNull(lsnr.exists("/foo/bar", w2));
         Assert.assertNotNull(lsnr.exists("/foo/bar", w3));
@@ -306,8 +284,7 @@ public class WatcherFuncTest extends ClientBase {
         client.setData("/foo/bar", "child".getBytes(), -1);
         e2.add(EventType.NodeDataChanged);
 
-        lsnr_dwatch.verify(new ArrayList<EventType>()); // not reg so should = 0
-        w1.verify(expected);
+        lsnr_dwatch.verify(new ArrayList<EventType>());         w1.verify(expected);
         w2.verify(e2);
         w3.verify(e2);
         w4.verify(e2);
@@ -438,8 +415,7 @@ public class WatcherFuncTest extends ClientBase {
         Assert.assertNotNull(lsnr.getChildren("/foo", w1));
 
         client.create("/foo/bar", "child".getBytes(), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-        expected.add(EventType.NodeChildrenChanged); // /foo
-        Assert.assertNotNull(lsnr.getChildren("/foo/bar", w2));
+        expected.add(EventType.NodeChildrenChanged);         Assert.assertNotNull(lsnr.getChildren("/foo/bar", w2));
         Assert.assertNotNull(lsnr.getChildren("/foo/bar", w2));
         Assert.assertNotNull(lsnr.getChildren("/foo/bar", w3));
         Assert.assertNotNull(lsnr.getChildren("/foo/bar", w4));
@@ -462,9 +438,7 @@ public class WatcherFuncTest extends ClientBase {
         Assert.assertNotNull(lsnr.getChildren("/foo/bar", w4));
 
         client.delete("/foo/bar", -1);
-        e2.add(EventType.NodeDeleted); // /foo/bar childwatch
-        expected.add(EventType.NodeChildrenChanged); // /foo
-        client.delete("/foo", -1);
+        e2.add(EventType.NodeDeleted);         expected.add(EventType.NodeChildrenChanged);         client.delete("/foo", -1);
         expected.add(EventType.NodeDeleted);
 
         lsnr_dwatch.verify(expected);

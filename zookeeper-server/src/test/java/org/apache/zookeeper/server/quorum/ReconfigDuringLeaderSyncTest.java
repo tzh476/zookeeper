@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.apache.zookeeper.server.quorum;
 
 import static org.apache.zookeeper.test.ClientBase.CONNECTION_TIMEOUT;
@@ -52,21 +35,11 @@ public class ReconfigDuringLeaderSyncTest extends QuorumPeerTestBase {
     @Before
     public void setup() {
         System.setProperty("zookeeper.DigestAuthenticationProvider.superDigest",
-                "super:D/InIHSb7yEEbrWz8b9l71RjZJU="/* password is 'test'*/);
+                "super:D/InIHSb7yEEbrWz8b9l71RjZJU=");
         QuorumPeerConfig.setReconfigEnabled(true);
     }
 
-    /**
-     * <pre>
-     * Test case for https://issues.apache.org/jira/browse/ZOOKEEPER-2172.
-     * Cluster crashes when reconfig a new node as a participant.
-     * </pre>
-     *
-     * This issue occurs when reconfig's PROPOSAL and COMMITANDACTIVATE come in
-     * between the snapshot and the UPTODATE. In this case processReconfig was
-     * not invoked on the newly added node, and zoo.cfg.dynamic.next wasn't
-     * deleted.
-     */
+    
 
     @Test
     public void testDuringLeaderSync() throws Exception {
@@ -83,14 +56,12 @@ public class ReconfigDuringLeaderSyncTest extends QuorumPeerTestBase {
         String currentQuorumCfgSection = sb.toString();
         mt = new MainThread[SERVER_COUNT + 1];
 
-        // start 3 servers
-        for (int i = 0; i < SERVER_COUNT; i++) {
+                for (int i = 0; i < SERVER_COUNT; i++) {
             mt[i] = new MainThread(i, clientPorts[i], currentQuorumCfgSection, false);
             mt[i].start();
         }
 
-        // ensure all servers started
-        for (int i = 0; i < SERVER_COUNT; i++) {
+                for (int i = 0; i < SERVER_COUNT; i++) {
             Assert.assertTrue("waiting for server " + i + " being up",
                     ClientBase.waitForServerUp("127.0.0.1:" + clientPorts[i], CONNECTION_TIMEOUT));
         }
@@ -100,14 +71,12 @@ public class ReconfigDuringLeaderSyncTest extends QuorumPeerTestBase {
         preReconfigClient.addAuthInfo("digest", "super:test".getBytes());
         watch.waitForConnected(ClientBase.CONNECTION_TIMEOUT);
 
-        // new server joining
-        int joinerId = SERVER_COUNT;
+                int joinerId = SERVER_COUNT;
         clientPorts[joinerId] = PortAssignment.unique();
         serverConfig[joinerId] = "server." + joinerId + "=127.0.0.1:" + PortAssignment.unique() + ":"
                 + PortAssignment.unique() + ":participant;127.0.0.1:" + clientPorts[joinerId];
 
-        // Find leader id.
-        int leaderId = -1;
+                int leaderId = -1;
         for (int i = 0; i < SERVER_COUNT; i++) {
             if (mt[i].main.quorumPeer.leader != null) {
                 leaderId = i;
@@ -116,21 +85,10 @@ public class ReconfigDuringLeaderSyncTest extends QuorumPeerTestBase {
         }
         assertFalse(leaderId == -1);
 
-        // Joiner initial config consists of itself and the leader.
-        sb = new StringBuilder();
+                sb = new StringBuilder();
         sb.append(serverConfig[leaderId] + "\n").append(serverConfig[joinerId] + "\n");
 
-        /**
-         * This server will delay the response to a NEWLEADER message, and run
-         * reconfig command so that message at this processed in bellow order
-         *
-         * <pre>
-         * NEWLEADER
-         * reconfig's PROPOSAL
-         * reconfig's COMMITANDACTIVATE
-         * UPTODATE
-         * </pre>
-         */
+        
         mt[joinerId] = new MainThread(joinerId, clientPorts[joinerId], sb.toString(), false) {
             @Override
             public TestQPMain getTestQPMain() {
@@ -140,38 +98,31 @@ public class ReconfigDuringLeaderSyncTest extends QuorumPeerTestBase {
         mt[joinerId].start();
         CustomQuorumPeer qp = getCustomQuorumPeer(mt[joinerId]);
 
-        // delete any already existing .next file
-        String nextDynamicConfigFilename = qp.getNextDynamicConfigFilename();
+                String nextDynamicConfigFilename = qp.getNextDynamicConfigFilename();
         File nextDynaFile = new File(nextDynamicConfigFilename);
         nextDynaFile.delete();
 
-        // call reconfig API when the new server has received
-        // Leader.NEWLEADER
-        while (true) {
+                        while (true) {
             if (qp.isNewLeaderMessage()) {
                 preReconfigClient.reconfigure(serverConfig[joinerId], null, null, -1, null, null);
                 break;
             } else {
-                // sleep for 10 millisecond and then again check
-                Thread.sleep(10);
+                                Thread.sleep(10);
             }
         }
         watch = new CountdownWatcher();
         ZooKeeper postReconfigClient = new ZooKeeper("127.0.0.1:" + clientPorts[joinerId],
                 ClientBase.CONNECTION_TIMEOUT, watch);
         watch.waitForConnected(ClientBase.CONNECTION_TIMEOUT);
-        // do one successful operation on the newly added node
-        postReconfigClient.create("/reconfigIssue", "".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                postReconfigClient.create("/reconfigIssue", "".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         assertFalse("zoo.cfg.dynamic.next is not deleted.", nextDynaFile.exists());
 
-        // verify that joiner has up-to-date config, including all four servers.
-        for (long j = 0; j <= SERVER_COUNT; j++) {
+                for (long j = 0; j <= SERVER_COUNT; j++) {
             assertNotNull("server " + j + " is not present in the new quorum",
                     qp.getQuorumVerifier().getVotingMembers().get(j));
         }
 
-        // close clients
-        preReconfigClient.close();
+                preReconfigClient.close();
         postReconfigClient.close();
     }
 
@@ -192,8 +143,7 @@ public class ReconfigDuringLeaderSyncTest extends QuorumPeerTestBase {
 
     @After
     public void tearDown() {
-        // stop all severs
-        if (null != mt) {
+                if (null != mt) {
             for (int i = 0; i < mt.length; i++) {
                 try {
                     mt[i].shutdown();
@@ -214,11 +164,7 @@ public class ReconfigDuringLeaderSyncTest extends QuorumPeerTestBase {
                     ServerCnxnFactory.createFactory(new InetSocketAddress(clientPort), -1), new QuorumMaj(quorumPeers));
         }
 
-        /**
-         * If true, after 100 millisecond NEWLEADER response is send to leader
-         *
-         * @return
-         */
+        
         public boolean isNewLeaderMessage() {
             return newLeaderMessage;
         }
@@ -233,12 +179,7 @@ public class ReconfigDuringLeaderSyncTest extends QuorumPeerTestBase {
                     if (pp != null && pp.getType() == Leader.ACK) {
                         newLeaderMessage = true;
                         try {
-                            /**
-                             * Delaying the ACK message, a follower sends as
-                             * response to a NEWLEADER message, so that the
-                             * leader has a chance to send the reconfig and only
-                             * then the UPTODATE message.
-                             */
+                            
                             Thread.sleep(100);
                         } catch (InterruptedException e) {
                             e.printStackTrace();

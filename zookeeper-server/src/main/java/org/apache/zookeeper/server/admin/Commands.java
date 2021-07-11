@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server.admin;
 
 import java.util.ArrayList;
@@ -43,24 +25,15 @@ import org.apache.zookeeper.server.util.OSMXBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Class containing static methods for registering and running Commands, as well
- * as default Command definitions.
- *
- * @see Command
- * @see JettyAdminServer
- */
+
 public class Commands {
     static final Logger LOG = LoggerFactory.getLogger(Commands.class);
 
-    /** Maps command names to Command instances */
+    
     private static Map<String, Command> commands = new HashMap<String, Command>();
     private static Set<String> primaryNames = new HashSet<String>();
 
-    /**
-     * Registers the given command. Registered commands can be run by passing
-     * any of their names to runCommand.
-     */
+    
     public static void registerCommand(Command command) {
         for (String name : command.getNames()) {
             Command prev = commands.put(name, command);
@@ -71,20 +44,7 @@ public class Commands {
         primaryNames.add(command.getPrimaryName());
     }
 
-    /**
-     * Run the registered command with name cmdName. Commands should not produce
-     * any exceptions; any (anticipated) errors should be reported in the
-     * "error" entry of the returned map. Likewise, if no command with the given
-     * name is registered, this will be noted in the "error" entry.
-     *
-     * @param cmdName
-     * @param zkServer
-     * @param kwargs String-valued keyword arguments to the command
-     *        (may be null if command requires no additional arguments)
-     * @return Map representing response to command containing at minimum:
-     *    - "command" key containing the command's primary name
-     *    - "error" key containing a String error message or null if no error
-     */
+    
     public static CommandResponse runCommand(String cmdName, ZooKeeperServer zkServer, Map<String, String> kwargs) {
         if (!commands.containsKey(cmdName)) {
             return new CommandResponse(cmdName, "Unknown command: " + cmdName);
@@ -95,17 +55,12 @@ public class Commands {
         return commands.get(cmdName).run(zkServer, kwargs);
     }
 
-    /**
-     * Returns the primary names of all registered commands.
-     */
+    
     public static Set<String> getPrimaryNames() {
         return primaryNames;
     }
 
-    /**
-     * Returns the commands registered under cmdName with registerCommand, or
-     * null if no command is registered with that name.
-     */
+    
     public static Command getCommand(String cmdName) {
         return commands.get(cmdName);
     }
@@ -130,9 +85,7 @@ public class Commands {
         registerCommand(new WatchSummaryCommand());
     }
 
-    /**
-     * Reset all connection statistics.
-     */
+    
     public static class CnxnStatResetCommand extends CommandBase {
         public CnxnStatResetCommand() {
             super(Arrays.asList("connection_stat_reset", "crst"));
@@ -147,10 +100,7 @@ public class Commands {
         }
     }
 
-    /**
-     * Server configuration parameters.
-     * @see ZooKeeperServer#getConf()
-     */
+    
     public static class ConfCommand extends CommandBase {
         public ConfCommand() {
             super(Arrays.asList("configuration", "conf", "config"));
@@ -164,11 +114,7 @@ public class Commands {
         }
     }
 
-    /**
-     * Information on client connections to server. Returned Map contains:
-     *   - "connections": list of connection info objects
-     * @see org.apache.zookeeper.server.ServerCnxn#getConnectionInfo(boolean)
-     */
+    
     public static class ConsCommand extends CommandBase {
         public ConsCommand() {
             super(Arrays.asList("connections", "cons"));
@@ -193,9 +139,7 @@ public class Commands {
         }
     }
 
-    /**
-     * Information on ZK datadir and snapdir size in bytes
-     */
+    
     public static class DirsCommand extends CommandBase {
         public DirsCommand() {
             super(Arrays.asList("dirs"));
@@ -210,15 +154,7 @@ public class Commands {
         }
     }
 
-    /**
-     * Information on session expirations and ephemerals. Returned map contains:
-     *   - "expiry_time_to_session_ids": Map<Long, Set<Long>>
-     *                                   time -> sessions IDs of sessions that expire at time
-     *   - "sesssion_id_to_ephemeral_paths": Map<Long, Set<String>>
-     *                                       session ID -> ephemeral paths created by that session
-     * @see ZooKeeperServer#getSessionExpiryMap()
-     * @see ZooKeeperServer#getEphemerals()
-     */
+    
     public static class DumpCommand extends CommandBase {
         public DumpCommand() {
             super(Arrays.asList("dump"));
@@ -233,9 +169,7 @@ public class Commands {
         }
     }
 
-    /**
-     * All defined environment variables.
-     */
+    
     public static class EnvCommand extends CommandBase {
         public EnvCommand() {
             super(Arrays.asList("environment", "env", "envi"));
@@ -251,10 +185,7 @@ public class Commands {
         }
     }
 
-    /**
-     * The current trace mask. Returned map contains:
-     *   - "tracemask": Long
-     */
+    
     public static class GetTraceMaskCommand extends CommandBase {
         public GetTraceMaskCommand() {
             super(Arrays.asList("get_trace_mask", "gtmk"));
@@ -268,10 +199,7 @@ public class Commands {
         }
     }
 
-    /**
-     * Is this server in read-only mode. Returned map contains:
-     *   - "is_read_only": Boolean
-     */
+    
     public static class IsroCommand extends CommandBase {
         public IsroCommand() {
             super(Arrays.asList("is_read_only", "isro"));
@@ -285,30 +213,7 @@ public class Commands {
         }
     }
 
-    /**
-     * Some useful info for monitoring. Returned map contains:
-     *   - "version": String
-     *                server version
-     *   - "avg_latency": Long
-     *   - "max_latency": Long
-     *   - "min_latency": Long
-     *   - "packets_received": Long
-     *   - "packets_sents": Long
-     *   - "num_alive_connections": Integer
-     *   - "outstanding_requests": Long
-     *                             number of unprocessed requests
-     *   - "server_state": "leader", "follower", or "standalone"
-     *   - "znode_count": Integer
-     *   - "watch_count": Integer
-     *   - "ephemerals_count": Integer
-     *   - "approximate_data_size": Long
-     *   - "open_file_descriptor_count": Long (unix only)
-     *   - "max_file_descritpor_count": Long (unix only)
-     *   - "fsync_threshold_exceed_count": Long
-     *   - "followers": Integer (leader only)
-     *   - "synced_followers": Integer (leader only)
-     *   - "pending_syncs": Integer (leader only)
-     */
+    
     public static class MonitorCommand extends CommandBase {
         public MonitorCommand() {
             super(Arrays.asList("monitor", "mntr"));
@@ -364,9 +269,7 @@ public class Commands {
 
         }}
 
-    /**
-     * No-op command, check if the server is running
-     */
+    
     public static class RuokCommand extends CommandBase {
         public RuokCommand() {
             super(Arrays.asList("ruok"));
@@ -378,12 +281,7 @@ public class Commands {
         }
     }
 
-    /**
-     * Sets the trace mask. Required arguments:
-     *   - "traceMask": Long
-     *  Returned Map contains:
-     *   - "tracemask": Long
-     */
+    
     public static class SetTraceMaskCommand extends CommandBase {
         public SetTraceMaskCommand() {
             super(Arrays.asList("set_trace_mask", "stmk"));
@@ -411,22 +309,13 @@ public class Commands {
         }
     }
 
-    /**
-     * Server information. Returned map contains:
-     *   - "version": String
-     *                version of server
-     *   - "read_only": Boolean
-     *                  is server in read-only mode
-     *   - "server_stats": ServerStats object
-     *   - "node_count": Integer
-     */
+    
     public static class SrvrCommand extends CommandBase {
         public SrvrCommand() {
             super(Arrays.asList("server_stats", "srvr"));
         }
 
-        // Allow subclasses (e.g. StatCommand) to specify their own names
-        protected SrvrCommand(List<String> names) {
+                protected SrvrCommand(List<String> names) {
             super(names);
         }
 
@@ -447,9 +336,7 @@ public class Commands {
         }
     }
 
-    /**
-     * Same as SrvrCommand but has extra "connections" entry.
-     */
+    
     public static class StatCommand extends SrvrCommand {
         public StatCommand() {
             super(Arrays.asList("stats", "stat"));
@@ -478,9 +365,7 @@ public class Commands {
         }
     }
 
-    /**
-     * Resets server statistics.
-     */
+    
     public static class StatResetCommand extends CommandBase {
         public StatResetCommand() {
             super(Arrays.asList("stat_reset", "srst"));
@@ -494,11 +379,7 @@ public class Commands {
         }
     }
 
-    /**
-     * Watch information aggregated by session. Returned Map contains:
-     *   - "session_id_to_watched_paths": Map<Long, Set<String>> session ID -> watched paths
-     * @see DataTree#getWatches()
-     */
+    
     public static class WatchCommand extends CommandBase {
         public WatchCommand() {
             super(Arrays.asList("watches", "wchc"));
@@ -513,11 +394,7 @@ public class Commands {
         }
     }
 
-    /**
-     * Watch information aggregated by path. Returned Map contains:
-     *   - "path_to_session_ids": Map<String, Set<Long>> path -> session IDs of sessions watching path
-     * @see DataTree#getWatchesByPath()
-     */
+    
     public static class WatchesByPathCommand extends CommandBase {
         public WatchesByPathCommand() {
             super(Arrays.asList("watches_by_path", "wchp"));
@@ -532,10 +409,7 @@ public class Commands {
         }
     }
 
-    /**
-     * Summarized watch information.
-     * @see DataTree#getWatchesSummary()
-     */
+    
     public static class WatchSummaryCommand extends CommandBase {
         public WatchSummaryCommand() {
             super(Arrays.asList("watch_summary", "wchs"));

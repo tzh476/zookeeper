@@ -1,24 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-/**
- * 
- */
 package org.apache.zookeeper.server.util;
 
 import java.io.IOException;
@@ -36,55 +15,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * A utility that does bi-directional forwarding between two ports.
- * Useful, for example, to simulate network failures.
- * Example:
- * 
- *   Server 1 config file:
- *           
- *      server.1=127.0.0.1:7301:7401;8201
- *      server.2=127.0.0.1:7302:7402;8202
- *      server.3=127.0.0.1:7303:7403;8203
- *   
- *   Server 2 and 3 config files:
- *           
- *      server.1=127.0.0.1:8301:8401;8201
- *      server.2=127.0.0.1:8302:8402;8202
- *      server.3=127.0.0.1:8303:8403;8203
- *
- *   Initially forward traffic between 730x and 830x and between 740x and 830x
- *   This way server 1 can communicate with servers 2 and 3
- *  ....
- *   
- *   List<PortForwarder> pfs = startForwarding();
- *  ....
- *   // simulate a network interruption for server 1
- *   stopForwarding(pfs);
- *  ....
- *   // restore connection 
- *   pfs = startForwarding();
- *
- *
- *  private List<PortForwarder> startForwarding() throws IOException {
- *      List<PortForwarder> res = new ArrayList<PortForwarder>();
- *      res.add(new PortForwarder(8301, 7301));
- *      res.add(new PortForwarder(8401, 7401));
- *      res.add(new PortForwarder(7302, 8302));
- *      res.add(new PortForwarder(7402, 8402));
- *      res.add(new PortForwarder(7303, 8303));
- *      res.add(new PortForwarder(7403, 8403));
- *      return res;
- *  }
- *  
- *  private void stopForwarding(List<PortForwarder> pfs) throws Exception {
- *       for (PortForwarder pf : pfs) {
- *           pf.shutdown();
- *       }
- *  }
- *  
- *
- */
+
 public class PortForwarder extends Thread {
     private static final Logger LOG = LoggerFactory
             .getLogger(PortForwarder.class);
@@ -102,8 +33,7 @@ public class PortForwarder extends Thread {
             this.toClose2 = toClose2;
             this.in = in;
             this.out = out;
-            // LOG.info("starting forward for "+toClose);
-        }
+                    }
 
         public void run() {
             Thread.currentThread().setName(toClose.toString() + "-->"
@@ -121,13 +51,11 @@ public class PortForwarder extends Thread {
                                 try {
                                     toClose.close();
                                 } catch (IOException ex) {
-                                    // ignore
-                                }
+                                                                    }
                                 try {
                                     toClose2.close();
                                 } catch (IOException ex) {
-                                    // ignore
-                                }
+                                                                    }
                                 break;
                             }
                         }
@@ -141,13 +69,11 @@ public class PortForwarder extends Thread {
                 try {
                     toClose.close();
                 } catch (IOException ex) {
-                    // ignore
-                }
+                                    }
                 try {
                     toClose2.close();
                 } catch (IOException ex) {
-                    // ignore silently
-                }
+                                    }
             } catch (SocketException e) {
                 if (!"Socket closed".equals(e.getMessage())) {
                     LOG.error("Unexpected exception", e);

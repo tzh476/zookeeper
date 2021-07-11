@@ -1,20 +1,3 @@
-/* Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.test;
 
 import java.io.ByteArrayInputStream;
@@ -126,21 +109,12 @@ public class HierarchicalQuorumTest extends ClientBase {
         LOG.info("Setup finished");
     }
     
-    /**
-     * This method is here to keep backwards compatibility with the test code 
-     * written before observers. 
-     * @throws Exception
-     */
+    
     void startServers() throws Exception {
         startServers(false);
     }
     
-    /**
-     * Starts 5 Learners. When withObservers == false, all 5 are Followers.
-     * When withObservers == true, 3 are Followers and 2 Observers.
-     * @param withObservers
-     * @throws Exception
-     */
+    
     void startServers(boolean withObservers) throws Exception {
         int tickTime = 2000;
         int initLimit = 3;
@@ -207,8 +181,7 @@ public class HierarchicalQuorumTest extends ClientBase {
         }
         Assert.assertEquals(clientport5, s5.getClientPort());
         
-        // Observers are currently only compatible with LeaderElection
-        if (withObservers) {
+                if (withObservers) {
             s1.setElectionType(0);
             s2.setElectionType(0);
             s3.setElectionType(0);
@@ -236,10 +209,8 @@ public class HierarchicalQuorumTest extends ClientBase {
             LOG.info(hp + " is accepting client connections");
         }
         final int numberOfPeers = 5;
-        // interesting to see what's there...
-        JMXEnv.dump();
-        // make sure we have these 5 servers listed
-        Set<String> ensureNames = new LinkedHashSet<String>();
+                JMXEnv.dump();
+                Set<String> ensureNames = new LinkedHashSet<String>();
         for (int i = 1; i <= numberOfPeers; i++) {
             ensureNames.add("InMemoryDataTree");
         }
@@ -258,8 +229,7 @@ public class HierarchicalQuorumTest extends ClientBase {
         }
         JMXEnv.ensureAll(ensureNames.toArray(new String[ensureNames.size()]));
         for (int i = 1; i <= numberOfPeers; i++) {
-            // LocalPeerBean
-            String bean = CommonNames.DOMAIN + ":name0=ReplicatedServer_id" + i
+                        String bean = CommonNames.DOMAIN + ":name0=ReplicatedServer_id" + i
                     + ",name1=replica." + i;
             JMXEnv.ensureBeanAttribute(bean, "ConfigVersion");
             JMXEnv.ensureBeanAttribute(bean, "LearnerType");
@@ -272,8 +242,7 @@ public class HierarchicalQuorumTest extends ClientBase {
         for (int i = 1; i <= numberOfPeers; i++) {
             for (int j = 1; j <= numberOfPeers; j++) {
                 if (j != i) {
-                    // RemotePeerBean
-                    String bean = CommonNames.DOMAIN + ":name0=ReplicatedServer_id" + i
+                                        String bean = CommonNames.DOMAIN + ":name0=ReplicatedServer_id" + i
                             + ",name1=replica." + j;
                     JMXEnv.ensureBeanAttribute(bean, "Name");
                     JMXEnv.ensureBeanAttribute(bean, "LearnerType");

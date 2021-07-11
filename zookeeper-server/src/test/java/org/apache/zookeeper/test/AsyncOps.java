@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.test;
 
 import java.lang.Exception;
@@ -47,31 +29,12 @@ import org.apache.zookeeper.data.Stat;
 import org.junit.Assert;
 
 public class AsyncOps {
-    /**
-     * This is the base class for all of the async callback classes. It will
-     * verify the expected value against the actual value.
-     * 
-     * Basic operation is that the subclasses will generate an "expected" value
-     * which is defined by the "toString" method of the subclass. This is
-     * passed through to the verify clause by specifying it as the ctx object
-     * of each async call (processResult methods get the ctx as part of
-     * the callback). Additionally the callback will also overwrite any
-     * instance fields with matching parameter arguments to the processResult
-     * method. The cb instance can then compare the expected to the
-     * actual value by again calling toString and comparing the two.
-     * 
-     * The format of each expected value differs (is defined) by subclass.
-     * Generally the expected value starts with the result code (rc) and path
-     * of the node being operated on, followed by the fields specific to
-     * each operation type (cb subclass). For example ChildrenCB specifies
-     * a list of the expected children suffixed onto the rc and path. See
-     * the toString() method of each subclass for details of it's format. 
-     */
+    
     public static abstract class AsyncCB {
         protected final ZooKeeper zk;
         protected long defaultTimeoutMillis = 30000;
         
-        /** the latch is used to await the results from the server */
+        
         CountDownLatch latch;
 
         Code rc = Code.OK;
@@ -99,8 +62,7 @@ public class AsyncOps {
             latch.countDown();
         }
         
-        /** String format is rc:path:<suffix> where <suffix> is defined by each
-         * subclass individually. */
+        
         @Override
         public String toString() {
             return rc + ":" + path + ":"; 
@@ -112,8 +74,7 @@ public class AsyncOps {
             } catch (InterruptedException e) {
                 Assert.fail("unexpected interrupt");
             }
-            // on the lookout for timeout
-            Assert.assertSame(0L, latch.getCount());
+                        Assert.assertSame(0L, latch.getCount());
             
             String actual = toString();
             

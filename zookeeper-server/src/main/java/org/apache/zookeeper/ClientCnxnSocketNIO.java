@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper;
 
 import java.io.IOException;
@@ -60,11 +42,7 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
         return sockKey != null;
     }
     
-    /**
-     * @return true if a packet was received
-     * @throws InterruptedException
-     * @throws IOException
-     */
+    
     void doIO(List<Packet> pendingQueue, ClientCnxn cnxn)
       throws InterruptedException, IOException {
         SocketChannel sock = (SocketChannel) sockKey.channel();
@@ -89,9 +67,7 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
                     enableRead();
                     if (findSendablePacket(outgoingQueue,
                             sendThread.tunnelAuthInProgress()) != null) {
-                        // Since SASL authentication has completed (if client is configured to do so),
-                        // outgoing packets waiting in the outgoingQueue can now be sent.
-                        enableWrite();
+                                                                        enableWrite();
                     }
                     lenBuffer.clear();
                     incomingBuffer = lenBuffer;
@@ -111,8 +87,7 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
 
             if (p != null) {
                 updateLastSend();
-                // If we already started writing p, p.bb will already exist
-                if (p.bb == null) {
+                                if (p.bb == null) {
                     if ((p.requestHeader != null) &&
                             (p.requestHeader.getType() != OpCode.ping) &&
                             (p.requestHeader.getType() != OpCode.auth)) {
@@ -134,26 +109,11 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
                 }
             }
             if (outgoingQueue.isEmpty()) {
-                // No more packets to send: turn off write interest flag.
-                // Will be turned on later by a later call to enableWrite(),
-                // from within ZooKeeperSaslClient (if client is configured
-                // to attempt SASL authentication), or in either doIO() or
-                // in doTransport() if not.
-                disableWrite();
+                                                                                                disableWrite();
             } else if (!initialized && p != null && !p.bb.hasRemaining()) {
-                // On initial connection, write the complete connect request
-                // packet, but then disable further writes until after
-                // receiving a successful connection response.  If the
-                // session is expired, then the server sends the expiration
-                // response and immediately closes its end of the socket.  If
-                // the client is simultaneously writing on its end, then the
-                // TCP stack may choose to abort with RST, in which case the
-                // client would never receive the session expired event.  See
-                // http://docs.oracle.com/javase/6/docs/technotes/guides/net/articles/connection_release.html
-                disableWrite();
+                                                                                                                                                                disableWrite();
             } else {
-                // Just in case
-                enableWrite();
+                                enableWrite();
             }
         }
     }
@@ -163,27 +123,18 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
         if (outgoingQueue.isEmpty()) {
             return null;
         }
-        // If we've already starting sending the first packet, we better finish
-        if (outgoingQueue.getFirst().bb != null || !tunneledAuthInProgres) {
+                if (outgoingQueue.getFirst().bb != null || !tunneledAuthInProgres) {
             return outgoingQueue.getFirst();
         }
-        // Since client's authentication with server is in progress,
-        // send only the null-header packet queued by primeConnection().
-        // This packet must be sent so that the SASL authentication process
-        // can proceed, but all other packets should wait until
-        // SASL authentication completes.
-        Iterator<Packet> iter = outgoingQueue.iterator();
+                                                Iterator<Packet> iter = outgoingQueue.iterator();
         while (iter.hasNext()) {
             Packet p = iter.next();
             if (p.requestHeader == null) {
-                // We've found the priming-packet. Move it to the beginning of the queue.
-                iter.remove();
+                                iter.remove();
                 outgoingQueue.addFirst(p);
                 return p;
             } else {
-                // Non-priming packet: defer it until later, leaving it in the queue
-                // until authentication completes.
-                LOG.debug("deferring non-priming packet {} until SASL authentation completes.", p);
+                                                LOG.debug("deferring non-priming packet {} until SASL authentation completes.", p);
             }
         }
         return null;
@@ -249,11 +200,7 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
         }
     }
     
-    /**
-     * create a socket channel.
-     * @return the created socket channel
-     * @throws IOException
-     */
+    
     SocketChannel createSock() throws IOException {
         SocketChannel sock;
         sock = SocketChannel.open();
@@ -263,12 +210,7 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
         return sock;
     }
 
-    /**
-     * register with the selection and connect
-     * @param sock the {@link SocketChannel} 
-     * @param addr the address of remote host
-     * @throws IOException
-     */
+    
     void registerAndConnect(SocketChannel sock, InetSocketAddress addr) 
     throws IOException {
         sockKey = sock.register(selector, SelectionKey.OP_CONNECT);
@@ -290,30 +232,18 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
         }
         initialized = false;
 
-        /*
-         * Reset incomingBuffer
-         */
+        
         lenBuffer.clear();
         incomingBuffer = lenBuffer;
     }
 
-    /**
-     * Returns the address to which the socket is connected.
-     * 
-     * @return ip address of the remote side of the connection or null if not
-     *         connected
-     */
+    
     @Override
     SocketAddress getRemoteSocketAddress() {
         return remoteSocketAddress;
     }
 
-    /**
-     * Returns the local address to which the socket is bound.
-     * 
-     * @return ip address of the remote side of the connection or null if not
-     *         connected
-     */
+    
     @Override
     SocketAddress getLocalSocketAddress() {
         return localSocketAddress;
@@ -347,10 +277,7 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
         synchronized (this) {
             selected = selector.selectedKeys();
         }
-        // Everything below and until we get back to the select is
-        // non blocking, so time is effectively a constant. That is
-        // Why we just have to do this once, here
-        updateNow();
+                                updateNow();
         for (SelectionKey k : selected) {
             SocketChannel sc = ((SocketChannel) k.channel());
             if ((k.readyOps() & SelectionKey.OP_CONNECT) != 0) {
@@ -372,13 +299,10 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
         selected.clear();
     }
 
-    //TODO should this be synchronized?
-    @Override
+        @Override
     void testableCloseSocket() throws IOException {
         LOG.info("testableCloseSocket() called");
-        // sockKey may be concurrently accessed by multiple
-        // threads. We use tmp here to avoid a race condition
-        SelectionKey tmp = sockKey;
+                        SelectionKey tmp = sockKey;
         if (tmp!=null) {
            ((SocketChannel) tmp.channel()).socket().close();
         }

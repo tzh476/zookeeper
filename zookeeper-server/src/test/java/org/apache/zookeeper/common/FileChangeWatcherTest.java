@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.common;
 
 import java.io.File;
@@ -58,8 +40,7 @@ public class FileChangeWatcherTest extends ZKTestCase {
         try {
             FileUtils.deleteDirectory(tempDir);
         } catch (IOException e) {
-            // ignore
-        }
+                    }
     }
 
     @Test
@@ -71,10 +52,7 @@ public class FileChangeWatcherTest extends ZKTestCase {
                     tempDir.toPath(),
                     event -> {
                         LOG.info("Got an update: " + event.kind() + " " + event.context());
-                        // Filter out the extra ENTRY_CREATE events that are
-                        // sometimes seen at the start. Even though we create the watcher
-                        // after the file exists, sometimes we still get a create event.
-                        if (StandardWatchEventKinds.ENTRY_CREATE.equals(event.kind())) {
+                                                                                                if (StandardWatchEventKinds.ENTRY_CREATE.equals(event.kind())) {
                             return;
                         }
                         synchronized (events) {
@@ -84,8 +62,7 @@ public class FileChangeWatcherTest extends ZKTestCase {
                     });
             watcher.start();
             watcher.waitForState(FileChangeWatcher.State.RUNNING);
-            Thread.sleep(1000L); // XXX hack
-            for (int i = 0; i < 3; i++) {
+            Thread.sleep(1000L);             for (int i = 0; i < 3; i++) {
                 LOG.info("Modifying file, attempt " + (i + 1));
                 FileUtils.writeStringToFile(
                         tempFile,
@@ -119,10 +96,7 @@ public class FileChangeWatcherTest extends ZKTestCase {
                     tempDir.toPath(),
                     event -> {
                         LOG.info("Got an update: " + event.kind() + " " + event.context());
-                        // Filter out the extra ENTRY_CREATE events that are
-                        // sometimes seen at the start. Even though we create the watcher
-                        // after the file exists, sometimes we still get a create event.
-                        if (StandardWatchEventKinds.ENTRY_CREATE.equals(event.kind())) {
+                                                                                                if (StandardWatchEventKinds.ENTRY_CREATE.equals(event.kind())) {
                             return;
                         }
                         synchronized (events) {
@@ -132,8 +106,7 @@ public class FileChangeWatcherTest extends ZKTestCase {
                     });
             watcher.start();
             watcher.waitForState(FileChangeWatcher.State.RUNNING);
-            Thread.sleep(1000L); // XXX hack
-            LOG.info("Touching file");
+            Thread.sleep(1000L);             LOG.info("Touching file");
             FileUtils.touch(tempFile);
             synchronized (events) {
                 if (events.isEmpty()) {
@@ -168,8 +141,7 @@ public class FileChangeWatcherTest extends ZKTestCase {
                     });
             watcher.start();
             watcher.waitForState(FileChangeWatcher.State.RUNNING);
-            Thread.sleep(1000L); // XXX hack
-            File tempFile2 = File.createTempFile("zk_test_", "", tempDir);
+            Thread.sleep(1000L);             File tempFile2 = File.createTempFile("zk_test_", "", tempDir);
             tempFile2.deleteOnExit();
             synchronized (events) {
                 if (events.isEmpty()) {
@@ -197,10 +169,7 @@ public class FileChangeWatcherTest extends ZKTestCase {
                     tempDir.toPath(),
                     event -> {
                         LOG.info("Got an update: " + event.kind() + " " + event.context());
-                        // Filter out the extra ENTRY_CREATE events that are
-                        // sometimes seen at the start. Even though we create the watcher
-                        // after the file exists, sometimes we still get a create event.
-                        if (StandardWatchEventKinds.ENTRY_CREATE.equals(event.kind())) {
+                                                                                                if (StandardWatchEventKinds.ENTRY_CREATE.equals(event.kind())) {
                             return;
                         }
                         synchronized (events) {
@@ -210,8 +179,7 @@ public class FileChangeWatcherTest extends ZKTestCase {
                     });
             watcher.start();
             watcher.waitForState(FileChangeWatcher.State.RUNNING);
-            Thread.sleep(1000L); // XXX hack
-            tempFile.delete();
+            Thread.sleep(1000L);             tempFile.delete();
             synchronized (events) {
                 if (events.isEmpty()) {
                     events.wait(3000L);
@@ -249,8 +217,7 @@ public class FileChangeWatcherTest extends ZKTestCase {
                     });
             watcher.start();
             watcher.waitForState(FileChangeWatcher.State.RUNNING);
-            Thread.sleep(1000L); // XXX hack
-            LOG.info("Modifying file");
+            Thread.sleep(1000L);             LOG.info("Modifying file");
             FileUtils.writeStringToFile(tempFile, "Hello world\n", StandardCharsets.UTF_8, true);
             synchronized (callCount) {
                 while (callCount.get() == 0) {
@@ -264,9 +231,7 @@ public class FileChangeWatcherTest extends ZKTestCase {
                     callCount.wait(3000L);
                 }
             }
-            // The value of callCount can exceed 1 only if the callback thread
-            // survives the exception thrown by the first callback.
-            assertTrue(callCount.get() > 1);
+                                    assertTrue(callCount.get() > 1);
         } finally {
             if (watcher != null) {
                 watcher.stop();

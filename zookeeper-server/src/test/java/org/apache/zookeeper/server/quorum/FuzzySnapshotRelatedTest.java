@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server.quorum;
 
 import java.io.IOException;
@@ -53,9 +35,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Test cases used to catch corner cases due to fuzzy snapshot.
- */
+
 public class FuzzySnapshotRelatedTest extends QuorumPeerTestBase {
 
     private static final Logger LOG = LoggerFactory.getLogger(FuzzySnapshotRelatedTest.class);
@@ -82,8 +62,7 @@ public class FuzzySnapshotRelatedTest extends QuorumPeerTestBase {
         }
         String currentQuorumCfgSection = sb.toString();
 
-        // start servers
-        mt = new MainThread[ENSEMBLE_SERVERS];
+                mt = new MainThread[ENSEMBLE_SERVERS];
         zk = new ZooKeeper[ENSEMBLE_SERVERS];
         for (int i = 0; i < ENSEMBLE_SERVERS; i++) {
             mt[i] = new MainThread(i, clientPorts[i], currentQuorumCfgSection,
@@ -169,13 +148,7 @@ public class FuzzySnapshotRelatedTest extends QuorumPeerTestBase {
                 new String(zk[followerA].getData(node2, null, null)));
     }
 
-    /**
-     * It's possibel during SNAP sync, the parent is serialized before the
-     * child get deleted during sending the snapshot over.
-     *
-     * In which case, we need to make sure the pzxid get correctly updated
-     * when applying the txns received.
-     */
+    
     @Test
     public void testPZxidUpdatedDuringSnapSyncing() throws Exception {
         LOG.info("Enable force snapshot sync");
@@ -202,13 +175,7 @@ public class FuzzySnapshotRelatedTest extends QuorumPeerTestBase {
         compareStat(parent, leaderId, followerA);
     }
 
-    /**
-     * It's possible during taking fuzzy snapshot, the parent is serialized
-     * before the child get deleted in the fuzzy range.
-     *
-     * In which case, we need to make sure the pzxid get correctly updated
-     * when replaying the txns.
-     */
+    
     @Test
     public void testPZxidUpdatedWhenLoadingSnapshot() throws Exception {
 

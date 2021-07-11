@@ -1,30 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
- /* This file copied from Hadoop's security branch,
-  * with the following changes:
-  * 1. package changed from org.apache.hadoop.security to
-  *    org.apache.zookeeper.server.auth.
-  * 2. Usage of Hadoop's Configuration class removed since
-  *    it is not available in Zookeeper: instead, system property
-  *    "zookeeper.security.auth_to_local" is used.
-  */
-
 package org.apache.zookeeper.server.auth;
 
 import java.io.IOException;
@@ -35,47 +8,32 @@ import java.util.regex.Pattern;
 
 import org.apache.zookeeper.server.util.KerberosUtil;
 
-/**
- * This class implements parsing and handling of Kerberos principal names. In 
- * particular, it splits them apart and translates them down into local
- * operating system names.
- */
+
 public class KerberosName {
-  /** The first component of the name */
+  
   private final String serviceName;
-  /** The second component of the name. It may be null. */
+  
   private final String hostName;
-  /** The realm of the name. */
+  
   private final String realm;
 
-  /**
-   * A pattern that matches a Kerberos name with at most 2 components.
-   */
+  
   private static final Pattern nameParser = 
     Pattern.compile("([^/@]*)(/([^/@]*))?@([^/@]*)");
 
-  /** 
-   * A pattern that matches a string with out '$' and then a single
-   * parameter with $n.
-   */
+  
   private static Pattern parameterPattern = 
     Pattern.compile("([^$]*)(\\$(\\d*))?");
 
-  /**
-   * A pattern for parsing a auth_to_local rule.
-   */
+  
   private static final Pattern ruleParser =
     Pattern.compile("\\s*((DEFAULT)|(RULE:\\[(\\d*):([^\\]]*)](\\(([^)]*)\\))?"+
                     "(s/([^/]*)/([^/]*)/(g)?)?))");
   
-  /**
-   * A pattern that recognizes simple/non-simple names.
-   */
+  
   private static final Pattern nonSimplePattern = Pattern.compile("[/@]");
   
-  /**
-   * The list of translation rules.
-   */
+  
   private static List<Rule> rules;
 
   private static String defaultRealm;
@@ -92,21 +50,14 @@ public class KerberosName {
         defaultRealm="";
     }
     try {
-      // setConfiguration() will work even if the above try() fails due
-      // to a missing Kerberos configuration (unless zookeeper.requireKerberosConfig
-      // is set to true, which would not allow execution to reach here due to the
-      // throwing of an IllegalArgumentException above).
-      setConfiguration();
+                              setConfiguration();
     }
     catch (IOException e) {
       throw new IllegalArgumentException("Could not configure Kerberos principal name mapping.");
     }
   }
 
-  /**
-   * Create a name from the full Kerberos principal name.
-   * @param name
-   */
+  
   public KerberosName(String name) {
     Matcher match = nameParser.matcher(name);
     if (!match.matches()) {
@@ -124,17 +75,12 @@ public class KerberosName {
     }
   }
 
-  /**
-   * Get the configured default realm.
-   * @return the default realm from the krb5.conf
-   */
+  
   public String getDefaultRealm() {
     return defaultRealm;
   }
 
-  /**
-   * Put the name back together from the parts.
-   */
+  
   @Override
   public String toString() {
     StringBuilder result = new StringBuilder();
@@ -150,33 +96,22 @@ public class KerberosName {
     return result.toString();
   }
 
-  /**
-   * Get the first component of the name.
-   * @return the first section of the Kerberos principal name
-   */
+  
   public String getServiceName() {
     return serviceName;
   }
 
-  /**
-   * Get the second component of the name.
-   * @return the second section of the Kerberos principal name, and may be null
-   */
+  
   public String getHostName() {
     return hostName;
   }
   
-  /**
-   * Get the realm of the name.
-   * @return the realm of the name, may be null
-   */
+  
   public String getRealm() {
     return realm;
   }
   
-  /**
-   * An encoding of a rule for translating kerberos names.
-   */
+  
   private static class Rule {
     private final boolean isDefault;
     private final int numOfComponents;
@@ -238,15 +173,7 @@ public class KerberosName {
       return buf.toString();
     }
     
-    /**
-     * Replace the numbered parameters of the form $n where n is from 1 to 
-     * the length of params. Normal text is copied directly and $n is replaced
-     * by the corresponding parameter.
-     * @param format the string to replace parameters again
-     * @param params the list of parameters
-     * @return the generated string with the parameter references replaced.
-     * @throws BadFormatString
-     */
+    
     static String replaceParameters(String format, 
                                     String[] params) throws BadFormatString {
       Matcher match = parameterPattern.matcher(format);
@@ -275,15 +202,7 @@ public class KerberosName {
       return result.toString();
     }
 
-    /**
-     * Replace the matches of the from pattern in the base string with the value
-     * of the to string.
-     * @param base the string to transform
-     * @param from the pattern to look for in the base string
-     * @param to the string to replace matches of the pattern with
-     * @param repeat whether the substitution should be repeated
-     * @return
-     */
+    
     static String replaceSubstitution(String base, Pattern from, String to, 
                                       boolean repeat) {
       Matcher match = from.matcher(base);
@@ -294,14 +213,7 @@ public class KerberosName {
       }
     }
 
-    /**
-     * Try to apply this rule to the given name represented as a parameter
-     * array.
-     * @param params first element is the realm, second and later elements are
-     *        are the components of the name "a/b@FOO" -> {"FOO", "a", "b"}
-     * @return the short name if this rule applies or null
-     * @throws IOException throws if something is wrong with the rules
-     */
+    
     String apply(String[] params) throws IOException {
       String result = null;
       if (isDefault) {
@@ -349,11 +261,7 @@ public class KerberosName {
     return result;
   }
 
-  /**
-   * Set the static configuration to get the rules.
-   * @param conf the new configuration
-   * @throws IOException
-   */
+  
   public static void setConfiguration() throws IOException {
     String ruleString = System.getProperty("zookeeper.security.auth_to_local", "DEFAULT");
     rules = parseRules(ruleString);
@@ -376,17 +284,11 @@ public class KerberosName {
     }
   }
 
-  /**
-   * Get the translation of the principal name into an operating system
-   * user name.
-   * @return the short name
-   * @throws IOException
-   */
+  
   public String getShortName() throws IOException {
     String[] params;
     if (hostName == null) {
-      // if it is already simple, just return it
-      if (realm == null) {
+            if (realm == null) {
         return serviceName;
       }
       params = new String[]{realm, serviceName};

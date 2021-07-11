@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server.quorum;
 
 import org.apache.zookeeper.PortAssignment;
@@ -49,8 +31,7 @@ public class ReconfigBackupTest extends QuorumPeerTestBase {
         return props.getProperty("version", "");
     }
 
-    // upgrade this once we have Google-Guava or Java 7+
-    public static String getFileContent(File file) throws FileNotFoundException {
+        public static String getFileContent(File file) throws FileNotFoundException {
         Scanner sc = new Scanner(file);
         StringBuilder sb = new StringBuilder();
         while (sc.hasNextLine()) {
@@ -63,12 +44,10 @@ public class ReconfigBackupTest extends QuorumPeerTestBase {
     public void setup() {
         ClientBase.setupTestEnv();
         System.setProperty("zookeeper.DigestAuthenticationProvider.superDigest",
-                "super:D/InIHSb7yEEbrWz8b9l71RjZJU="/* password is 'test'*/);
+                "super:D/InIHSb7yEEbrWz8b9l71RjZJU=");
     }
 
-    /**
-     * This test checks that it will backup static file on bootup.
-     */
+    
     @Test
     public void testBackupStatic() throws Exception {
         final int SERVER_COUNT = 3;
@@ -92,8 +71,7 @@ public class ReconfigBackupTest extends QuorumPeerTestBase {
 
         for (int i = 0; i < SERVER_COUNT; i++) {
             mt[i] = new MainThread(i, clientPorts[i], currentQuorumCfgSection, false);
-            // check that a dynamic configuration file doesn't exist
-            Assert.assertNull("static file backup shouldn't exist before bootup",
+                        Assert.assertNull("static file backup shouldn't exist before bootup",
                     mt[i].getFileByName("zoo.cfg.bak"));
             staticFileContent[i] = getFileContent(mt[i].confFile);
             mt[i].start();
@@ -114,11 +92,7 @@ public class ReconfigBackupTest extends QuorumPeerTestBase {
         }
     }
 
-    /**
-     * This test checks that on reconfig, a new dynamic file will be created with
-     * current version appended to file name. Meanwhile, the dynamic file pointer
-     * in static config file should also be changed.
-     */
+    
     @Test
     public void testReconfigCreateNewVersionFile() throws Exception {
         final int SERVER_COUNT = 3;
@@ -156,16 +130,14 @@ public class ReconfigBackupTest extends QuorumPeerTestBase {
         ZooKeeper zk[] = new ZooKeeper[NEW_SERVER_COUNT];
         ZooKeeperAdmin zkAdmin[] = new ZooKeeperAdmin[NEW_SERVER_COUNT];
 
-        // start old cluster
-        for (int i = 0; i < SERVER_COUNT; i++) {
+                for (int i = 0; i < SERVER_COUNT; i++) {
             mt[i] = new MainThread(i, clientPorts[i], quorumCfgSection, "reconfigEnabled=true\n");
             mt[i].start();
         }
 
         String firstVersion = null, secondVersion = null;
 
-        // test old cluster
-        for (int i = 0; i < SERVER_COUNT; i++) {
+                for (int i = 0; i < SERVER_COUNT; i++) {
             Assert.assertTrue("waiting for server " + i + " being up",
                     ClientBase.waitForServerUp("127.0.0.1:" + clientPorts[i],
                             CONNECTION_TIMEOUT));
@@ -184,9 +156,7 @@ public class ReconfigBackupTest extends QuorumPeerTestBase {
                     zk[i], oldServers, null);
 
             String configVersion = getVersionFromConfigStr(configStr);
-            // the version appended to filename should be the same as
-            // the one of quorum verifier.
-            Assert.assertEquals(version, configVersion);
+                                    Assert.assertEquals(version, configVersion);
 
             if (i == 0) {
                 firstVersion = version;
@@ -197,23 +167,19 @@ public class ReconfigBackupTest extends QuorumPeerTestBase {
 
         ReconfigTest.reconfig(zkAdmin[1], null, null, newServers, -1);
 
-        // start additional new servers
-        for (int i = SERVER_COUNT; i < NEW_SERVER_COUNT; i++) {
+                for (int i = SERVER_COUNT; i < NEW_SERVER_COUNT; i++) {
             mt[i] = new MainThread(i, clientPorts[i], quorumCfgSection + servers[i]);
             mt[i].start();
         }
 
-        // wait for new servers to be up running
-        for (int i = SERVER_COUNT; i < NEW_SERVER_COUNT; i++) {
+                for (int i = SERVER_COUNT; i < NEW_SERVER_COUNT; i++) {
             Assert.assertTrue("waiting for server " + i + " being up",
                     ClientBase.waitForServerUp("127.0.0.1:" + clientPorts[i],
                             CONNECTION_TIMEOUT));
             zk[i] = ClientBase.createZKClient("127.0.0.1:" + clientPorts[i]);
         }
 
-        // test that all servers have:
-        // a different, larger version dynamic file
-        for (int i = 0; i < NEW_SERVER_COUNT; i++) {
+                        for (int i = 0; i < NEW_SERVER_COUNT; i++) {
             Properties cfg = ReconfigLegacyTest.readPropertiesFromFile(mt[i].confFile);
             String filename = cfg.getProperty("dynamicConfigFile", "");
 
@@ -243,14 +209,7 @@ public class ReconfigBackupTest extends QuorumPeerTestBase {
         }
     }
 
-    /**
-     * This test checks that if a version is appended to dynamic file,
-     * then peer should use that version as quorum config version.
-     * <p/>
-     * The scenario: one server has an older version of 3 servers, and
-     * four others have newer version of 5 servers. Finally, the lag-off one
-     * should have server config of 5 servers.
-     */
+    
     @Test
     public void testVersionOfDynamicFilename() throws Exception {
         final int SERVER_COUNT = 5;
@@ -272,8 +231,7 @@ public class ReconfigBackupTest extends QuorumPeerTestBase {
             allServers.add(server);
 
             if (i < oldServerCount) {
-                // only take in the first 3 servers as old quorum config.
-                oldSb.append(server + "\n");
+                                oldSb.append(server + "\n");
             }
         }
 
@@ -292,10 +250,7 @@ public class ReconfigBackupTest extends QuorumPeerTestBase {
                         true, "200000000");
             }
 
-            // before connecting to quorum, servers should have set up dynamic file
-            // version and pointer. And the lag-off server is using the older
-            // version dynamic file.
-            if (i == lagOffServerId) {
+                                                if (i == lagOffServerId) {
                 Assert.assertNotNull(
                         mt[i].getFileByName("zoo.cfg.dynamic.100000000"));
                 Assert.assertNull(
@@ -322,9 +277,7 @@ public class ReconfigBackupTest extends QuorumPeerTestBase {
                             CONNECTION_TIMEOUT));
             ZooKeeper zk = ClientBase.createZKClient("127.0.0.1:" + clientPorts[i]);
 
-            // we should see that now all servers have the same config of 5 servers
-            // including the lag-off server.
-            String configStr = ReconfigTest.testServerHasConfig(zk, allServers, null);
+                                    String configStr = ReconfigTest.testServerHasConfig(zk, allServers, null);
             Assert.assertEquals("200000000", getVersionFromConfigStr(configStr));
             
             List<String> configLines = Arrays.asList(configStr.split("\n"));
@@ -334,9 +287,7 @@ public class ReconfigBackupTest extends QuorumPeerTestBase {
              File dynamicConfigFile = mt[i].getFileByName("zoo.cfg.dynamic.200000000");
              Assert.assertNotNull(dynamicConfigFile);
 
-            // All dynamic files created with the same version should have
-            // same configs, and they should be equal to the config we get from QuorumPeer.
-            if (i == 0) {
+                                    if (i == 0) {
                 dynamicFileContent = getFileContent(dynamicConfigFile);                
                 Assert.assertEquals(sortedConfigStr, dynamicFileContent + 
                         "version=200000000");
@@ -348,9 +299,7 @@ public class ReconfigBackupTest extends QuorumPeerTestBase {
             zk.close();
         }
 
-        // finally, we should also check that the lag-off server has updated
-        // the dynamic file pointer.
-        Assert.assertTrue(
+                        Assert.assertTrue(
                 mt[lagOffServerId].getPropFromStaticFile("dynamicConfigFile")
                         .endsWith(".200000000"));
 

@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server.quorum;
 
 import static org.apache.zookeeper.server.quorum.ZabUtils.createQuorumPeer;
@@ -151,16 +133,10 @@ public class Zab1_0Test extends ZKTestCase {
             f1.start();
             f2.start();
             
-            // wait until followers time out in getEpochToPropose - they shouldn't return
-            // normally because the leader didn't execute getEpochToPropose and so its epoch was not
-            // accounted for
-            f1.join(leader.self.getInitLimit()*leader.self.getTickTime() + 5000);
+                                                f1.join(leader.self.getInitLimit()*leader.self.getTickTime() + 5000);
             f2.join(leader.self.getInitLimit()*leader.self.getTickTime() + 5000);
                 
-            // even though followers timed out, their ids are in connectingFollowers, and their
-            // epoch were accounted for, so the leader should not block and since it started with 
-            // accepted epoch = 5 it should now have 6
-            try {
+                                                try {
             	long epoch = leader.getEpochToPropose(leader.self.getId(), leader.self.getAcceptedEpoch());
             	Assert.assertEquals("leader got wrong epoch from getEpochToPropose", 6, epoch);	
             } catch (Exception e){ 
@@ -174,19 +150,7 @@ public class Zab1_0Test extends ZKTestCase {
         }
     }
     
-    /**
-     * In this test, the leader sets the last accepted epoch to 5. The call
-     * to getEpochToPropose should set epoch to 6 and wait until another 
-     * follower executes it. If in getEpochToPropose we don't check if
-     * lastAcceptedEpoch == epoch, then the call from the subsequent
-     * follower with lastAcceptedEpoch = 6 doesn't change the value
-     * of epoch, and the test fails. It passes with the fix to predicate.
-     * 
-     * {@link https://issues.apache.org/jira/browse/ZOOKEEPER-1343}
-     * 
-     * 
-     * @throws Exception
-     */
+    
     
     @Test
     public void testLastAcceptedEpoch() throws Exception {    
@@ -241,19 +205,15 @@ public class Zab1_0Test extends ZKTestCase {
             FollowerMockThread f1 = new FollowerMockThread(1, leader, false);
             FollowerMockThread f2 = new FollowerMockThread(2, leader, false);
 
-            // things needed for waitForEpochAck to run (usually in leader.lead(), but we're not running leader here)
-            leader.leaderStateSummary = new StateSummary(leader.self.getCurrentEpoch(), leader.zk.getLastProcessedZxid());
+                        leader.leaderStateSummary = new StateSummary(leader.self.getCurrentEpoch(), leader.zk.getLastProcessedZxid());
             
             f1.start();
             f2.start();         
             
-            // wait until followers time out in waitForEpochAck - they shouldn't return
-            // normally because the leader didn't execute waitForEpochAck
-            f1.join(leader.self.getInitLimit()*leader.self.getTickTime() + 5000);
+                                    f1.join(leader.self.getInitLimit()*leader.self.getTickTime() + 5000);
             f2.join(leader.self.getInitLimit()*leader.self.getTickTime() + 5000);
                         
-            // make sure that they timed out and didn't return normally  
-            Assert.assertTrue(f1.msg + " without waiting for leader", f1.msg == null);            
+                        Assert.assertTrue(f1.msg + " without waiting for leader", f1.msg == null);            
             Assert.assertTrue(f2.msg + " without waiting for leader", f2.msg == null);
         } finally {
             if (leader != null) {
@@ -349,8 +309,7 @@ public class Zab1_0Test extends ZKTestCase {
         LeadThread leadThread = null;
         Leader leader = null;
         try {              
-            // Setup a database with two znodes
-            FileTxnSnapLog snapLog = new FileTxnSnapLog(tmpDir, tmpDir);
+                        FileTxnSnapLog snapLog = new FileTxnSnapLog(tmpDir, tmpDir);
             ZKDatabase zkDb = new ZKDatabase(snapLog);
             
             Assert.assertTrue(ops >= 1);
@@ -365,8 +324,7 @@ public class Zab1_0Test extends ZKTestCase {
             }                
             Assert.assertTrue(zxid > ZxidUtils.makeZxid(1, 0));
             
-            // Generate snapshot and close files.
-            snapLog.save(zkDb.getDataTree(), zkDb.getSessionWithTimeOuts());
+                        snapLog.save(zkDb.getDataTree(), zkDb.getSessionWithTimeOuts());
             snapLog.close();
             
             QuorumPeer peer = createQuorumPeer(tmpDir);
@@ -374,8 +332,7 @@ public class Zab1_0Test extends ZKTestCase {
             leader = createLeader(tmpDir, peer);
             peer.leader = leader;
             
-            // Set the last accepted epoch and current epochs to be 1
-            peer.setAcceptedEpoch(1);
+                        peer.setAcceptedEpoch(1);
             peer.setCurrentEpoch(1);
 
             
@@ -526,7 +483,7 @@ public class Zab1_0Test extends ZKTestCase {
                 Assert.assertEquals(1, l.self.getAcceptedEpoch());
                 Assert.assertEquals(1, l.self.getCurrentEpoch());
 
-                /* we test a normal run. everything should work out well. */
+                
                 LearnerInfo li = new LearnerInfo(1, 0x10000, 0);
                 byte liBytes[] = new byte[20];
                 ByteBufferOutputStream.record2ByteBuffer(li,
@@ -556,8 +513,7 @@ public class Zab1_0Test extends ZKTestCase {
         }, 2);
     }
     
-    // We want to track the change with a callback rather than depending on timing
-    class TrackerWatcher implements Watcher {
+        class TrackerWatcher implements Watcher {
         boolean changed;
         synchronized void waitForChange() throws InterruptedException {
             while(!changed) {
@@ -590,14 +546,12 @@ public class Zab1_0Test extends ZKTestCase {
                 tmpDir.mkdir();
                 File logDir = f.fzk.getTxnLogFactory().getDataDir().getParentFile();
                 File snapDir = f.fzk.getTxnLogFactory().getSnapDir().getParentFile();
-                //Spy on ZK so we can check if a snapshot happened or not.
-                f.zk = spy(f.zk);
+                                f.zk = spy(f.zk);
                 try {
                     Assert.assertEquals(0, f.self.getAcceptedEpoch());
                     Assert.assertEquals(0, f.self.getCurrentEpoch());
 
-                    // Setup a database with a single /foo node
-                    ZKDatabase zkDb = new ZKDatabase(new FileTxnSnapLog(tmpDir, tmpDir));
+                                        ZKDatabase zkDb = new ZKDatabase(new FileTxnSnapLog(tmpDir, tmpDir));
                     final long firstZxid = ZxidUtils.makeZxid(1, 1);
                     zkDb.processTxn(new TxnHeader(13, 1313, firstZxid, 33, ZooDefs.OpCode.create), new CreateTxn("/foo", "data1".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, false, 1));
                     Stat stat = new Stat();
@@ -612,8 +566,7 @@ public class Zab1_0Test extends ZKTestCase {
                     Assert.assertEquals(learnInfo.getProtocolVersion(), 0x10000);
                     Assert.assertEquals(learnInfo.getServerid(), 0);
                 
-                    // We are simulating an established leader, so the epoch is 1
-                    qp.setType(Leader.LEADERINFO);
+                                        qp.setType(Leader.LEADERINFO);
                     qp.setZxid(ZxidUtils.makeZxid(1, 0));
                     byte protoBytes[] = new byte[4];
                     ByteBuffer.wrap(protoBytes).putInt(0x10000);
@@ -627,49 +580,40 @@ public class Zab1_0Test extends ZKTestCase {
                     Assert.assertEquals(1, f.self.getAcceptedEpoch());
                     Assert.assertEquals(0, f.self.getCurrentEpoch());
                     
-                    // Send the snapshot we created earlier
-                    qp.setType(Leader.SNAP);
+                                        qp.setType(Leader.SNAP);
                     qp.setData(new byte[0]);
                     qp.setZxid(zkDb.getDataTreeLastProcessedZxid());
                     oa.writeRecord(qp, null);
                     zkDb.serializeSnapshot(oa);
                     oa.writeString("BenWasHere", null);
-                    Thread.sleep(10); //Give it some time to process the snap
-                    //No Snapshot taken yet, the SNAP was applied in memory
-                    verify(f.zk, never()).takeSnapshot();
+                    Thread.sleep(10);                                         verify(f.zk, never()).takeSnapshot();
 
                     qp.setType(Leader.NEWLEADER);
                     qp.setZxid(ZxidUtils.makeZxid(1, 0));
                     oa.writeRecord(qp, null);
 
-                    // Get the ack of the new leader
-                    readPacketSkippingPing(ia, qp);
+                                        readPacketSkippingPing(ia, qp);
                     Assert.assertEquals(Leader.ACK, qp.getType());
                     Assert.assertEquals(ZxidUtils.makeZxid(1, 0), qp.getZxid());
                     Assert.assertEquals(1, f.self.getAcceptedEpoch());
                     Assert.assertEquals(1, f.self.getCurrentEpoch());
-                    //Make sure that we did take the snapshot now
-                    verify(f.zk).takeSnapshot();
+                                        verify(f.zk).takeSnapshot();
                     Assert.assertEquals(firstZxid, f.fzk.getLastProcessedZxid());
                     
-                    // Make sure the data was recorded in the filesystem ok
-                    ZKDatabase zkDb2 = new ZKDatabase(new FileTxnSnapLog(logDir, snapDir));
+                                        ZKDatabase zkDb2 = new ZKDatabase(new FileTxnSnapLog(logDir, snapDir));
                     long lastZxid = zkDb2.loadDataBase();
                     Assert.assertEquals("data1", new String(zkDb2.getData("/foo", stat, null)));
                     Assert.assertEquals(firstZxid, lastZxid);
 
-                    // Propose an update
-                    long proposalZxid = ZxidUtils.makeZxid(1, 1000);
+                                        long proposalZxid = ZxidUtils.makeZxid(1, 1000);
                     proposeSetData(qp, proposalZxid, "data2", 2);
                     oa.writeRecord(qp, null);
                     
                     TrackerWatcher watcher = new TrackerWatcher();
                     
-                    // The change should not have happened yet, since we haven't committed
-                    Assert.assertEquals("data1", new String(f.fzk.getZKDatabase().getData("/foo", stat, watcher)));
+                                        Assert.assertEquals("data1", new String(f.fzk.getZKDatabase().getData("/foo", stat, watcher)));
                     
-                    // The change should happen now
-                    qp.setType(Leader.COMMIT);
+                                        qp.setType(Leader.COMMIT);
                     qp.setZxid(proposalZxid);
                     oa.writeRecord(qp, null);
                     
@@ -677,8 +621,7 @@ public class Zab1_0Test extends ZKTestCase {
                     qp.setZxid(0);
                     oa.writeRecord(qp, null);
                     
-                    // Read the uptodate ack
-                    readPacketSkippingPing(ia, qp);
+                                        readPacketSkippingPing(ia, qp);
                     Assert.assertEquals(Leader.ACK, qp.getType());
                     Assert.assertEquals(ZxidUtils.makeZxid(1, 0), qp.getZxid());
                     
@@ -689,8 +632,7 @@ public class Zab1_0Test extends ZKTestCase {
                     watcher.waitForChange();
                     Assert.assertEquals("data2", new String(f.fzk.getZKDatabase().getData("/foo", stat, null)));
                     
-                    // check and make sure the change is persisted
-                    zkDb2 = new ZKDatabase(new FileTxnSnapLog(logDir, snapDir));
+                                        zkDb2 = new ZKDatabase(new FileTxnSnapLog(logDir, snapDir));
                     lastZxid = zkDb2.loadDataBase();
                     Assert.assertEquals("data2", new String(zkDb2.getData("/foo", stat, null)));
                     Assert.assertEquals(proposalZxid, lastZxid);
@@ -725,14 +667,12 @@ public class Zab1_0Test extends ZKTestCase {
                 tmpDir.mkdir();
                 File logDir = f.fzk.getTxnLogFactory().getDataDir().getParentFile();
                 File snapDir = f.fzk.getTxnLogFactory().getSnapDir().getParentFile();
-                //Spy on ZK so we can check if a snapshot happened or not.
-                f.zk = spy(f.zk);
+                                f.zk = spy(f.zk);
                 try {
                     Assert.assertEquals(0, f.self.getAcceptedEpoch());
                     Assert.assertEquals(0, f.self.getCurrentEpoch());
 
-                    // Setup a database with a single /foo node
-                    ZKDatabase zkDb = new ZKDatabase(new FileTxnSnapLog(tmpDir, tmpDir));
+                                        ZKDatabase zkDb = new ZKDatabase(new FileTxnSnapLog(tmpDir, tmpDir));
                     final long firstZxid = ZxidUtils.makeZxid(1, 1);
                     zkDb.processTxn(new TxnHeader(13, 1313, firstZxid, 33, ZooDefs.OpCode.create), new CreateTxn("/foo", "data1".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, false, 1));
                     Stat stat = new Stat();
@@ -747,8 +687,7 @@ public class Zab1_0Test extends ZKTestCase {
                     Assert.assertEquals(learnInfo.getProtocolVersion(), 0x10000);
                     Assert.assertEquals(learnInfo.getServerid(), 0);
                 
-                    // We are simulating an established leader, so the epoch is 1
-                    qp.setType(Leader.LEADERINFO);
+                                        qp.setType(Leader.LEADERINFO);
                     qp.setZxid(ZxidUtils.makeZxid(1, 0));
                     byte protoBytes[] = new byte[4];
                     ByteBuffer.wrap(protoBytes).putInt(0x10000);
@@ -762,8 +701,7 @@ public class Zab1_0Test extends ZKTestCase {
                     Assert.assertEquals(1, f.self.getAcceptedEpoch());
                     Assert.assertEquals(0, f.self.getCurrentEpoch());
                     
-                    // Send a diff
-                    qp.setType(Leader.DIFF);
+                                        qp.setType(Leader.DIFF);
                     qp.setData(new byte[0]);
                     qp.setZxid(zkDb.getDataTreeLastProcessedZxid());
                     oa.writeRecord(qp, null);
@@ -781,30 +719,25 @@ public class Zab1_0Test extends ZKTestCase {
                     qp.setZxid(0);
                     oa.writeRecord(qp, null);
                     
-                    // Read the uptodate ack
-                    readPacketSkippingPing(ia, qp);
+                                        readPacketSkippingPing(ia, qp);
                     Assert.assertEquals(Leader.ACK, qp.getType());
                     Assert.assertEquals(ZxidUtils.makeZxid(1, 0), qp.getZxid());
                     
                   
-                    // Get the ack of the new leader
-                    readPacketSkippingPing(ia, qp);
+                                        readPacketSkippingPing(ia, qp);
                     Assert.assertEquals(Leader.ACK, qp.getType());
                     Assert.assertEquals(ZxidUtils.makeZxid(1, 0), qp.getZxid());
                     Assert.assertEquals(1, f.self.getAcceptedEpoch());
                     Assert.assertEquals(1, f.self.getCurrentEpoch());
                     
-                    //Wait for the transactions to be written out. The thread that writes them out
-                    // does not send anything back when it is done.
-                    long start = System.currentTimeMillis();
+                                                            long start = System.currentTimeMillis();
                     while (createSessionZxid != f.fzk.getLastProcessedZxid() && (System.currentTimeMillis() - start) < 50) {
                         Thread.sleep(1);
                     }
                     
                     Assert.assertEquals(createSessionZxid, f.fzk.getLastProcessedZxid());
                     
-                    // Make sure the data was recorded in the filesystem ok
-                    ZKDatabase zkDb2 = new ZKDatabase(new FileTxnSnapLog(logDir, snapDir));
+                                        ZKDatabase zkDb2 = new ZKDatabase(new FileTxnSnapLog(logDir, snapDir));
                     start = System.currentTimeMillis();
                     zkDb2.loadDataBase();
                     while (zkDb2.getSessionWithTimeOuts().isEmpty() && (System.currentTimeMillis() - start) < 50) {
@@ -814,8 +747,7 @@ public class Zab1_0Test extends ZKTestCase {
                     LOG.info("zkdb2 sessions:" + zkDb2.getSessions());
                     LOG.info("zkdb2 with timeouts:" + zkDb2.getSessionWithTimeOuts());
                     Assert.assertNotNull(zkDb2.getSessionWithTimeOuts().get(4L));
-                    //Snapshot was never taken during very simple sync
-                    verify(f.zk, never()).takeSnapshot();
+                                        verify(f.zk, never()).takeSnapshot();
                 } finally {
                     TestUtils.deleteFileRecursively(tmpDir);
                 }
@@ -844,7 +776,7 @@ public class Zab1_0Test extends ZKTestCase {
                 Assert.assertEquals(0, l.self.getAcceptedEpoch());
                 Assert.assertEquals(0, l.self.getCurrentEpoch());
                 
-                /* we test a normal run. everything should work out well. */
+                
                 LearnerInfo li = new LearnerInfo(1, 0x10000, 0);
                 byte liBytes[] = new byte[20];
                 ByteBufferOutputStream.record2ByteBuffer(li,
@@ -972,8 +904,7 @@ public class Zab1_0Test extends ZKTestCase {
                     Assert.assertEquals(0, o.self.getAcceptedEpoch());
                     Assert.assertEquals(0, o.self.getCurrentEpoch());
 
-                    // Setup a database with a single /foo node
-                    ZKDatabase zkDb = new ZKDatabase(new FileTxnSnapLog(tmpDir, tmpDir));
+                                        ZKDatabase zkDb = new ZKDatabase(new FileTxnSnapLog(tmpDir, tmpDir));
                     final long foo1Zxid = ZxidUtils.makeZxid(1, 1);
                     final long foo2Zxid = ZxidUtils.makeZxid(1, 2);
                     zkDb.processTxn(new TxnHeader(13, 1313, foo1Zxid, 33,
@@ -1000,8 +931,7 @@ public class Zab1_0Test extends ZKTestCase {
                     Assert.assertEquals(learnInfo.getProtocolVersion(), 0x10000);
                     Assert.assertEquals(learnInfo.getServerid(), 0);
 
-                    // We are simulating an established leader, so the epoch is 1
-                    qp.setType(Leader.LEADERINFO);
+                                        qp.setType(Leader.LEADERINFO);
                     qp.setZxid(ZxidUtils.makeZxid(1, 0));
                     byte protoBytes[] = new byte[4];
                     ByteBuffer.wrap(protoBytes).putInt(0x10000);
@@ -1016,8 +946,7 @@ public class Zab1_0Test extends ZKTestCase {
                     Assert.assertEquals(1, o.self.getAcceptedEpoch());
                     Assert.assertEquals(0, o.self.getCurrentEpoch());
 
-                    // Send the snapshot we created earlier
-                    qp.setType(Leader.SNAP);
+                                        qp.setType(Leader.SNAP);
                     qp.setData(new byte[0]);
                     qp.setZxid(zkDb.getDataTreeLastProcessedZxid());
                     oa.writeRecord(qp, null);
@@ -1027,8 +956,7 @@ public class Zab1_0Test extends ZKTestCase {
                     qp.setZxid(ZxidUtils.makeZxid(1, 0));
                     oa.writeRecord(qp, null);
 
-                    // Get the ack of the new leader
-                    readPacketSkippingPing(ia, qp);
+                                        readPacketSkippingPing(ia, qp);
                     Assert.assertEquals(Leader.ACK, qp.getType());
                     Assert.assertEquals(ZxidUtils.makeZxid(1, 0), qp.getZxid());
                     Assert.assertEquals(1, o.self.getAcceptedEpoch());
@@ -1036,31 +964,26 @@ public class Zab1_0Test extends ZKTestCase {
 
                     Assert.assertEquals(foo2Zxid, o.zk.getLastProcessedZxid());
 
-                    // Make sure the data was recorded in the filesystem ok
-                    ZKDatabase zkDb2 = new ZKDatabase(new FileTxnSnapLog(
+                                        ZKDatabase zkDb2 = new ZKDatabase(new FileTxnSnapLog(
                             logDir, snapDir));
                     long lastZxid = zkDb2.loadDataBase();
                     Assert.assertEquals("data1",
                             new String(zkDb2.getData("/foo1", stat, null)));
                     Assert.assertEquals(foo2Zxid, lastZxid);
 
-                    // Register watch
-                    TrackerWatcher watcher = new TrackerWatcher();
+                                        TrackerWatcher watcher = new TrackerWatcher();
                     Assert.assertEquals("data1", new String(o.zk
                             .getZKDatabase().getData("/foo2", stat, watcher)));
 
-                    // Propose /foo1 update
-                    long proposalZxid = ZxidUtils.makeZxid(1, 1000);
+                                        long proposalZxid = ZxidUtils.makeZxid(1, 1000);
                     proposeSetData(qp, "/foo1", proposalZxid, "data2", 2);
                     oa.writeRecord(qp, null);
 
-                    // Commit /foo1 update
-                    qp.setType(Leader.COMMIT);
+                                        qp.setType(Leader.COMMIT);
                     qp.setZxid(proposalZxid);
                     oa.writeRecord(qp, null);
 
-                    // Inform /foo2 update
-                    long informZxid = ZxidUtils.makeZxid(1, 1001);
+                                        long informZxid = ZxidUtils.makeZxid(1, 1001);
                     proposeSetData(qp, "/foo2", informZxid, "data2", 2);
                     qp.setType(Leader.INFORM);
                     oa.writeRecord(qp, null);
@@ -1069,21 +992,17 @@ public class Zab1_0Test extends ZKTestCase {
                     qp.setZxid(0);
                     oa.writeRecord(qp, null);
 
-                    // Read the uptodate ack
-                    readPacketSkippingPing(ia, qp);
+                                        readPacketSkippingPing(ia, qp);
                     Assert.assertEquals(Leader.ACK, qp.getType());
                     Assert.assertEquals(ZxidUtils.makeZxid(1, 0), qp.getZxid());
 
-                    // Data should get updated
-                    watcher.waitForChange();
+                                        watcher.waitForChange();
                     Assert.assertEquals("data2", new String(o.zk
                             .getZKDatabase().getData("/foo1", stat, null)));
                     Assert.assertEquals("data2", new String(o.zk
                             .getZKDatabase().getData("/foo2", stat, null)));
 
-                    // Shutdown sequence guarantee that all pending requests
-                    // in sync request processor get flush to disk
-                    o.zk.shutdown();
+                                                            o.zk.shutdown();
 
                     zkDb2 = new ZKDatabase(new FileTxnSnapLog(logDir, snapDir));
                     lastZxid = zkDb2.loadDataBase();
@@ -1117,12 +1036,12 @@ public class Zab1_0Test extends ZKTestCase {
         testLeaderConversation(new LeaderConversation() {
             public void converseWithLeader(InputArchive ia, OutputArchive oa, Leader l)
                     throws IOException {
-                /* we test a normal run. everything should work out well. */
+                
                 LearnerInfo li = new LearnerInfo(1, 0x10000, 0);
                 byte liBytes[] = new byte[20];
                 ByteBufferOutputStream.record2ByteBuffer(li,
                         ByteBuffer.wrap(liBytes));
-                /* we are going to say we last acked epoch 20 */
+                
                 QuorumPacket qp = new QuorumPacket(Leader.FOLLOWERINFO, ZxidUtils.makeZxid(20, 0),
                         liBytes, null);
                 oa.writeRecord(qp, null);
@@ -1148,18 +1067,13 @@ public class Zab1_0Test extends ZKTestCase {
         });
     }
 
-    /**
-     * Tests that when a quorum of followers send LearnerInfo but do not ack the epoch (which is sent
-     * by the leader upon receipt of LearnerInfo from a quorum), the leader does not start using this epoch
-     * as it would in the normal case (when a quorum do ack the epoch). This tests ZK-1192
-     * @throws Exception
-     */
+    
     @Test
     public void testAbandonBeforeACKEpoch() throws Exception {
         testLeaderConversation(new LeaderConversation() {
             public void converseWithLeader(InputArchive ia, OutputArchive oa, Leader l)
                     throws IOException, InterruptedException {
-                /* we test a normal run. everything should work out well. */            	
+                            	
                 LearnerInfo li = new LearnerInfo(1, 0x10000, 0);
                 byte liBytes[] = new byte[20];
                 ByteBufferOutputStream.record2ByteBuffer(li,
@@ -1174,8 +1088,7 @@ public class Zab1_0Test extends ZKTestCase {
                         0x10000);                
                 Thread.sleep(l.self.getInitLimit()*l.self.getTickTime() + 5000);
                 
-                // The leader didn't get a quorum of acks - make sure that leader's current epoch is not advanced
-                Assert.assertEquals(0, l.self.getCurrentEpoch());			
+                                Assert.assertEquals(0, l.self.getCurrentEpoch());			
             }
         });
     }
@@ -1270,10 +1183,7 @@ public class Zab1_0Test extends ZKTestCase {
         }
     }
 
-    /*
-     * Epoch is first written to file then updated in memory. Give some time to
-     * write the epoch in file and then go for assert.
-     */
+    
     private void assertCurrentEpochGotUpdated(int expected, QuorumPeer self, long timeout)
         throws IOException {
         long elapsedTime = 0;

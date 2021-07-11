@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper;
 
 import static org.apache.zookeeper.test.ClientBase.CONNECTION_TIMEOUT;
@@ -62,8 +44,7 @@ public class ClientRequestTimeoutTest extends QuorumPeerTestBase {
             mt[i].start();
         }
 
-        // ensure server started
-        for (int i = 0; i < SERVER_COUNT; i++) {
+                for (int i = 0; i < SERVER_COUNT; i++) {
             Assert.assertTrue("waiting for server " + i + " being up",
                     ClientBase.waitForServerUp("127.0.0.1:" + clientPorts[i],
                             CONNECTION_TIMEOUT));
@@ -75,16 +56,13 @@ public class ClientRequestTimeoutTest extends QuorumPeerTestBase {
         watch1.waitForConnected(ClientBase.CONNECTION_TIMEOUT);
 
         String data = "originalData";
-        // lets see one successful operation
-        zk.create("/clientHang1", data.getBytes(), Ids.OPEN_ACL_UNSAFE,
+                zk.create("/clientHang1", data.getBytes(), Ids.OPEN_ACL_UNSAFE,
                 CreateMode.PERSISTENT_SEQUENTIAL);
 
-        // now make environment for client hang
-        dropPacket = true;
+                dropPacket = true;
         dropPacketType = ZooDefs.OpCode.create;
 
-        // Test synchronous API
-        try {
+                try {
             zk.create("/clientHang2", data.getBytes(), Ids.OPEN_ACL_UNSAFE,
                     CreateMode.PERSISTENT);
             fail("KeeperException is expected.");
@@ -93,17 +71,13 @@ public class ClientRequestTimeoutTest extends QuorumPeerTestBase {
                     exception.code().intValue());
         }
 
-        // do cleanup
-        zk.close();
+                zk.close();
         for (int i = 0; i < SERVER_COUNT; i++) {
             mt[i].shutdown();
         }
     }
 
-    /**
-     * @return connection string in the form of
-     *         127.0.0.1:port1,127.0.0.1:port2,127.0.0.1:port3
-     */
+    
     private String getCxnString(int[] clientPorts) {
         StringBuffer hostPortBuffer = new StringBuffer();
         for (int i = 0; i < clientPorts.length; i++) {
@@ -129,9 +103,7 @@ public class ClientRequestTimeoutTest extends QuorumPeerTestBase {
         @Override
         public void finishPacket(Packet p) {
             if (dropPacket && p.requestHeader.getType() == dropPacketType) {
-                // do nothing, just return, it is the same as packet is dropped
-                // by the network
-                return;
+                                                return;
             }
             super.finishPacket(p);
         }

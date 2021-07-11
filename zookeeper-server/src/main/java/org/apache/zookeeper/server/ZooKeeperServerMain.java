@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server;
 
 import java.io.IOException;
@@ -35,9 +17,7 @@ import org.apache.zookeeper.server.quorum.QuorumPeerConfig.ConfigException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * This class starts and runs a standalone ZooKeeperServer.
- */
+
 @InterfaceAudience.Public
 public class ZooKeeperServerMain {
     private static final Logger LOG =
@@ -46,18 +26,13 @@ public class ZooKeeperServerMain {
     private static final String USAGE =
         "Usage: ZooKeeperServerMain configfile | port datadir [ticktime] [maxcnxns]";
 
-    // ZooKeeper server supports two kinds of connection: unencrypted and encrypted.
-    private ServerCnxnFactory cnxnFactory;
+        private ServerCnxnFactory cnxnFactory;
     private ServerCnxnFactory secureCnxnFactory;
     private ContainerManager containerManager;
 
     private AdminServer adminServer;
 
-    /*
-     * Start up the ZooKeeper server.
-     *
-     * @param args the configfile or the port datadir [ticktime]
-     */
+    
     public static void main(String[] args) {
         ZooKeeperServerMain main = new ZooKeeperServerMain();
         try {
@@ -106,34 +81,22 @@ public class ZooKeeperServerMain {
         runFromConfig(config);
     }
 
-    /**
-     * Run from a ServerConfig.
-     * @param config ServerConfig to use.
-     * @throws IOException
-     * @throws AdminServerException
-     */
+    
     public void runFromConfig(ServerConfig config)
             throws IOException, AdminServerException {
         LOG.info("Starting server");
         FileTxnSnapLog txnLog = null;
         try {
-            // Note that this thread isn't going to be doing anything else,
-            // so rather than spawning another thread, we will just call
-            // run() in this thread.
-            // create a file logger url from the command line args
-            txnLog = new FileTxnSnapLog(config.dataLogDir, config.dataDir);
+                                                            txnLog = new FileTxnSnapLog(config.dataLogDir, config.dataDir);
             final ZooKeeperServer zkServer = new ZooKeeperServer(txnLog,
                     config.tickTime, config.minSessionTimeout, config.maxSessionTimeout, null);
             txnLog.setServerStats(zkServer.serverStats());
 
-            // Registers shutdown handler which will be used to know the
-            // server error or shutdown state changes.
-            final CountDownLatch shutdownLatch = new CountDownLatch(1);
+                                    final CountDownLatch shutdownLatch = new CountDownLatch(1);
             zkServer.registerServerShutdownHandler(
                     new ZooKeeperServerShutdownHandler(shutdownLatch));
 
-            // Start Admin server
-            adminServer = AdminServerFactory.createAdminServer();
+                        adminServer = AdminServerFactory.createAdminServer();
             adminServer.setZooKeeperServer(zkServer);
             adminServer.start();
 
@@ -142,8 +105,7 @@ public class ZooKeeperServerMain {
                 cnxnFactory = ServerCnxnFactory.createFactory();
                 cnxnFactory.configure(config.getClientPortAddress(), config.getMaxClientCnxns(), false);
                 cnxnFactory.startup(zkServer);
-                // zkServer has been started. So we don't need to start it again in secureCnxnFactory.
-                needStartZKServer = false;
+                                needStartZKServer = false;
             }
             if (config.getSecureClientPortAddress() != null) {
                 secureCnxnFactory = ServerCnxnFactory.createFactory();
@@ -157,9 +119,7 @@ public class ZooKeeperServerMain {
             );
             containerManager.start();
 
-            // Watch status of ZooKeeper server. It will do a graceful shutdown
-            // if the server is not running or hits an internal error.
-            shutdownLatch.await();
+                                    shutdownLatch.await();
 
             shutdown();
 
@@ -173,8 +133,7 @@ public class ZooKeeperServerMain {
                 zkServer.shutdown(true);
             }
         } catch (InterruptedException e) {
-            // warn, but generally this is ok
-            LOG.warn("Server interrupted", e);
+                        LOG.warn("Server interrupted", e);
         } finally {
             if (txnLog != null) {
                 txnLog.close();
@@ -182,9 +141,7 @@ public class ZooKeeperServerMain {
         }
     }
 
-    /**
-     * Shutdown the serving instance
-     */
+    
     protected void shutdown() {
         if (containerManager != null) {
             containerManager.stop();
@@ -204,8 +161,7 @@ public class ZooKeeperServerMain {
         }
     }
 
-    // VisibleForTesting
-    ServerCnxnFactory getCnxnFactory() {
+        ServerCnxnFactory getCnxnFactory() {
         return cnxnFactory;
     }
 }

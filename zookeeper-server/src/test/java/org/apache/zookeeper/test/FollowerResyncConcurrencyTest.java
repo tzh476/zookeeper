@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.test;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -61,10 +43,7 @@ public class FollowerResyncConcurrencyTest extends ZKTestCase {
 
     private AtomicInteger counter = new AtomicInteger(0);
     private AtomicInteger errors = new AtomicInteger(0);
-    /**
-     * Keep track of pending async operations, we shouldn't start verifying
-     * the state until pending operation is 0
-     */
+    
     private AtomicInteger pending = new AtomicInteger(0);
 
     @Before
@@ -79,17 +58,7 @@ public class FollowerResyncConcurrencyTest extends ZKTestCase {
         LOG.info("Error count {}" , errors.get());
     }
 
-    /**
-     * See ZOOKEEPER-1319 - verify that a lagging follwer resyncs correctly
-     * 
-     * 1) start with down quorum
-     * 2) start leader/follower1, add some data
-     * 3) restart leader/follower1
-     * 4) start follower2
-     * 5) verify data consistency across the ensemble
-     * 
-     * @throws Exception
-     */
+    
     @Test
     public void testLaggingFollowerResyncsUnderNewEpoch() throws Exception {
         CountdownWatcher watcher1 = new CountdownWatcher();
@@ -156,19 +125,7 @@ public class FollowerResyncConcurrencyTest extends ZKTestCase {
         qu.shutdownAll();
     }      
 
-    /**
-     * See ZOOKEEPER-962. This tests for one of the bugs hit while fixing this,
-     * setting the ZXID of the SNAP packet
-     * Starts up 3 ZKs. Shut down F1, write a node, restart the one that was shut down
-     * The non-leader ZKs are writing to cluster
-     * Shut down F1 again
-     * Restart after sessions are expired, expect to get a snap file
-     * Shut down, run some transactions through.
-     * Restart to a diff while transactions are running in leader
-     * @throws IOException
-     * @throws InterruptedException
-     * @throws KeeperException
-     */
+    
     @Test
     public void testResyncBySnapThenDiffAfterFollowerCrashes()
             throws IOException, InterruptedException, KeeperException,  Throwable
@@ -176,14 +133,7 @@ public class FollowerResyncConcurrencyTest extends ZKTestCase {
         followerResyncCrashTest(false);
     }
     
-    /**
-     * Same as testResyncBySnapThenDiffAfterFollowerCrashes() but we resync
-     * follower using txnlog
-     *
-     * @throws IOException
-     * @throws InterruptedException
-     * @throws KeeperException
-     */
+    
     @Test
     public void testResyncByTxnlogThenDiffAfterFollowerCrashes()
         throws IOException, InterruptedException, KeeperException,  Throwable
@@ -211,18 +161,14 @@ public class FollowerResyncConcurrencyTest extends ZKTestCase {
         assertNotNull(leader);
         
         if (useTxnLogResync) {
-            // Set the factor to high value so that this test case always
-            // resync using txnlog
-            qu.getPeer(index).peer.getActiveServer().getZKDatabase()
+                                    qu.getPeer(index).peer.getActiveServer().getZKDatabase()
                     .setSnapshotSizeFactor(1000);
         } else {
-            // Disable sending DIFF using txnlog, so that this test still
-            // testing the ZOOKEEPER-962 bug
-            qu.getPeer(index).peer.getActiveServer().getZKDatabase()
+                                    qu.getPeer(index).peer.getActiveServer().getZKDatabase()
             .setSnapshotSizeFactor(-1);
         }
 
-        /* Reusing the index variable to select a follower to connect to */
+        
         index = (index == 1) ? 2 : 1;
         LOG.info("Connecting to follower: {}", index);
 
@@ -246,13 +192,11 @@ public class FollowerResyncConcurrencyTest extends ZKTestCase {
 
         zk1.create("/first", new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         
-        // Prepare a thread that will create znodes.
-        Thread mytestfooThread = new Thread(new Runnable() {
+                Thread mytestfooThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 for(int i = 0; i < 3000; i++) {
-                    // Here we create 3000 znodes
-                    zk3.create("/mytestfoo", null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL, new AsyncCallback.StringCallback() {
+                                        zk3.create("/mytestfoo", null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL, new AsyncCallback.StringCallback() {
 
                         @Override
                         public void processResult(int rc, String path, Object ctx, String name) {
@@ -279,11 +223,8 @@ public class FollowerResyncConcurrencyTest extends ZKTestCase {
             }
         });
 
-        // Here we start populating the server and shutdown the follower after
-        // initial data is written.
-        for(int i = 0; i < 13000; i++) {
-            // Here we create 13000 znodes
-            zk3.create("/mybar", null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL, new AsyncCallback.StringCallback() {
+                        for(int i = 0; i < 13000; i++) {
+                        zk3.create("/mybar", null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL, new AsyncCallback.StringCallback() {
 
                 @Override
                 public void processResult(int rc, String path, Object ctx, String name) {
@@ -304,11 +245,7 @@ public class FollowerResyncConcurrencyTest extends ZKTestCase {
                 LOG.info("Shutting down s1");
             }
             if(i == 12000){
-                // Start the prepared thread so that it is writing znodes while
-                // the follower is restarting. On the first restart, the follow
-                // should use txnlog to catchup. For subsequent restart, the
-                // follower should use a diff to catchup.
-                mytestfooThread.start();
+                                                                                mytestfooThread.start();
                 LOG.info("Restarting follower: {}", index);
                 qu.restart(index);
                 Thread.sleep(300);
@@ -341,8 +278,7 @@ public class FollowerResyncConcurrencyTest extends ZKTestCase {
             }
         }
 
-        // Wait until all updates return
-        if(!sem.tryAcquire(ClientBase.CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS)) {
+                if(!sem.tryAcquire(ClientBase.CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS)) {
             LOG.warn("Did not aquire semaphore fast enough");
         }
         mytestfooThread.join(ClientBase.CONNECTION_TIMEOUT);
@@ -361,29 +297,7 @@ public class FollowerResyncConcurrencyTest extends ZKTestCase {
         qu.shutdownAll();
     }
 
-    /**
-     * This test:
-     * Starts up 3 ZKs. The non-leader ZKs are writing to cluster
-     * Shut down one of the non-leader ZKs.
-     * Restart after sessions have expired but <500 txns have taken place (get a diff)
-     * Shut down immediately after restarting, start running separate thread with other transactions
-     * Restart to a diff while transactions are running in leader
-     *
-     *
-     * Before fixes for ZOOKEEPER-962, restarting off of diff could get an inconsistent view of data missing transactions that
-     * completed during diff syncing. Follower would also be considered "restarted" before all forwarded transactions
-     * were completely processed, so restarting would cause a snap file with a too-high zxid to be written, and transactions
-     * would be missed
-     *
-     * This test should pretty reliably catch the failure of restarting the server before all diff messages have been processed,
-     * however, due to the transient nature of the system it may not catch failures due to concurrent processing of transactions
-     * during the leader's diff forwarding.
-     *
-     * @throws IOException
-     * @throws InterruptedException
-     * @throws KeeperException
-     * @throws Throwable
-     */
+    
 
     @Test
     public void testResyncByDiffAfterFollowerCrashes()
@@ -405,7 +319,7 @@ public class FollowerResyncConcurrencyTest extends ZKTestCase {
         Leader leader = qu.getPeer(index).peer.leader;
         assertNotNull(leader);
 
-        /* Reusing the index variable to select a follower to connect to */
+        
         index = (index == 1) ? 2 : 1;
         LOG.info("Connecting to follower: {}", index);
 
@@ -515,8 +429,7 @@ public class FollowerResyncConcurrencyTest extends ZKTestCase {
             }
         }
 
-        // Wait until all updates return
-        if(!sem.tryAcquire(ClientBase.CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS)) {
+                if(!sem.tryAcquire(ClientBase.CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS)) {
             LOG.warn("Did not aquire semaphore fast enough");
         }
         mytestfooThread.join(ClientBase.CONNECTION_TIMEOUT);
@@ -526,8 +439,7 @@ public class FollowerResyncConcurrencyTest extends ZKTestCase {
 
         assertTrue(waitForPendingRequests(60));
         assertTrue(waitForSync(qu, index, 10));
-        // Verify that server is following and has the same epoch as the leader
-
+        
         verifyState(qu, index, leader);
 
         zk1.close();
@@ -548,10 +460,7 @@ public class FollowerResyncConcurrencyTest extends ZKTestCase {
         return zk;
     }
     
-    /**
-     * Wait for all async operation to return. So we know that we can start
-     * verifying the state
-     */
+    
     private boolean waitForPendingRequests(int timeout) throws InterruptedException {
         LOG.info("Wait for pending requests: {}", pending.get());
         for (int i = 0; i < timeout; ++i) {
@@ -564,9 +473,7 @@ public class FollowerResyncConcurrencyTest extends ZKTestCase {
         return false;
     }
 
-    /**
-     * Wait for all server to have the same lastProccessedZxid. Timeout in seconds
-     */
+    
     private boolean waitForSync(QuorumUtil qu, int index, int timeout) throws InterruptedException{
         LOG.info("Wait for server to sync");
         int leaderIndex = (index == 1) ? 2 : 1;
@@ -663,9 +570,7 @@ public class FollowerResyncConcurrencyTest extends ZKTestCase {
         }
     }      
 
-    /**
-     * Verify that the server is sending the proper zxid. See ZOOKEEPER-1412.
-     */
+    
     @Test
     public void testFollowerSendsLastZxid() throws Exception {
         QuorumUtil qu = new QuorumUtil(1);
@@ -704,10 +609,7 @@ public class FollowerResyncConcurrencyTest extends ZKTestCase {
         }
     }
 
-    /**
-     * Verify that the server is sending the proper zxid, and as a result
-     * the watch doesn't fire. See ZOOKEEPER-1412.
-     */
+    
     @Test
     public void testFollowerWatcherResync() throws Exception {
         QuorumUtil qu = new QuorumUtil(1);

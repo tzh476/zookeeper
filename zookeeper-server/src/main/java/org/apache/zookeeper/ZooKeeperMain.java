@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper;
 
 import java.io.BufferedReader;
@@ -69,10 +51,7 @@ import org.apache.zookeeper.cli.SyncCommand;
 import org.apache.zookeeper.client.ZKClientConfig;
 import org.apache.zookeeper.admin.ZooKeeperAdmin;
 
-/**
- * The command line client to ZooKeeper.
- *
- */
+
 @InterfaceAudience.Public
 public class ZooKeeperMain {
     private static final Logger LOG = LoggerFactory.getLogger(ZooKeeperMain.class);
@@ -104,8 +83,7 @@ public class ZooKeeperMain {
         new CreateCommand().addToMap(commandMapCli);
         new DeleteCommand().addToMap(commandMapCli);
         new DeleteAllCommand().addToMap(commandMapCli);
-        // Depricated: rmr
-        new DeleteAllCommand("rmr").addToMap(commandMapCli);
+                new DeleteAllCommand("rmr").addToMap(commandMapCli);
         new SetCommand().addToMap(commandMapCli);
         new GetCommand().addToMap(commandMapCli);
         new LsCommand().addToMap(commandMapCli);
@@ -122,8 +100,7 @@ public class ZooKeeperMain {
         new GetConfigCommand().addToMap(commandMapCli);
         new RemoveWatchesCommand().addToMap(commandMapCli);
         
-        // add all to commandMap
-        for (Entry<String, CliCommand> entry : commandMapCli.entrySet()) {
+                for (Entry<String, CliCommand> entry : commandMapCli.entrySet()) {
             commandMap.put(entry.getKey(), entry.getValue().getOptionStr());
     }
     }
@@ -146,10 +123,7 @@ public class ZooKeeperMain {
         }
     }
 
-    /**
-     * A storage class for both command line options and shell commands.
-     *
-     */
+    
     static class MyCommandOptions {
 
         private Map<String,String> options = new HashMap<String,String>();
@@ -183,12 +157,7 @@ public class ZooKeeperMain {
             return cmdArgs.toArray(new String[0]);
         }
 
-        /**
-         * Parses a command line that may contain one or more flags
-         * before an optional command string
-         * @param args command line arguments
-         * @return true if parsing succeeded, false otherwise.
-         */
+        
         public boolean parseOptions(String[] args) {
             List<String> argList = Arrays.asList(args);
             Iterator<String> it = argList.iterator();
@@ -222,11 +191,7 @@ public class ZooKeeperMain {
             return true;
         }
 
-        /**
-         * Breaks a string into command + arguments.
-         * @param cmdstring string of form "cmd arg1 arg2..etc"
-         * @return true if parsing succeeded.
-         */
+        
         public boolean parseCommand( String cmdstring ) {
             Matcher matcher = ARGS_PATTERN.matcher(cmdstring);
 
@@ -234,8 +199,7 @@ public class ZooKeeperMain {
             while (matcher.find()) {
                 String value = matcher.group(1);
                 if (QUOTED_PATTERN.matcher(value).matches()) {
-                    // Strip off the surrounding quotes
-                    value = value.substring(1, value.length() - 1);
+                                        value = value.substring(1, value.length() - 1);
                 }
                 args.add(value);
             }
@@ -249,11 +213,7 @@ public class ZooKeeperMain {
     }
 
 
-    /**
-     * Makes a list of possible completions, either for commands
-     * or for zk nodes if the token to complete begins with /
-     *
-     */
+    
 
 
     protected void addToHistory(int i,String cmd) {
@@ -308,8 +268,7 @@ public class ZooKeeperMain {
             System.out.println("Welcome to ZooKeeper!");
 
             boolean jlinemissing = false;
-            // only use jline if it's in the classpath
-            try {
+                        try {
                 Class<?> consoleC = Class.forName("jline.console.ConsoleReader");
                 Class<?> completorC =
                     Class.forName("org.apache.zookeeper.JLineZNodeCompleter");
@@ -358,8 +317,7 @@ public class ZooKeeperMain {
                 }
             }
         } else {
-            // Command line args non-null.  Run what was passed.
-            processCmd(cl);
+                        processCmd(cl);
         }
         System.exit(exitCode);
     }
@@ -373,17 +331,7 @@ public class ZooKeeperMain {
       }
     }
 
-    /**
-     * trim the quota tree to recover unwanted tree elements
-     * in the quota's tree
-     * @param zk the zookeeper client
-     * @param path the path to start from and go up and see if their
-     * is any unwanted parent in the path.
-     * @return true if sucessful
-     * @throws KeeperException
-     * @throws IOException
-     * @throws InterruptedException
-     */
+    
     private static boolean trimProcQuotas(ZooKeeper zk, String path)
         throws KeeperException, IOException, InterruptedException
     {
@@ -400,19 +348,7 @@ public class ZooKeeperMain {
         }
     }
 
-    /**
-     * this method deletes quota for a node.
-     * @param zk the zookeeper client
-     * @param path the path to delete quota for
-     * @param bytes true if number of bytes needs to
-     * be unset
-     * @param numNodes true if number of nodes needs
-     * to be unset
-     * @return true if quota deletion is successful
-     * @throws KeeperException
-     * @throws IOException
-     * @throws InterruptedException
-     */
+    
     public static boolean delQuota(ZooKeeper zk, String path,
             boolean bytes, boolean numNodes)
         throws KeeperException, IOException, InterruptedException
@@ -438,15 +374,11 @@ public class ZooKeeperMain {
             strack.setCount(-1);
             zk.setData(quotaPath, strack.toString().getBytes(), -1);
         } else if (bytes && numNodes) {
-            // delete till you can find a node with more than
-            // one child
-            List<String> children = zk.getChildren(parentPath, false);
-            /// delete the direct children first
-            for (String child: children) {
+                                    List<String> children = zk.getChildren(parentPath, false);
+                        for (String child: children) {
                 zk.delete(parentPath + "/" + child, -1);
             }
-            // cut the tree till their is more than one child
-            trimProcQuotas(zk, parentPath);
+                        trimProcQuotas(zk, parentPath);
         }
         return true;
     }
@@ -458,9 +390,7 @@ public class ZooKeeperMain {
         String quotaPath = Quotas.quotaZookeeper;
         for (String str: splits) {
             if (str.length() == 0) {
-                // this should only be for the beginning of the path
-                // i.e. "/..." - split(path)[0] is empty string before first '/'
-                continue;
+                                                continue;
             }
             quotaPath += "/" + str;
             List<String> children =  null;
@@ -482,35 +412,18 @@ public class ZooKeeperMain {
         }
     }
 
-    /**
-     * this method creates a quota node for the path
-     * @param zk the ZooKeeper client
-     * @param path the path for which quota needs to be created
-     * @param bytes the limit of bytes on this path
-     * @param numNodes the limit of number of nodes on this path
-     * @return true if its successful and false if not.
-     */
+    
     public static boolean createQuota(ZooKeeper zk, String path,
             long bytes, int numNodes)
         throws KeeperException, IOException, InterruptedException
     {
-        // check if the path exists. We cannot create
-        // quota for a path that already exists in zookeeper
-        // for now.
-        Stat initStat = zk.exists(path, false);
+                                Stat initStat = zk.exists(path, false);
         if (initStat == null) {
             throw new IllegalArgumentException(path + " does not exist.");
         }
-        // now check if their is already existing
-        // parent or child that has quota
-
+                
         String quotaPath = Quotas.quotaZookeeper;
-        // check for more than 2 children --
-        // if zookeeper_stats and zookeeper_qutoas
-        // are not the children then this path
-        // is an ancestor of some path that
-        // already has quota
-        String realPath = Quotas.quotaZookeeper + path;
+                                                String realPath = Quotas.quotaZookeeper + path;
         try {
             List<String> children = zk.getChildren(realPath, false);
             for (String child: children) {
@@ -520,28 +433,21 @@ public class ZooKeeperMain {
                 }
             }
         } catch(KeeperException.NoNodeException ne) {
-            // this is fine
-        }
+                    }
 
-        //check for any parent that has been quota
-        checkIfParentQuota(zk, path);
+                checkIfParentQuota(zk, path);
 
-        // this is valid node for quota
-        // start creating all the parents
-        if (zk.exists(quotaPath, false) == null) {
+                        if (zk.exists(quotaPath, false) == null) {
             try {
                 zk.create(Quotas.procZookeeper, null, Ids.OPEN_ACL_UNSAFE,
                         CreateMode.PERSISTENT);
                 zk.create(Quotas.quotaZookeeper, null, Ids.OPEN_ACL_UNSAFE,
                         CreateMode.PERSISTENT);
             } catch(KeeperException.NodeExistsException ne) {
-                // do nothing
-            }
+                            }
         }
 
-        // now create the direct children
-        // and the stat and quota nodes
-        String[] splits = path.split("/");
+                        String[] splits = path.split("/");
         StringBuilder sb = new StringBuilder();
         sb.append(quotaPath);
         for (int i=1; i<splits.length; i++) {
@@ -551,8 +457,7 @@ public class ZooKeeperMain {
                 zk.create(quotaPath, null, Ids.OPEN_ACL_UNSAFE ,
                         CreateMode.PERSISTENT);
             } catch(KeeperException.NodeExistsException ne) {
-                //do nothing
-            }
+                            }
         }
         String statPath = quotaPath + "/" + Quotas.statNode;
         quotaPath = quotaPath + "/" + Quotas.limitNode;
@@ -615,8 +520,7 @@ public class ZooKeeperMain {
             System.exit(exitCode);
         } else if (cmd.equals("redo") && args.length >= 2) {
             Integer i = Integer.decode(args[1]);
-            if (commandCount <= i || i < 0) { // don't allow redoing this redo
-                throw new MalformedCommandException("Command index out of range");
+            if (commandCount <= i || i < 0) {                 throw new MalformedCommandException("Command index out of range");
             }
             cl.parseCommand(history.get(i));
             if (cl.getCommand().equals("redo")) {
@@ -643,14 +547,12 @@ public class ZooKeeperMain {
             }
         }
         
-        // Below commands all need a live connection
-        if (zk == null || !zk.getState().isAlive()) {
+                if (zk == null || !zk.getState().isAlive()) {
             System.out.println("Not connected");
             return false;
         }
         
-        // execute from commandMap
-        CliCommand cliCmd = commandMapCli.get(cmd);
+                CliCommand cliCmd = commandMapCli.get(cmd);
         if(cliCmd != null) {
             cliCmd.setZk(zk);
             watch = cliCmd.parse(args).exec();

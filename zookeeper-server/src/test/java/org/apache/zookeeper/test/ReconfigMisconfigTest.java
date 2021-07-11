@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.test;
 
 import java.io.IOException;
@@ -46,8 +28,7 @@ public class ReconfigMisconfigTest extends ZKTestCase {
     @Before
     public void setup() throws InterruptedException {
         QuorumPeerConfig.setReconfigEnabled(true);
-        // Get a three server quorum.
-        qu = new QuorumUtil(1);
+                qu = new QuorumUtil(1);
         qu.disableJMXTest = true;
         try {
             qu.startAll();
@@ -68,16 +49,12 @@ public class ReconfigMisconfigTest extends ZKTestCase {
                 zkAdmin.close();
             }
         } catch (Exception e) {
-            // Ignore.
-        }
+                    }
     }
 
     @Test(timeout = 10000)
     public void testReconfigFailWithoutSuperuserPasswordConfiguredOnServer() throws InterruptedException {
-        // This tests the case where ZK ensemble does not have the super user's password configured.
-        // Reconfig should fail as the super user has to be explicitly configured via
-        // zookeeper.DigestAuthenticationProvider.superDigest.
-        try {
+                                try {
             reconfigPort();
             Assert.fail(errorMsg);
         } catch (KeeperException e) {
@@ -119,9 +96,9 @@ public class ReconfigMisconfigTest extends ZKTestCase {
             leaderId++;
         int followerId = leaderId == 1 ? 2 : 1;
         joiningServers.add("server." + followerId + "=localhost:"
-                + qu.getPeer(followerId).peer.getQuorumAddress().getPort() /*quorum port*/
-                + ":" + qu.getPeer(followerId).peer.getElectionAddress().getPort() /*election port*/
-                + ":participant;localhost:" + PortAssignment.unique()/* new client port */);
+                + qu.getPeer(followerId).peer.getQuorumAddress().getPort() 
+                + ":" + qu.getPeer(followerId).peer.getElectionAddress().getPort() 
+                + ":participant;localhost:" + PortAssignment.unique());
         zkAdmin.reconfigure(joiningServers, null, null, -1, new Stat());
         return true;
     }

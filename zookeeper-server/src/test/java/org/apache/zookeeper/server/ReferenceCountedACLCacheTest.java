@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server;
 
 import org.apache.jute.BinaryInputArchive;
@@ -152,14 +134,7 @@ public class ReferenceCountedACLCacheTest {
         cache.addUsage(1L);
 
         assertEquals(0, cache.size());
-        /*
-        On startup, it's possible that we'll try calling addUsage of an ID not in the cache.  This is safe to ignore
-        as it'll be added later when we traverse the tranlog.  See discussion here:
-        http://mail-archives.apache.org/mod_mbox/zookeeper-user/201507.mbox/%3CCAB5oV2_ujhvBA1sEkCG2WRakPjCy%2BNR10620WK2G1GGgmEO44g%40mail.gmail.com%3E
-
-        This test makes sure that we don't add the ID to the cache in this case as that would result in dupes later
-        and consequently incorrect counts and entries that will never be cleaned out.
-         */
+        
     }
 
     @Test
@@ -214,8 +189,7 @@ public class ReferenceCountedACLCacheTest {
         } catch (NullPointerException e){
             fail("should not throw NPE while do deserialized");
         } catch (RuntimeException e) {
-            // do nothing.
-        }
+                    }
     }
 
 

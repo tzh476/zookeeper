@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server;
 
 import java.io.IOException;
@@ -46,12 +28,9 @@ public abstract class ServerCnxnFactory {
     
     private static final Logger LOG = LoggerFactory.getLogger(ServerCnxnFactory.class);
 
-    // Tells whether SSL is enabled on this ServerCnxnFactory
-    protected boolean secure;
+        protected boolean secure;
 
-    /**
-     * The buffer will cause the connection to be close when we do a send.
-     */
+    
     static final ByteBuffer closeConn = ByteBuffer.allocate(0);
 
     public abstract int getLocalPort();
@@ -66,10 +45,7 @@ public abstract class ServerCnxnFactory {
         return zkServer;
     }
 
-    /**
-     * @return true if the cnxn that contains the sessionId exists in this ServerCnxnFactory
-     *         and it's closed. Otherwise false.
-     */
+    
     public abstract boolean closeSession(long sessionId);
 
     public void configure(InetSocketAddress addr, int maxcc) throws IOException {
@@ -84,10 +60,10 @@ public abstract class ServerCnxnFactory {
     protected SaslServerCallbackHandler saslServerCallbackHandler;
     public Login login;
 
-    /** Maximum number of connections allowed from particular host (ip) */
+    
     public abstract int getMaxClientCnxnsPerHost();
 
-    /** Maximum number of connections allowed from particular host (ip) */
+    
     public abstract void setMaxClientCnxnsPerHost(int max);
 
     public boolean isSecure() {
@@ -98,9 +74,7 @@ public abstract class ServerCnxnFactory {
         startup(zkServer, true);
     }
 
-    // This method is to maintain compatiblity of startup(zks) and enable sharing of zks
-    // when we add secureCnxnFactory.
-    public abstract void startup(ZooKeeperServer zkServer, boolean startServer)
+            public abstract void startup(ZooKeeperServer zkServer, boolean startServer)
             throws IOException, InterruptedException;
 
     public abstract void join() throws InterruptedException;
@@ -165,9 +139,7 @@ public abstract class ServerCnxnFactory {
     private final ConcurrentHashMap<ServerCnxn, ConnectionBean> connectionBeans =
         new ConcurrentHashMap<ServerCnxn, ConnectionBean>();
 
-    // Connection set is relied on heavily by four letter commands
-    // Construct a ConcurrentHashSet using a ConcurrentHashMap
-    protected final Set<ServerCnxn> cnxns = Collections.newSetFromMap(
+            protected final Set<ServerCnxn> cnxns = Collections.newSetFromMap(
         new ConcurrentHashMap<ServerCnxn, Boolean>());
     public void unregisterConnection(ServerCnxn serverCnxn) {
         ConnectionBean jmxConnectionBean = connectionBeans.remove(serverCnxn);
@@ -189,35 +161,20 @@ public abstract class ServerCnxnFactory {
 
     }
 
-    /**
-     * Initialize the server SASL if specified.
-     *
-     * If the user has specified a "ZooKeeperServer.LOGIN_CONTEXT_NAME_KEY"
-     * or a jaas.conf using "java.security.auth.login.config"
-     * the authentication is required and an exception is raised.
-     * Otherwise no authentication is configured and no exception is raised.
-     *
-     * @throws IOException if jaas.conf is missing or there's an error in it.
-     */
+    
     protected void configureSaslLogin() throws IOException {
         String serverSection = System.getProperty(ZooKeeperSaslServer.LOGIN_CONTEXT_NAME_KEY,
                                                   ZooKeeperSaslServer.DEFAULT_LOGIN_CONTEXT_NAME);
 
-        // Note that 'Configuration' here refers to javax.security.auth.login.Configuration.
-        AppConfigurationEntry entries[] = null;
+                AppConfigurationEntry entries[] = null;
         SecurityException securityException = null;
         try {
             entries = Configuration.getConfiguration().getAppConfigurationEntry(serverSection);
         } catch (SecurityException e) {
-            // handle below: might be harmless if the user doesn't intend to use JAAS authentication.
-            securityException = e;
+                        securityException = e;
         }
 
-        // No entries in jaas.conf
-        // If there's a configuration exception fetching the jaas section and
-        // the user has required sasl by specifying a LOGIN_CONTEXT_NAME_KEY or a jaas file
-        // we throw an exception otherwise we continue without authentication.
-        if (entries == null) {
+                                        if (entries == null) {
             String jaasFile = System.getProperty(Environment.JAAS_CONF_KEY);
             String loginContextName = System.getProperty(ZooKeeperSaslServer.LOGIN_CONTEXT_NAME_KEY);
             if (securityException != null && (loginContextName != null || jaasFile != null)) {
@@ -234,8 +191,7 @@ public abstract class ServerCnxnFactory {
             return;
         }
 
-        // jaas.conf entry available
-        try {
+                try {
             saslServerCallbackHandler = new SaslServerCallbackHandler(Configuration.getConfiguration());
             login = new Login(serverSection, saslServerCallbackHandler, new ZKConfig() );
             login.startThreadIfNeeded();

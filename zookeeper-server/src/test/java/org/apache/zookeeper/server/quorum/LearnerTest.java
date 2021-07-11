@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server.quorum;
 
 import java.io.BufferedOutputStream;
@@ -106,11 +88,9 @@ public class LearnerTest extends ZKTestCase {
         learner.self.setInitLimit(5);
         learner.self.setSyncLimit(2);
 
-        // this addr won't even be used since we fake the Socket.connect
-        InetSocketAddress addr = new InetSocketAddress(1111);
+                InetSocketAddress addr = new InetSocketAddress(1111);
 
-        // we expect this to throw an IOException since we're faking socket connect errors every time
-        learner.connectToLeader(addr, "");
+                learner.connectToLeader(addr, "");
     }
     @Test
     public void connectionInitLimitTimeoutTest() throws Exception {
@@ -120,21 +100,17 @@ public class LearnerTest extends ZKTestCase {
         learner.self.setInitLimit(5);
         learner.self.setSyncLimit(2);
 
-        // this addr won't even be used since we fake the Socket.connect
-        InetSocketAddress addr = new InetSocketAddress(1111);
+                InetSocketAddress addr = new InetSocketAddress(1111);
         
-        // pretend each connect attempt takes 4000 milliseconds
-        learner.setTimeMultiplier((long)4000 * 1000000);
+                learner.setTimeMultiplier((long)4000 * 1000000);
         
         learner.setPassConnectAttempt(5);
 
-        // we expect this to throw an IOException since we're faking socket connect errors every time
-        try {
+                try {
             learner.connectToLeader(addr, "");
             Assert.fail("should have thrown IOException!");
         } catch (IOException e) {
-            //good, wanted to see that, let's make sure we ran out of time
-            Assert.assertTrue(learner.nanoTime() > 2000*5*1000000);
+                        Assert.assertTrue(learner.nanoTime() > 2000*5*1000000);
             Assert.assertEquals(3, learner.getSockConnectAttempt());
         }
     }
@@ -148,17 +124,14 @@ public class LearnerTest extends ZKTestCase {
             SimpleLearner sl = new SimpleLearner(ftsl);
             long startZxid = sl.zk.getLastProcessedZxid();
 
-            // Set up bogus streams
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
             BinaryOutputArchive oa = BinaryOutputArchive.getArchive(baos);
             sl.leaderOs = BinaryOutputArchive.getArchive(new ByteArrayOutputStream());
 
-            // make streams and socket do something innocuous
-            sl.bufferedOutput = new BufferedOutputStream(System.out);
+                        sl.bufferedOutput = new BufferedOutputStream(System.out);
             sl.sock = new Socket();
 
-            // fake messages from the server
-            QuorumPacket qp = new QuorumPacket(Leader.SNAP, 0, null, null);
+                        QuorumPacket qp = new QuorumPacket(Leader.SNAP, 0, null, null);
             oa.writeRecord(qp, null);
             sl.zk.getZKDatabase().serializeSnapshot(oa);
             oa.writeString("BenWasHere", "signature");
@@ -172,8 +145,7 @@ public class LearnerTest extends ZKTestCase {
             qp = new QuorumPacket(Leader.PROPOSAL, 1, tbaos.toByteArray(), null);
             oa.writeRecord(qp, null);
 
-            // setup the messages to be streamed to follower
-            sl.leaderIs = BinaryInputArchive.getArchive(new ByteArrayInputStream(baos.toByteArray()));
+                        sl.leaderIs = BinaryInputArchive.getArchive(new ByteArrayInputStream(baos.toByteArray()));
 
             try {
                 sl.syncWithLeader(3);

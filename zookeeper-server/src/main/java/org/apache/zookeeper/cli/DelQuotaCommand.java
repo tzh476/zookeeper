@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.apache.zookeeper.cli;
 
 import java.io.IOException;
@@ -26,9 +9,7 @@ import org.apache.zookeeper.StatsTrack;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 
-/**
- * delQuota command for cli
- */
+
 public class DelQuotaCommand extends CliCommand {
 
     private Options options = new Options();
@@ -62,18 +43,14 @@ public class DelQuotaCommand extends CliCommand {
 
     @Override
     public boolean exec() throws CliException {
-        //if neither option -n or -b is specified, we delete
-        // the quota node for thsi node.
-        String path = args[1];
+                        String path = args[1];
         try {
             if (cl.hasOption("b")) {
                 delQuota(zk, path, true, false);
             } else if (cl.hasOption("n")) {
                 delQuota(zk, path, false, true);
             } else if (args.length == 2) {
-                // we don't have an option specified.
-                // just delete whole quota node
-                delQuota(zk, path, true, true);
+                                                delQuota(zk, path, true, true);
             }
         } catch (KeeperException|InterruptedException|IOException ex) {
             throw new CliWrapperException(ex);
@@ -81,18 +58,7 @@ public class DelQuotaCommand extends CliCommand {
         return false;
     }
 
-    /**
-     * this method deletes quota for a node.
-     *
-     * @param zk the zookeeper client
-     * @param path the path to delete quota for
-     * @param bytes true if number of bytes needs to be unset
-     * @param numNodes true if number of nodes needs to be unset
-     * @return true if quota deletion is successful
-     * @throws KeeperException
-     * @throws IOException
-     * @throws InterruptedException
-     */
+    
     public static boolean delQuota(ZooKeeper zk, String path,
             boolean bytes, boolean numNodes)
             throws KeeperException, IOException, InterruptedException, MalformedPathException {
@@ -120,30 +86,16 @@ public class DelQuotaCommand extends CliCommand {
             strack.setCount(-1);
             zk.setData(quotaPath, strack.toString().getBytes(), -1);
         } else if (bytes && numNodes) {
-            // delete till you can find a node with more than
-            // one child
-            List<String> children = zk.getChildren(parentPath, false);
-            /// delete the direct children first
-            for (String child : children) {
+                                    List<String> children = zk.getChildren(parentPath, false);
+                        for (String child : children) {
                 zk.delete(parentPath + "/" + child, -1);
             }
-            // cut the tree till their is more than one child
-            trimProcQuotas(zk, parentPath);
+                        trimProcQuotas(zk, parentPath);
         }
         return true;
     }
 
-    /**
-     * trim the quota tree to recover unwanted tree elements in the quota's tree
-     *
-     * @param zk the zookeeper client
-     * @param path the path to start from and go up and see if their is any
-     * unwanted parent in the path.
-     * @return true if successful
-     * @throws KeeperException
-     * @throws IOException
-     * @throws InterruptedException
-     */
+    
     private static boolean trimProcQuotas(ZooKeeper zk, String path)
             throws KeeperException, IOException, InterruptedException {
         if (Quotas.quotaZookeeper.equals(path)) {

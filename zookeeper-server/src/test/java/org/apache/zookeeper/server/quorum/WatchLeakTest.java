@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with this
- * work for additional information regarding copyright ownership. The ASF
- * licenses this file to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.apache.zookeeper.server.quorum;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -68,9 +51,7 @@ import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Demonstrate ZOOKEEPER-1382 : Watches leak on expired session
- */
+
 @RunWith(Parameterized.class)
 @Parameterized.UseParametersRunnerFactory(ZKParameterized.RunnerFactory.class)
 public class WatchLeakTest {
@@ -98,9 +79,7 @@ public class WatchLeakTest {
         });
     }
 
-    /**
-     * Check that if session has expired then no watch can be set
-     */
+    
 
     @Test
     public void testWatchesLeak() throws Exception {
@@ -122,46 +101,34 @@ public class WatchLeakTest {
         database.setlastProcessedZxid(2L);
         QuorumPeer quorumPeer = mock(QuorumPeer.class);
         FileTxnSnapLog logfactory = mock(FileTxnSnapLog.class);
-        // Directories are not used but we need it to avoid NPE
-        when(logfactory.getDataDir()).thenReturn(new File(""));
+                when(logfactory.getDataDir()).thenReturn(new File(""));
         when(logfactory.getSnapDir()).thenReturn(new File(""));
         FollowerZooKeeperServer fzks = null;
 
         try {
-            // Create a new follower
-            fzks = new FollowerZooKeeperServer(logfactory, quorumPeer, database);
+                        fzks = new FollowerZooKeeperServer(logfactory, quorumPeer, database);
             fzks.startup();
             fzks.setServerCnxnFactory(serverCnxnFactory);
             quorumPeer.follower = new MyFollower(quorumPeer, fzks);
             LOG.info("Follower created");
-            // Simulate a socket channel between a client and a follower
-            final SocketChannel socketChannel = createClientSocketChannel();
-            // Create the NIOServerCnxn that will handle the client requests
-            final MockNIOServerCnxn nioCnxn = new MockNIOServerCnxn(fzks,
+                        final SocketChannel socketChannel = createClientSocketChannel();
+                        final MockNIOServerCnxn nioCnxn = new MockNIOServerCnxn(fzks,
                     socketChannel, sk, serverCnxnFactory, selectorThread);
             sk.attach(nioCnxn);
-            // Send the connection request as a client do
-            nioCnxn.doIO(sk);
+                        nioCnxn.doIO(sk);
             LOG.info("Client connection sent");
-            // Send the valid or invalid session packet to the follower
-            QuorumPacket qp = createValidateSessionPacketResponse(!sessionTimedout);
+                        QuorumPacket qp = createValidateSessionPacketResponse(!sessionTimedout);
             quorumPeer.follower.processPacket(qp);
             LOG.info("Session validation sent");
-            // OK, now the follower knows that the session is valid or invalid, let's try
-            // to send the watches
-            nioCnxn.doIO(sk);
-            // wait for the the request processor to do his job
-            Thread.sleep(1000L);
+                                    nioCnxn.doIO(sk);
+                        Thread.sleep(1000L);
             LOG.info("Watches processed");
-            // If session has not been validated, there must be NO watches
-            int watchCount = database.getDataTree().getWatchCount();
+                        int watchCount = database.getDataTree().getWatchCount();
             if (sessionTimedout) {
-                // Session has not been re-validated !
-                LOG.info("session is not valid, watches = {}", watchCount);
+                                LOG.info("session is not valid, watches = {}", watchCount);
                 assertEquals("Session is not valid so there should be no watches", 0, watchCount);
             } else {
-                // Session has been re-validated
-                LOG.info("session is valid, watches = {}", watchCount);
+                                LOG.info("session is valid, watches = {}", watchCount);
                 assertEquals("Session is valid so the watch should be there", 1, watchCount);
             }
         } finally {
@@ -171,16 +138,9 @@ public class WatchLeakTest {
         }
     }
 
-    /**
-     * A follower with no real leader connection
-     */
+    
     public static class MyFollower extends Follower {
-        /**
-         * Create a follower with a mocked leader connection
-         *
-         * @param self
-         * @param zk
-         */
+        
         MyFollower(QuorumPeer self, FollowerZooKeeperServer zk) {
             super(self, zk);
             leaderOs = mock(OutputArchive.class);
@@ -189,9 +149,7 @@ public class WatchLeakTest {
         }
     }
 
-    /**
-     * Simulate the behavior of a real selection key
-     */
+    
     private static class FakeSK extends SelectionKey {
 
         @Override
@@ -242,11 +200,7 @@ public class WatchLeakTest {
 
     }
 
-    /**
-     * Create a watches message with a single watch on /
-     *
-     * @return a message that attempts to set 1 watch on /
-     */
+    
     private ByteBuffer createWatchesMessage() {
         List<String> dataWatches = new ArrayList<String>(1);
         dataWatches.add("/");
@@ -261,17 +215,10 @@ public class WatchLeakTest {
         return p.createAndReturnBB();
     }
 
-    /**
-     * This is the secret that we use to generate passwords, for the moment it
-     * is more of a sanity check.
-     */
+    
     static final private long superSecret = 0XB3415C00L;
 
-    /**
-     * Create a connection request
-     *
-     * @return a serialized connection request
-     */
+    
     private ByteBuffer createConnRequest() {
         Random r = new Random(SESSION_ID ^ superSecret);
         byte p[] = new byte[16];
@@ -281,13 +228,7 @@ public class WatchLeakTest {
         return packet.createAndReturnBB();
     }
 
-    /**
-     * Mock a client channel with a connection request and a watches message
-     * inside.
-     *
-     * @return a socket channel
-     * @throws IOException
-     */
+    
     private SocketChannel createClientSocketChannel() throws IOException {
 
         SocketChannel socketChannel = mock(SocketChannel.class);
@@ -296,8 +237,7 @@ public class WatchLeakTest {
         when(socket.getRemoteSocketAddress()).thenReturn(socketAddress);
         when(socketChannel.socket()).thenReturn(socket);
 
-        // Send watches packet to server connection
-        final ByteBuffer connRequest = createConnRequest();
+                final ByteBuffer connRequest = createConnRequest();
         final ByteBuffer watchesMessage = createWatchesMessage();
         final ByteBuffer request = ByteBuffer.allocate(connRequest.limit()
                 + watchesMessage.limit());
@@ -322,13 +262,7 @@ public class WatchLeakTest {
         return socketChannel;
     }
 
-    /**
-     * Forge an invalid session packet as a LEADER do
-     *
-     * @param valid <code>true</code> to create a valid session message
-     *
-     * @throws Exception
-     */
+    
     private QuorumPacket createValidateSessionPacketResponse(boolean valid) throws Exception {
         QuorumPacket qp = createValidateSessionPacket();
         ByteArrayInputStream bis = new ByteArrayInputStream(qp.getData());
@@ -337,18 +271,12 @@ public class WatchLeakTest {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(bos);
         dos.writeLong(id);
-        // false means that the session has expired
-        dos.writeBoolean(valid);
+                dos.writeBoolean(valid);
         qp.setData(bos.toByteArray());
         return qp;
     }
 
-    /**
-     * Forge an validate session packet as a LEARNER do
-     *
-     * @return
-     * @throws Exception
-     */
+    
     private QuorumPacket createValidateSessionPacket() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);

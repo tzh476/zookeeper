@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.test;
 
 import org.apache.zookeeper.CreateMode;
@@ -30,14 +12,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Tests that session upgrade works from local to global sessions.
- * Expected behavior is that if global-only sessions are unset,
- * and no upgrade interval is specified, then sessions will be
- * created locally to the host.  They will be upgraded to global
- * sessions iff an operation is done on that session which requires
- * persistence, i.e. creating an ephemeral node.
- */
+
 public class SessionUpgradeTest extends ZKTestCase {
     protected static final Logger LOG = LoggerFactory.getLogger(SessionUpgradeTest.class);
     public static final int CONNECTION_TIMEOUT = ClientBase.CONNECTION_TIMEOUT;
@@ -84,8 +59,7 @@ public class SessionUpgradeTest extends ZKTestCase {
                 hostPorts[testPeerIdx], CONNECTION_TIMEOUT, watcher);
         watcher.waitForConnected(CONNECTION_TIMEOUT);
 
-        // Try creating some data.
-        for (int i = 0; i < 5; i++) {
+                for (int i = 0; i < 5; i++) {
             zk.create(nodePrefix + i, new byte[0],
                       ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         }
@@ -93,9 +67,7 @@ public class SessionUpgradeTest extends ZKTestCase {
         long localSessionId = zk.getSessionId();
         byte[] localSessionPwd = zk.getSessionPasswd().clone();
 
-        // Try connecting with the same session id on a different
-        // server.  This should fail since it is a local sesion.
-        try {
+                        try {
             watcher.reset();
             DisconnectableZooKeeper zknew = new DisconnectableZooKeeper(
                     hostPorts[otherFollowerIdx], CONNECTION_TIMEOUT, watcher,
@@ -108,9 +80,7 @@ public class SessionUpgradeTest extends ZKTestCase {
         } catch (KeeperException.ConnectionLossException e) {
         }
 
-        // If we're testing a follower, also check the session id on the
-        // leader. This should also fail
-        if (!testLeader) {
+                        if (!testLeader) {
             try {
                 watcher.reset();
                 DisconnectableZooKeeper zknew = new DisconnectableZooKeeper(
@@ -126,10 +96,7 @@ public class SessionUpgradeTest extends ZKTestCase {
             }
         }
 
-        // However, we should be able to disconnect and reconnect to the same
-        // server with the same session id (as long as we do it quickly
-        // before expiration).
-        zk.disconnect();
+                                zk.disconnect();
 
         watcher.reset();
         zk = new DisconnectableZooKeeper(
@@ -140,9 +107,7 @@ public class SessionUpgradeTest extends ZKTestCase {
         zk.create(nodePrefix + "6", new byte[0],
                   ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
 
-        // If we explicitly close the session, then the session id should no
-        // longer be valid.
-        zk.close();
+                        zk.close();
         try {
             watcher.reset();
             zk = new DisconnectableZooKeeper(
@@ -182,16 +147,12 @@ public class SessionUpgradeTest extends ZKTestCase {
                 hostPorts[testPeerIdx], CONNECTION_TIMEOUT, watcher);
         watcher.waitForConnected(CONNECTION_TIMEOUT);
 
-        // Create some ephemeral nodes.  This should force the session to
-        // be propagated to the other servers in the ensemble.
-        for (int i = 0; i < 5; i++) {
+                        for (int i = 0; i < 5; i++) {
             zk.create(nodePrefix + i, new byte[0],
                       ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
         }
 
-        // We should be able to reconnect with the same session id on a
-        // different server, since it has been propagated.
-        long localSessionId = zk.getSessionId();
+                        long localSessionId = zk.getSessionId();
         byte[] localSessionPwd = zk.getSessionPasswd().clone();
 
         zk.disconnect();
@@ -201,14 +162,11 @@ public class SessionUpgradeTest extends ZKTestCase {
                 localSessionId, localSessionPwd);
         watcher.waitForConnected(CONNECTION_TIMEOUT);
 
-        // The created ephemeral nodes are still around.
-        for (int i = 0; i < 5; i++) {
+                for (int i = 0; i < 5; i++) {
             Assert.assertNotNull(zk.exists(nodePrefix + i, null));
         }
 
-        // When we explicitly close the session, we should not be able to
-        // reconnect with the same session id
-        zk.close();
+                        zk.close();
 
         try {
             watcher.reset();
@@ -221,8 +179,7 @@ public class SessionUpgradeTest extends ZKTestCase {
         }
 
         watcher.reset();
-        // And the ephemeral nodes will be gone since the session died.
-        zk = new DisconnectableZooKeeper(
+                zk = new DisconnectableZooKeeper(
                 hostPorts[testPeerIdx], CONNECTION_TIMEOUT, watcher);
         watcher.waitForConnected(CONNECTION_TIMEOUT);
         for (int i = 0; i < 5; i++) {

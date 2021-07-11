@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.test;
 
 import java.io.File;
@@ -52,9 +34,7 @@ public class SaslAuthDesignatedClientTest extends ClientBase {
                 "          org.apache.zookeeper.server.auth.DigestLoginModule required\n" +
                 "          user_myuser=\"mypassword\";\n" +
                 "};\n" +
-                "Client {\n" + /* this 'Client' section has an incorrect password, but we're not configured
-                                  to  use it (we're configured by the above System.setProperty(...LOGIN_CONTEXT_NAME_KEY...) to 
-                                  use the 'MyZookeeperClient' section below, which has the correct password).*/
+                "Client {\n" + 
                 "       org.apache.zookeeper.server.auth.DigestLoginModule required\n" +
                 "       username=\"myuser\"\n" +
                 "       password=\"wrongpassword\";\n" +
@@ -68,8 +48,7 @@ public class SaslAuthDesignatedClientTest extends ClientBase {
             System.setProperty("java.security.auth.login.config",saslConfFile.getAbsolutePath());
         }
         catch (IOException e) {
-            // could not create tmp directory to hold JAAS conf file : test will fail now.
-        }
+                    }
     }
 
     @Test
@@ -124,15 +103,13 @@ public class SaslAuthDesignatedClientTest extends ClientBase {
       zk.close();
       Thread.sleep(100);
       
-      // try to access it with different user (myuser)
-      zk = createClient();
+            zk = createClient();
       
       try {
         zk.setData("/abc", "testData1".getBytes(), -1);
         Assert.fail("Should not be able to set data");
       } catch (KeeperException.NoAuthException e) {
-        // success
-      }
+              }
       
       try {
         byte [] bytedata = zk.getData("/abc", null, null);
@@ -145,8 +122,7 @@ public class SaslAuthDesignatedClientTest extends ClientBase {
       zk.close();
       Thread.sleep(100);
       
-      // disable Client Sasl
-        System.setProperty(ZKClientConfig.ENABLE_CLIENT_SASL_KEY, "false");
+              System.setProperty(ZKClientConfig.ENABLE_CLIENT_SASL_KEY, "false");
       
       try {
         zk = createClient();
@@ -154,12 +130,10 @@ public class SaslAuthDesignatedClientTest extends ClientBase {
           zk.getData("/abc", null, null);
           Assert.fail("Should not be able to read data when not authenticated");
         } catch (KeeperException.NoAuthException e) {
-          // success
-        }
+                  }
         zk.close();
       } finally {
-        // enable Client Sasl
-            System.setProperty(ZKClientConfig.ENABLE_CLIENT_SASL_KEY,
+                    System.setProperty(ZKClientConfig.ENABLE_CLIENT_SASL_KEY,
                     "true");
       }
     }

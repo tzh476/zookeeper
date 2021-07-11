@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server.quorum;
 
 import java.io.BufferedReader;
@@ -77,9 +59,9 @@ public class QuorumPeerConfig {
     protected String configFileStr = null;
     protected int tickTime = ZooKeeperServer.DEFAULT_TICK_TIME;
     protected int maxClientCnxns = 60;
-    /** defaults to -1 if not set explicitly */
+    
     protected int minSessionTimeout = -1;
-    /** defaults to -1 if not set explicitly */
+    
     protected int maxSessionTimeout = -1;
     protected boolean localSessionsEnabled = false;
     protected boolean localSessionsUpgradingEnabled = false;
@@ -99,9 +81,7 @@ public class QuorumPeerConfig {
 
     protected LearnerType peerType = LearnerType.PARTICIPANT;
 
-    /**
-     * Configurations for the quorumpeer-to-quorumpeer sasl authentication
-     */
+    
     protected boolean quorumServerRequireSasl = false;
     protected boolean quorumLearnerRequireSasl = false;
     protected boolean quorumEnableSasl = false;
@@ -110,10 +90,7 @@ public class QuorumPeerConfig {
     protected String quorumServerLoginContext = QuorumAuth.QUORUM_SERVER_SASL_LOGIN_CONTEXT_DFAULT_VALUE;
     protected int quorumCnxnThreadsSize;
 
-    /**
-     * Minimum snapshot retain count.
-     * @see org.apache.zookeeper.server.PurgeTxnLog#purge(File, File, int)
-     */
+    
     private final int MIN_SNAP_RETAIN_COUNT = 3;
 
     @SuppressWarnings("serial")
@@ -126,11 +103,7 @@ public class QuorumPeerConfig {
         }
     }
 
-    /**
-     * Parse a ZooKeeper configuration file
-     * @param path the patch of the configuration file
-     * @throws ConfigException error processing configuration
-     */
+    
     public void parse(String path) throws ConfigException {
         LOG.info("Reading configuration from: " + path);
        
@@ -167,9 +140,7 @@ public class QuorumPeerConfig {
                    }
 
                    String version = getVersionFromFilename(dynamicConfigFileStr);
-                   // If there isn't any version associated with the filename,
-                   // the default version is 0.
-                   if (version != null) {
+                                                         if (version != null) {
                        dynamicCfg.setProperty("version", version);
                    }
                } finally {
@@ -208,12 +179,7 @@ public class QuorumPeerConfig {
         }
     }
 
-    // This method gets the version from the end of dynamic file name.
-    // For example, "zoo.cfg.dynamic.0" returns initial version "0".
-    // "zoo.cfg.dynamic.1001" returns version of hex number "0x1001".
-    // If a dynamic file name doesn't have any version at the end of file,
-    // e.g. "zoo.cfg.dynamic", it returns null.
-    public static String getVersionFromFilename(String filename) {
+                        public static String getVersionFromFilename(String filename) {
         int i = filename.lastIndexOf('.');
         if(i < 0 || i >= filename.length())
             return null;
@@ -227,12 +193,7 @@ public class QuorumPeerConfig {
         }
     }
 
-    /**
-     * Parse config from a Properties.
-     * @param zkProp Properties to parse from.
-     * @throws IOException
-     * @throws ConfigException
-     */
+    
     public void parseProperties(Properties zkProp)
     throws IOException, ConfigException {
         int clientPort = 0;
@@ -347,20 +308,14 @@ public class QuorumPeerConfig {
                             + " is disabled, so cannot enable "
                             + QuorumAuth.QUORUM_LEARNER_SASL_AUTH_REQUIRED);
         }
-        // If quorumpeer learner is not auth enabled then self won't be able to
-        // join quorum. So this condition is ensuring that the quorumpeer learner
-        // is also auth enabled while enabling quorum server require sasl.
-        if (!quorumLearnerRequireSasl && quorumServerRequireSasl) {
+                                if (!quorumLearnerRequireSasl && quorumServerRequireSasl) {
             throw new IllegalArgumentException(
                     QuorumAuth.QUORUM_LEARNER_SASL_AUTH_REQUIRED
                             + " is disabled, so cannot enable "
                             + QuorumAuth.QUORUM_SERVER_SASL_AUTH_REQUIRED);
         }
 
-        // Reset to MIN_SNAP_RETAIN_COUNT if invalid (less than 3)
-        // PurgeTxnLog.purge(File, File, int) will not allow to purge less
-        // than 3.
-        if (snapRetainCount < MIN_SNAP_RETAIN_COUNT) {
+                                if (snapRetainCount < MIN_SNAP_RETAIN_COUNT) {
             LOG.warn("Invalid autopurge.snapRetainCount: " + snapRetainCount
                     + ". Defaulting to " + MIN_SNAP_RETAIN_COUNT);
             snapRetainCount = MIN_SNAP_RETAIN_COUNT;
@@ -416,25 +371,15 @@ public class QuorumPeerConfig {
                     "minSessionTimeout must not be larger than maxSessionTimeout");
         }          
 
-        // backward compatibility - dynamic configuration in the same file as
-        // static configuration params see writeDynamicConfig()
-        if (dynamicConfigFileStr == null) {
+                        if (dynamicConfigFileStr == null) {
             setupQuorumPeerConfig(zkProp, true);
             if (isDistributed() && isReconfigEnabled()) {
-                // we don't backup static config for standalone mode.
-                // we also don't backup if reconfig feature is disabled.
-                backupOldConfig();
+                                                backupOldConfig();
             }
         }
     }
 
-    /**
-     * Configure SSL authentication only if it is not configured.
-     * 
-     * @throws ConfigException
-     *             If authentication scheme is configured but authentication
-     *             provider is not configured.
-     */
+    
     public static void configureSSLAuth() throws ConfigException {
         try (ClientX509Util clientX509Util = new ClientX509Util()) {
             String sslAuthProp = "zookeeper.authProvider." + System.getProperty(clientX509Util.getSslAuthProviderProperty(), "x509");
@@ -450,10 +395,7 @@ public class QuorumPeerConfig {
         }
     }
 
-    /**
-     * Backward compatibility -- It would backup static config file on bootup
-     * if users write dynamic configuration in "zoo.cfg".
-     */
+    
     private void backupOldConfig() throws IOException {
         new AtomicFileWritingIdiom(new File(configFileStr + ".bak"), new OutputStreamStatement() {
             @Override
@@ -475,9 +417,7 @@ public class QuorumPeerConfig {
         });
     }
 
-    /**
-     * Writes dynamic configuration file
-     */
+    
     public static void writeDynamicConfig(final String dynamicConfigFilename,
                                           final QuorumVerifier qv,
                                           final boolean needKeepVersion)
@@ -508,20 +448,12 @@ public class QuorumPeerConfig {
         });
     }
 
-    /**
-     * Edit static config file.
-     * If there are quorum information in static file, e.g. "server.X", "group",
-     * it will remove them.
-     * If it needs to erase client port information left by the old config,
-     * "eraseClientPortAddress" should be set true.
-     * It should also updates dynamic file pointer on reconfig.
-     */
+    
     public static void editStaticConfig(final String configFileStr,
                                         final String dynamicFileStr,
                                         final boolean eraseClientPortAddress)
             throws IOException {
-        // Some tests may not have a static config file.
-        if (configFileStr == null)
+                if (configFileStr == null)
             return;
 
         File configFile = (new VerifyingFileFactory.Builder(LOG)
@@ -555,16 +487,14 @@ public class QuorumPeerConfig {
                         || (eraseClientPortAddress
                             && (key.startsWith("clientPort")
                                 || key.startsWith("clientPortAddress")))) {
-                        // not writing them back to static file
-                        continue;
+                                                continue;
                     }
 
                     String value = entry.getValue().toString().trim();
                     out.write(key.concat("=").concat(value).concat("\n"));
                 }
 
-                // updates the dynamic file pointer
-                String dynamicConfigFilePath = PathUtils.normalizeFileSystemPath(dynamicFile.getCanonicalPath());
+                                String dynamicConfigFilePath = PathUtils.normalizeFileSystemPath(dynamicFile.getCanonicalPath());
                 out.write("dynamicConfigFile="
                          .concat(dynamicConfigFilePath)
                          .concat("\n"));
@@ -590,11 +520,8 @@ public class QuorumPeerConfig {
        if(isHierarchical){
             return new QuorumHierarchical(dynamicConfigProp);
         } else {
-           /*
-             * The default QuorumVerifier is QuorumMaj
-             */        
-            //LOG.info("Defaulting to majority quorums");
-            return new QuorumMaj(dynamicConfigProp);            
+                   
+                        return new QuorumMaj(dynamicConfigProp);            
         }          
     }
 
@@ -607,13 +534,7 @@ public class QuorumPeerConfig {
         checkValidity();
     }
 
-    /**
-     * Parse dynamic configuration file and return
-     * quorumVerifier for new configuration.
-     * @param dynamicConfigProp Properties to parse from.
-     * @throws IOException
-     * @throws ConfigException
-     */
+    
     public static QuorumVerifier parseDynamicConfig(Properties dynamicConfigProp, int eAlg, boolean warnings,
 	   boolean configBackwardCompatibilityMode) throws IOException, ConfigException {
        boolean isHierarchical = false;
@@ -640,11 +561,7 @@ public class QuorumPeerConfig {
                 throw new IllegalArgumentException("Observers w/o participants is an invalid configuration");
             }
         } else if (numParticipators == 1 && standaloneEnabled) {
-            // HBase currently adds a single server line to the config, for
-            // b/w compatibility reasons we need to keep this here. If standaloneEnabled
-            // is true, the QuorumPeerMain script will create a standalone server instead
-            // of a quorum configuration
-            LOG.error("Invalid configuration, only one server specified (ignoring)");
+                                                            LOG.error("Invalid configuration, only one server specified (ignoring)");
             if (numObservers > 0) {
                 throw new IllegalArgumentException("Observers w/o quorum is an invalid configuration");
             }
@@ -657,10 +574,7 @@ public class QuorumPeerConfig {
                     LOG.warn("Non-optimial configuration, consider an odd number of servers.");
                 }
             }
-            /*
-             * If using FLE, then every server requires a separate election
-             * port.
-             */            
+                        
            if (eAlg != 0) {
                for (QuorumServer s : qv.getVotingMembers().values()) {
                    if (s.electionAddr == null)
@@ -674,8 +588,7 @@ public class QuorumPeerConfig {
 
     private void setupMyId() throws IOException {
         File myIdFile = new File(dataDir, "myid");
-        // standalone server doesn't need myid file.
-        if (!myIdFile.isFile()) {
+                if (!myIdFile.isFile()) {
             return;
         }
         BufferedReader br = new BufferedReader(new FileReader(myIdFile));
@@ -712,8 +625,7 @@ public class QuorumPeerConfig {
     }
 
     private void setupPeerType() {
-        // Warn about inconsistent peer type
-        LearnerType roleByServersList = quorumVerifier.getObservingMembers().containsKey(serverId) ? LearnerType.OBSERVER
+                LearnerType roleByServersList = quorumVerifier.getObservingMembers().containsKey(serverId) ? LearnerType.OBSERVER
                 : LearnerType.PARTICIPANT;
         if (roleByServersList != peerType) {
             LOG.warn("Peer type from servers list (" + roleByServersList
@@ -784,8 +696,7 @@ public class QuorumPeerConfig {
     }
 
     public Map<Long,QuorumServer> getServers() {
-        // returns all configuration servers -- participants and observers
-        return Collections.unmodifiableMap(quorumVerifier.getAllMembers());
+                return Collections.unmodifiableMap(quorumVerifier.getAllMembers());
     }
 
     public long getServerId() { return serverId; }

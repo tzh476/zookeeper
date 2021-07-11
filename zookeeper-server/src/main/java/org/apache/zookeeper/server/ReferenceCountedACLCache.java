@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server;
 
 import org.apache.jute.Index;
@@ -48,23 +30,15 @@ public class ReferenceCountedACLCache {
             new HashMap<Long, AtomicLongWithEquals>();
     private static final long OPEN_UNSAFE_ACL_ID = -1L;
 
-    /**
-     * these are the number of acls that we have in the datatree
-     */
+    
     long aclIndex = 0;
 
-    /**
-     * converts the list of acls to a long.
-     * Increments the reference counter for this ACL.
-     * @param acls
-     * @return a long that map to the acls
-     */
+    
     public synchronized Long convertAcls(List<ACL> acls) {
         if (acls == null)
             return OPEN_UNSAFE_ACL_ID;
 
-        // get the value from the map
-        Long ret = aclKeyMap.get(acls);
+                Long ret = aclKeyMap.get(acls);
         if (ret == null) {
             ret = incrementIndex();
             longKeyMap.put(ret, acls);
@@ -76,12 +50,7 @@ public class ReferenceCountedACLCache {
         return ret;
     }
 
-    /**
-     * converts a long to a list of acls.
-     *
-     * @param longVal
-     * @return a list of ACLs that map to the long
-     */
+    
     public synchronized List<ACL> convertLong(Long longVal) {
         if (longVal == null)
             return null;

@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server.quorum.auth;
 
 import java.io.BufferedOutputStream;
@@ -76,8 +58,7 @@ public class SaslQuorumAuthLearner implements QuorumAuthLearner {
 
     @Override
     public void authenticate(Socket sock, String hostName) throws IOException {
-        if (!quorumRequireSasl) { // let it through, we don't require auth
-            LOG.info("Skipping SASL authentication as {}={}",
+        if (!quorumRequireSasl) {             LOG.info("Skipping SASL authentication as {}={}",
                     QuorumAuth.QUORUM_LEARNER_SASL_AUTH_REQUIRED,
                     quorumRequireSasl);
             return;
@@ -107,8 +88,7 @@ public class SaslQuorumAuthLearner implements QuorumAuthLearner {
                 case SUCCESS:
                     responseToken = createSaslToken(authPacket.getToken(), sc,
                             learnerLogin);
-                    // we're done; don't expect to send another BIND
-                    if (responseToken != null) {
+                                        if (responseToken != null) {
                         throw new SaslException("Protocol error: attempting to send response after completion");
                     }
                     break;
@@ -132,8 +112,7 @@ public class SaslQuorumAuthLearner implements QuorumAuthLearner {
                 }
             }
 
-            // Validate status code at the end of authentication exchange.
-            checkAuthStatus(sock, qpStatus);
+                        checkAuthStatus(sock, qpStatus);
         } finally {
             if (sc != null) {
                 try {
@@ -177,8 +156,7 @@ public class SaslQuorumAuthLearner implements QuorumAuthLearner {
         bufferedOutput.flush();
     }
 
-    // TODO: need to consolidate the #createSaslToken() implementation between ZooKeeperSaslClient#createSaslToken().
-    private byte[] createSaslToken(final byte[] saslToken,
+        private byte[] createSaslToken(final byte[] saslToken,
             final SaslClient saslClient, final Login login)
                     throws SaslException {
         if (saslToken == null) {
@@ -201,10 +179,7 @@ public class SaslQuorumAuthLearner implements QuorumAuthLearner {
                     String error = "An error: (" + e
                             + ") occurred when evaluating Zookeeper Quorum Member's "
                             + " received SASL token.";
-                    // Try to provide hints to use about what went wrong so they
-                    // can fix their configuration.
-                    // TODO: introspect about e: look for GSS information.
-                    final String UNKNOWN_SERVER_ERROR_TEXT = "(Mechanism level: Server not found in Kerberos database (7) - UNKNOWN_SERVER)";
+                                                                                final String UNKNOWN_SERVER_ERROR_TEXT = "(Mechanism level: Server not found in Kerberos database (7) - UNKNOWN_SERVER)";
                     if (e.toString().indexOf(UNKNOWN_SERVER_ERROR_TEXT) > -1) {
                         error += " This may be caused by Java's being unable to resolve the Zookeeper Quorum Member's"
                                 + " hostname correctly. You may want to try to adding"

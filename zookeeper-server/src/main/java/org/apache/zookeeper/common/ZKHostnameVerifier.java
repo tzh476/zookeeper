@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.common;
 
 import org.slf4j.Logger;
@@ -46,16 +28,10 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-/**
- * Note: copied from Apache httpclient with some modifications. We want host verification, but depending
- * on the httpclient jar caused unexplained performance regressions (even when the code was not used).
- */
+
 final class ZKHostnameVerifier implements HostnameVerifier {
 
-    /**
-     * Note: copied from Apache httpclient with some minor modifications. We want host verification, but depending
-     * on the httpclient jar caused unexplained performance regressions (even when the code was not used).
-     */
+    
     private static final class SubjectName {
         static final int DNS = 2;
         static final int IP = 7;
@@ -93,10 +69,7 @@ final class ZKHostnameVerifier implements HostnameVerifier {
         }
     }
 
-    /**
-     * Note: copied from Apache httpclient. We want host verification, but depending on the
-     * httpclient jar caused unexplained performance regressions (even when the code was not used).
-     */
+    
     private static class InetAddressUtils {
         private InetAddressUtils() {}
 
@@ -170,9 +143,7 @@ final class ZKHostnameVerifier implements HostnameVerifier {
                     matchDNSName(host, subjectAlts);
             }
         } else {
-            // CN matching has been deprecated by rfc2818 and can be used
-            // as fallback only when no subjectAlts are available
-            final X500Principal subjectPrincipal = cert.getSubjectX500Principal();
+                                    final X500Principal subjectPrincipal = cert.getSubjectX500Principal();
             final String cn = extractCN(subjectPrincipal.getName(X500Principal.RFC2253));
             if (cn == null) {
                 throw new SSLException("Certificate subject for <" + host + "> doesn't contain " +
@@ -236,12 +207,7 @@ final class ZKHostnameVerifier implements HostnameVerifier {
 
     private static boolean matchIdentity(final String host, final String identity,
                                          final boolean strict) {
-        // RFC 2818, 3.1. Server Identity
-        // "...Names may contain the wildcard
-        // character * which is considered to match any single domain name
-        // component or component fragment..."
-        // Based on this statement presuming only singular wildcard is legal
-        final int asteriskIdx = identity.indexOf('*');
+                                                final int asteriskIdx = identity.indexOf('*');
         if (asteriskIdx != -1) {
             final String prefix = identity.substring(0, asteriskIdx);
             final String suffix = identity.substring(asteriskIdx + 1);
@@ -251,8 +217,7 @@ final class ZKHostnameVerifier implements HostnameVerifier {
             if (!suffix.isEmpty() && !host.endsWith(suffix)) {
                 return false;
             }
-            // Additional sanity checks on content selected by wildcard can be done here
-            if (strict) {
+                        if (strict) {
                 final String remainder = host.substring(
                         prefix.length(), host.length() - suffix.length());
                 if (remainder.contains(".")) {
@@ -286,10 +251,8 @@ final class ZKHostnameVerifier implements HostnameVerifier {
                             return value.toString();
                         }
                     } catch (final NoSuchElementException ignore) {
-                        // ignore exception
-                    } catch (final NamingException ignore) {
-                        // ignore exception
-                    }
+                                            } catch (final NamingException ignore) {
+                                            }
                 }
             }
             return null;
@@ -332,9 +295,7 @@ final class ZKHostnameVerifier implements HostnameVerifier {
         }
     }
 
-    /*
-     * Normalize IPv6 or DNS name.
-     */
+    
     private static String normaliseAddress(final String hostname) {
         if (hostname == null) {
             return hostname;
@@ -342,8 +303,7 @@ final class ZKHostnameVerifier implements HostnameVerifier {
         try {
             final InetAddress inetAddress = InetAddress.getByName(hostname);
             return inetAddress.getHostAddress();
-        } catch (final UnknownHostException unexpected) { // Should not happen, because we check for IPv6 address above
-            return hostname;
+        } catch (final UnknownHostException unexpected) {             return hostname;
         }
     }
 }

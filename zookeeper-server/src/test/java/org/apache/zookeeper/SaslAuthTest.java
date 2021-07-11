@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper;
 
 import static org.junit.Assert.assertTrue;
@@ -55,9 +37,7 @@ public class SaslAuthTest extends ClientBase {
             fwriter.close();
             System.setProperty("java.security.auth.login.config", saslConfFile.getAbsolutePath());
         } catch (IOException e) {
-            // could not create tmp directory to hold JAAS conf file : test will
-            // fail now.
-        }
+                                }
     }
 
     private static String getJaasFileContent() {
@@ -161,8 +141,7 @@ public class SaslAuthTest extends ClientBase {
                 Assert.fail("SASLAuthenticationProvider.isValid() failed to catch invalid Id.");
             }
             catch (KeeperException.InvalidACLException e) {
-                // ok.
-            }
+                            }
             finally {
                 i++;
             }
@@ -177,8 +156,7 @@ public class SaslAuthTest extends ClientBase {
         try {
             setSaslFailureFlag(zk);
 
-            // try node creation for around 15 second,
-            int totalTry = 10;
+                        int totalTry = 10;
             int tryCount = 0;
 
             boolean success = false;
@@ -189,8 +167,7 @@ public class SaslAuthTest extends ClientBase {
                     success = true;
                 } catch (KeeperException.ConnectionLossException e) {
                     Thread.sleep(1000);
-                    // do nothing
-                }
+                                    }
             }
             assertTrue("ZNode creation is failing continuously after Sasl auth failure.", success);
 
@@ -199,8 +176,7 @@ public class SaslAuthTest extends ClientBase {
         }
     }
 
-    // set saslLoginFailed to true to simulate the LoginException
-    private void setSaslFailureFlag(ZooKeeper zk) throws Exception {
+        private void setSaslFailureFlag(ZooKeeper zk) throws Exception {
         Field cnxnField = zk.getClass().getDeclaredField("cnxn");
         cnxnField.setAccessible(true);
         ClientCnxn clientCnxn = (ClientCnxn) cnxnField.get(zk);

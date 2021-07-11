@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.apache.zookeeper.server.quorum;
 
 import java.io.PrintWriter;
@@ -36,24 +19,12 @@ import org.apache.zookeeper.server.ZooKeeperServerListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * The learner session tracker is used by learners (followers and observers) to
- * track zookeeper sessions which may or may not be echoed to the leader.  When
- * a new session is created it is saved locally in a wrapped
- * LocalSessionTracker.  It can subsequently be upgraded to a global session
- * as required.  If an upgrade is requested the session is removed from local
- * collections while keeping the same session ID.  It is up to the caller to
- * queue a session creation request for the leader.
- * A secondary function of the learner session tracker is to remember sessions
- * which have been touched in this service.  This information is passed along
- * to the leader with a ping.
- */
+
 public class LearnerSessionTracker extends UpgradeableSessionTracker {
     private static final Logger LOG = LoggerFactory.getLogger(LearnerSessionTracker.class);
 
     private final SessionExpirer expirer;
-    // Touch table for the global sessions
-    private final AtomicReference<Map<Long, Integer>> touchTable =
+        private final AtomicReference<Map<Long, Integer>> touchTable =
         new AtomicReference<Map<Long, Integer>>();
     private final long serverId;
     private final AtomicLong nextSessionId = new AtomicLong();
@@ -105,9 +76,7 @@ public class LearnerSessionTracker extends UpgradeableSessionTracker {
         boolean added =
             globalSessionsWithTimeouts.put(sessionId, sessionTimeout) == null;
         if (localSessionsEnabled && added) {
-            // Only do extra logging so we know what kind of session this is
-            // if we're supporting both kinds of sessions
-            LOG.info("Adding global session 0x" + Long.toHexString(sessionId));
+                                    LOG.info("Adding global session 0x" + Long.toHexString(sessionId));
         }
         touchTable.get().put(sessionId, sessionTimeout);
         return added;
@@ -117,8 +86,7 @@ public class LearnerSessionTracker extends UpgradeableSessionTracker {
         boolean added;
         if (localSessionsEnabled && !isGlobalSession(sessionId)) {
             added = localSessionTracker.addSession(sessionId, sessionTimeout);
-            // Check for race condition with session upgrading
-            if (isGlobalSession(sessionId)) {
+                        if (isGlobalSession(sessionId)) {
                 added = false;
                 localSessionTracker.removeSession(sessionId);
             } else if (added) {
@@ -162,11 +130,7 @@ public class LearnerSessionTracker extends UpgradeableSessionTracker {
                 localSessionTracker.checkSession(sessionId, owner);
                 return;
             } catch (UnknownSessionException e) {
-                // Check whether it's a global session. We can ignore those
-                // because they are handled at the leader, but if not, rethrow.
-                // We check local session status first to avoid race condition
-                // with session upgrading.
-                if (!isGlobalSession(sessionId)) {
+                                                                                if (!isGlobalSession(sessionId)) {
                     throw new SessionExpiredException();
                 }
             }
@@ -180,11 +144,7 @@ public class LearnerSessionTracker extends UpgradeableSessionTracker {
                 localSessionTracker.setOwner(sessionId, owner);
                 return;
             } catch (SessionExpiredException e) {
-                // Check whether it's a global session. We can ignore those
-                // because they are handled at the leader, but if not, rethrow.
-                // We check local session status first to avoid race condition
-                // with session upgrading.
-                if (!isGlobalSession(sessionId)) {
+                                                                                if (!isGlobalSession(sessionId)) {
                     throw e;
                 }
             }
@@ -211,9 +171,7 @@ public class LearnerSessionTracker extends UpgradeableSessionTracker {
     }
 
     public void setSessionClosing(long sessionId) {
-        // Global sessions handled on the leader; this call is a no-op if
-        // not tracked as a local session so safe to call in both cases.
-        if (localSessionTracker != null) {
+                        if (localSessionTracker != null) {
             localSessionTracker.setSessionClosing(sessionId);
         }
     }

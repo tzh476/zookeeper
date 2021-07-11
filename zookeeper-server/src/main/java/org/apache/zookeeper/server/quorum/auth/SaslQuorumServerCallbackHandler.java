@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.apache.zookeeper.server.quorum.auth;
 
 import java.io.IOException;
@@ -35,12 +18,7 @@ import javax.security.sasl.RealmCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * This is used by the SASL mechanisms to get further information to complete
- * the authentication. For example, a SASL mechanism might use this callback
- * handler to do verification operation. This is used by the QuorumServer to
- * perform the mutual quorum peer authentication.
- */
+
 public class SaslQuorumServerCallbackHandler implements CallbackHandler {
     private static final String USER_PREFIX = "user_";
     private static final Logger LOG = LoggerFactory.getLogger(SaslQuorumServerCallbackHandler.class);
@@ -61,9 +39,7 @@ public class SaslQuorumServerCallbackHandler implements CallbackHandler {
         credentials.clear();
         for(AppConfigurationEntry entry: configurationEntries) {
             Map<String,?> options = entry.getOptions();
-            // Populate DIGEST-MD5 user -> password map with JAAS configuration entries from the "QuorumServer" section.
-            // Usernames are distinguished from other options by prefixing the username with a "user_" prefix.
-            for(Map.Entry<String, ?> pair : options.entrySet()) {
+                                    for(Map.Entry<String, ?> pair : options.entrySet()) {
                 String key = pair.getKey();
                 if (key.startsWith(USER_PREFIX)) {
                     String userName = key.substring(USER_PREFIX.length());
@@ -72,8 +48,7 @@ public class SaslQuorumServerCallbackHandler implements CallbackHandler {
             }
         }
 
-        // authorized host lists
-        this.authzHosts = authzHosts;
+                this.authzHosts = authzHosts;
     }
 
     public void handle(Callback[] callbacks) throws UnsupportedCallbackException {
@@ -91,8 +66,7 @@ public class SaslQuorumServerCallbackHandler implements CallbackHandler {
     }
 
     private void handleNameCallback(NameCallback nc) {
-        // check to see if this user is in the user password database.
-        if (credentials.get(nc.getDefaultName()) == null) {
+                if (credentials.get(nc.getDefaultName()) == null) {
             LOG.warn("User '{}' not found in list of DIGEST-MD5 authenticateable users.",
                     nc.getDefaultName());
             return;
@@ -119,13 +93,9 @@ public class SaslQuorumServerCallbackHandler implements CallbackHandler {
         String authorizationID = ac.getAuthorizationID();
 
         boolean authzFlag = false;
-        // 1. Matches authenticationID and authorizationID
-        authzFlag = authenticationID.equals(authorizationID);
+                authzFlag = authenticationID.equals(authorizationID);
 
-        // 2. Verify whether the connecting host is present in authorized hosts.
-        // If not exists, then connecting peer is not authorized to join the
-        // ensemble and will reject it.
-        if (authzFlag) {
+                                if (authzFlag) {
             String[] components = authorizationID.split("[/@]");
             if (components.length == 3) {
                 authzFlag = authzHosts.contains(components[1]);
@@ -136,8 +106,7 @@ public class SaslQuorumServerCallbackHandler implements CallbackHandler {
             }
         }
 
-        // Sets authorization flag
-        ac.setAuthorized(authzFlag);
+                ac.setAuthorized(authzFlag);
         if (ac.isAuthorized()) {
             ac.setAuthorizedID(authorizationID);
             LOG.info("Successfully authenticated learner: authenticationID={};  authorizationID={}.",

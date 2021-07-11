@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server;
 
 import java.io.IOException;
@@ -76,15 +58,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * This Request processor actually applies any transaction associated with a
- * request and services any queries. It is always at the end of a
- * RequestProcessor chain (hence the name), so it does not have a nextProcessor
- * member.
- *
- * This RequestProcessor counts on ZooKeeperServer to populate the
- * outstandingRequests member of ZooKeeperServer.
- */
+
 public class FinalRequestProcessor implements RequestProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(FinalRequestProcessor.class);
 
@@ -98,8 +72,7 @@ public class FinalRequestProcessor implements RequestProcessor {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Processing request:: " + request);
         }
-        // request.addRQRec(">final");
-        long traceMask = ZooTrace.CLIENT_REQUEST_TRACE_MASK;
+                long traceMask = ZooTrace.CLIENT_REQUEST_TRACE_MASK;
         if (request.type == OpCode.ping) {
             traceMask = ZooTrace.SERVER_PING_TRACE_MASK;
         }
@@ -108,12 +81,9 @@ public class FinalRequestProcessor implements RequestProcessor {
         }
         ProcessTxnResult rc = null;
         synchronized (zks.outstandingChanges) {
-            // Need to process local session requests
-            rc = zks.processTxn(request);
+                        rc = zks.processTxn(request);
 
-            // request.hdr is set for write requests, which are the only ones
-            // that add to outstandingChanges.
-            if (request.getHdr() != null) {
+                                    if (request.getHdr() != null) {
                 TxnHeader hdr = request.getHdr();
                 Record txn = request.getTxn();
                 long zxid = hdr.getZxid();
@@ -130,22 +100,13 @@ public class FinalRequestProcessor implements RequestProcessor {
                 }
             }
 
-            // do not add non quorum packets to the queue.
-            if (request.isQuorum()) {
+                        if (request.isQuorum()) {
                 zks.getZKDatabase().addCommittedProposal(request);
             }
         }
 
-        // ZOOKEEPER-558:
-        // In some cases the server does not close the connection (e.g., closeconn buffer
-        // was not being queued — ZOOKEEPER-558) properly. This happens, for example,
-        // when the client closes the connection. The server should still close the session, though.
-        // Calling closeSession() after losing the cnxn, results in the client close session response being dropped.
-        if (request.type == OpCode.closeSession && connClosedByClient(request)) {
-            // We need to check if we can close the session id.
-            // Sometimes the corresponding ServerCnxnFactory could be null because
-            // we are just playing diffs from the leader.
-            if (closeSession(zks.serverCnxnFactory, request.sessionId) ||
+                                                if (request.type == OpCode.closeSession && connClosedByClient(request)) {
+                                                if (closeSession(zks.serverCnxnFactory, request.sessionId) ||
                     closeSession(zks.secureServerCnxnFactory, request.sessionId)) {
                 return;
             }
@@ -162,13 +123,7 @@ public class FinalRequestProcessor implements RequestProcessor {
         Record rsp = null;
         try {
             if (request.getHdr() != null && request.getHdr().getType() == OpCode.error) {
-                /*
-                 * When local session upgrading is disabled, leader will
-                 * reject the ephemeral node creation due to session expire.
-                 * However, if this is the follower that issue the request,
-                 * it will have the correct error code, so we should use that
-                 * and report to user
-                 */
+                
                 if (request.getException() != null) {
                     throw request.getException();
                 } else {
@@ -305,8 +260,7 @@ public class FinalRequestProcessor implements RequestProcessor {
             }
             case OpCode.exists: {
                 lastOp = "EXIS";
-                // TODO we need to figure out the security requirement for this!
-                ExistsRequest existsRequest = new ExistsRequest();
+                                ExistsRequest existsRequest = new ExistsRequest();
                 ByteBufferInputStream.byteBuffer2Record(request.request,
                         existsRequest);
                 String path = existsRequest.getPath();
@@ -339,8 +293,7 @@ public class FinalRequestProcessor implements RequestProcessor {
             case OpCode.setWatches: {
                 lastOp = "SETW";
                 SetWatches setWatches = new SetWatches();
-                // XXX We really should NOT need this!!!!
-                request.request.rewind();
+                                request.request.rewind();
                 ByteBufferInputStream.byteBuffer2Record(request.request, setWatches);
                 long relativeZxid = setWatches.getRelativeZxid();
                 zks.getZKDatabase().setWatches(relativeZxid,
@@ -454,22 +407,12 @@ public class FinalRequestProcessor implements RequestProcessor {
             }
             }
         } catch (SessionMovedException e) {
-            // session moved is a connection level error, we need to tear
-            // down the connection otw ZOOKEEPER-710 might happen
-            // ie client on slow follower starts to renew session, fails
-            // before this completes, then tries the fast follower (leader)
-            // and is successful, however the initial renew is then
-            // successfully fwd/processed by the leader and as a result
-            // the client and leader disagree on where the client is most
-            // recently attached (and therefore invalid SESSION MOVED generated)
-            cnxn.sendCloseSession();
+                                                                                                            cnxn.sendCloseSession();
             return;
         } catch (KeeperException e) {
             err = e.code();
         } catch (Exception e) {
-            // log at error level as we are returning a marshalling
-            // error to the user
-            LOG.error("Failed to process " + request, e);
+                                    LOG.error("Failed to process " + request, e);
             StringBuilder sb = new StringBuilder();
             ByteBuffer bb = request.request;
             bb.rewind();
@@ -510,8 +453,7 @@ public class FinalRequestProcessor implements RequestProcessor {
     }
 
     public void shutdown() {
-        // we are the final link in the chain
-        LOG.info("shutdown of request processor complete");
+                LOG.info("shutdown of request processor complete");
     }
 
 }

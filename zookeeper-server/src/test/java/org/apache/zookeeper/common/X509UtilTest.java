@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.apache.zookeeper.common;
 
 import java.io.IOException;
@@ -147,9 +130,7 @@ public class X509UtilTest extends BaseX509ParameterizedTestCase {
         Assert.assertArrayEquals(customCipherSuites, sslSocket.getEnabledCipherSuites());
     }
 
-    // It would be great to test the value of PKIXBuilderParameters#setRevocationEnabled but it does not appear to be
-    // possible
-    @Test(timeout = 5000)
+            @Test(timeout = 5000)
     public void testCRLEnabled() throws Exception {
         System.setProperty(x509Util.getSslCrlEnabledProperty(), "true");
         x509Util.getDefaultSSLContext();
@@ -202,8 +183,7 @@ public class X509UtilTest extends BaseX509ParameterizedTestCase {
 
     @Test
     public void testLoadPEMKeyStore() throws Exception {
-        // Make sure we can instantiate a key manager from the PEM file on disk
-        X509KeyManager km = X509Util.createKeyManager(
+                X509KeyManager km = X509Util.createKeyManager(
                 x509TestContext.getKeyStoreFile(KeyStoreFileType.PEM).getAbsolutePath(),
                 x509TestContext.getKeyStorePassword(),
                 KeyStoreFileType.PEM.getPropertyValue());
@@ -214,8 +194,7 @@ public class X509UtilTest extends BaseX509ParameterizedTestCase {
         if (!x509TestContext.getKeyStorePassword().isEmpty()) {
             return;
         }
-        // Make sure that empty password and null password are treated the same
-        X509KeyManager km = X509Util.createKeyManager(
+                X509KeyManager km = X509Util.createKeyManager(
                 x509TestContext.getKeyStoreFile(KeyStoreFileType.PEM).getAbsolutePath(),
                 null,
                 KeyStoreFileType.PEM.getPropertyValue());
@@ -223,26 +202,22 @@ public class X509UtilTest extends BaseX509ParameterizedTestCase {
 
     @Test
     public void testLoadPEMKeyStoreAutodetectStoreFileType() throws Exception {
-        // Make sure we can instantiate a key manager from the PEM file on disk
-        X509KeyManager km = X509Util.createKeyManager(
+                X509KeyManager km = X509Util.createKeyManager(
                 x509TestContext.getKeyStoreFile(KeyStoreFileType.PEM).getAbsolutePath(),
                 x509TestContext.getKeyStorePassword(),
-                null /* null StoreFileType means 'autodetect from file extension' */);
+                null );
     }
 
     @Test(expected = X509Exception.KeyManagerException.class)
     public void testLoadPEMKeyStoreWithWrongPassword() throws Exception {
-        // Attempting to load with the wrong key password should fail
-        X509KeyManager km = X509Util.createKeyManager(
+                X509KeyManager km = X509Util.createKeyManager(
                 x509TestContext.getKeyStoreFile(KeyStoreFileType.PEM).getAbsolutePath(),
-                "wrong password", // intentionally use the wrong password
-                KeyStoreFileType.PEM.getPropertyValue());
+                "wrong password",                 KeyStoreFileType.PEM.getPropertyValue());
     }
 
     @Test
     public void testLoadPEMTrustStore() throws Exception {
-        // Make sure we can instantiate a trust manager from the PEM file on disk
-        X509TrustManager tm = X509Util.createTrustManager(
+                X509TrustManager tm = X509Util.createTrustManager(
                 x509TestContext.getTrustStoreFile(KeyStoreFileType.PEM).getAbsolutePath(),
                 x509TestContext.getTrustStorePassword(),
                 KeyStoreFileType.PEM.getPropertyValue(),
@@ -257,8 +232,7 @@ public class X509UtilTest extends BaseX509ParameterizedTestCase {
         if (!x509TestContext.getTrustStorePassword().isEmpty()) {
             return;
         }
-        // Make sure that empty password and null password are treated the same
-        X509TrustManager tm = X509Util.createTrustManager(
+                X509TrustManager tm = X509Util.createTrustManager(
                 x509TestContext.getTrustStoreFile(KeyStoreFileType.PEM).getAbsolutePath(),
                 null,
                 KeyStoreFileType.PEM.getPropertyValue(),
@@ -271,12 +245,10 @@ public class X509UtilTest extends BaseX509ParameterizedTestCase {
 
     @Test
     public void testLoadPEMTrustStoreAutodetectStoreFileType() throws Exception {
-        // Make sure we can instantiate a trust manager from the PEM file on disk
-        X509TrustManager tm = X509Util.createTrustManager(
+                X509TrustManager tm = X509Util.createTrustManager(
                 x509TestContext.getTrustStoreFile(KeyStoreFileType.PEM).getAbsolutePath(),
                 x509TestContext.getTrustStorePassword(),
-                null,  // null StoreFileType means 'autodetect from file extension'
-                false,
+                null,                  false,
                 false,
                 true,
                 true);
@@ -284,8 +256,7 @@ public class X509UtilTest extends BaseX509ParameterizedTestCase {
 
     @Test
     public void testLoadJKSKeyStore() throws Exception {
-        // Make sure we can instantiate a key manager from the JKS file on disk
-        X509KeyManager km = X509Util.createKeyManager(
+                X509KeyManager km = X509Util.createKeyManager(
                 x509TestContext.getKeyStoreFile(KeyStoreFileType.JKS).getAbsolutePath(),
                 x509TestContext.getKeyStorePassword(),
                 KeyStoreFileType.JKS.getPropertyValue());
@@ -296,8 +267,7 @@ public class X509UtilTest extends BaseX509ParameterizedTestCase {
         if (!x509TestContext.getKeyStorePassword().isEmpty()) {
             return;
         }
-        // Make sure that empty password and null password are treated the same
-        X509KeyManager km = X509Util.createKeyManager(
+                X509KeyManager km = X509Util.createKeyManager(
                 x509TestContext.getKeyStoreFile(KeyStoreFileType.JKS).getAbsolutePath(),
                 null,
                 KeyStoreFileType.JKS.getPropertyValue());
@@ -305,17 +275,15 @@ public class X509UtilTest extends BaseX509ParameterizedTestCase {
 
     @Test
     public void testLoadJKSKeyStoreAutodetectStoreFileType() throws Exception {
-        // Make sure we can instantiate a key manager from the JKS file on disk
-        X509KeyManager km = X509Util.createKeyManager(
+                X509KeyManager km = X509Util.createKeyManager(
                 x509TestContext.getKeyStoreFile(KeyStoreFileType.JKS).getAbsolutePath(),
                 x509TestContext.getKeyStorePassword(),
-                null /* null StoreFileType means 'autodetect from file extension' */);
+                null );
     }
 
     @Test(expected = X509Exception.KeyManagerException.class)
     public void testLoadJKSKeyStoreWithWrongPassword() throws Exception {
-        // Attempting to load with the wrong key password should fail
-        X509KeyManager km = X509Util.createKeyManager(
+                X509KeyManager km = X509Util.createKeyManager(
                 x509TestContext.getKeyStoreFile(KeyStoreFileType.JKS).getAbsolutePath(),
                 "wrong password",
                 KeyStoreFileType.JKS.getPropertyValue());
@@ -323,8 +291,7 @@ public class X509UtilTest extends BaseX509ParameterizedTestCase {
 
     @Test
     public void testLoadJKSTrustStore() throws Exception {
-        // Make sure we can instantiate a trust manager from the JKS file on disk
-        X509TrustManager tm = X509Util.createTrustManager(
+                X509TrustManager tm = X509Util.createTrustManager(
                 x509TestContext.getTrustStoreFile(KeyStoreFileType.JKS).getAbsolutePath(),
                 x509TestContext.getTrustStorePassword(),
                 KeyStoreFileType.JKS.getPropertyValue(),
@@ -339,8 +306,7 @@ public class X509UtilTest extends BaseX509ParameterizedTestCase {
         if (!x509TestContext.getTrustStorePassword().isEmpty()) {
             return;
         }
-        // Make sure that empty password and null password are treated the same
-        X509TrustManager tm = X509Util.createTrustManager(
+                X509TrustManager tm = X509Util.createTrustManager(
                 x509TestContext.getTrustStoreFile(KeyStoreFileType.JKS).getAbsolutePath(),
                 null,
                 KeyStoreFileType.JKS.getPropertyValue(),
@@ -352,12 +318,10 @@ public class X509UtilTest extends BaseX509ParameterizedTestCase {
 
     @Test
     public void testLoadJKSTrustStoreAutodetectStoreFileType() throws Exception {
-        // Make sure we can instantiate a trust manager from the JKS file on disk
-        X509TrustManager tm = X509Util.createTrustManager(
+                X509TrustManager tm = X509Util.createTrustManager(
                 x509TestContext.getTrustStoreFile(KeyStoreFileType.JKS).getAbsolutePath(),
                 x509TestContext.getTrustStorePassword(),
-                null,  // null StoreFileType means 'autodetect from file extension'
-                true,
+                null,                  true,
                 true,
                 true,
                 true);
@@ -365,8 +329,7 @@ public class X509UtilTest extends BaseX509ParameterizedTestCase {
 
     @Test(expected = X509Exception.TrustManagerException.class)
     public void testLoadJKSTrustStoreWithWrongPassword() throws Exception {
-        // Attempting to load with the wrong key password should fail
-        X509TrustManager tm = X509Util.createTrustManager(
+                X509TrustManager tm = X509Util.createTrustManager(
                 x509TestContext.getTrustStoreFile(KeyStoreFileType.JKS).getAbsolutePath(),
                 "wrong password",
                 KeyStoreFileType.JKS.getPropertyValue(),
@@ -378,8 +341,7 @@ public class X509UtilTest extends BaseX509ParameterizedTestCase {
 
     @Test
     public void testLoadPKCS12KeyStore() throws Exception {
-        // Make sure we can instantiate a key manager from the PKCS12 file on disk
-        X509KeyManager km = X509Util.createKeyManager(
+                X509KeyManager km = X509Util.createKeyManager(
             x509TestContext.getKeyStoreFile(KeyStoreFileType.PKCS12).getAbsolutePath(),
             x509TestContext.getKeyStorePassword(),
             KeyStoreFileType.PKCS12.getPropertyValue());
@@ -390,8 +352,7 @@ public class X509UtilTest extends BaseX509ParameterizedTestCase {
         if (!x509TestContext.getKeyStorePassword().isEmpty()) {
             return;
         }
-        // Make sure that empty password and null password are treated the same
-        X509KeyManager km = X509Util.createKeyManager(
+                X509KeyManager km = X509Util.createKeyManager(
             x509TestContext.getKeyStoreFile(KeyStoreFileType.PKCS12).getAbsolutePath(),
             null,
             KeyStoreFileType.PKCS12.getPropertyValue());
@@ -399,17 +360,15 @@ public class X509UtilTest extends BaseX509ParameterizedTestCase {
 
     @Test
     public void testLoadPKCS12KeyStoreAutodetectStoreFileType() throws Exception {
-        // Make sure we can instantiate a key manager from the PKCS12 file on disk
-        X509KeyManager km = X509Util.createKeyManager(
+                X509KeyManager km = X509Util.createKeyManager(
             x509TestContext.getKeyStoreFile(KeyStoreFileType.PKCS12).getAbsolutePath(),
             x509TestContext.getKeyStorePassword(),
-            null /* null StoreFileType means 'autodetect from file extension' */);
+            null );
     }
 
     @Test(expected = X509Exception.KeyManagerException.class)
     public void testLoadPKCS12KeyStoreWithWrongPassword() throws Exception {
-        // Attempting to load with the wrong key password should fail
-        X509KeyManager km = X509Util.createKeyManager(
+                X509KeyManager km = X509Util.createKeyManager(
             x509TestContext.getKeyStoreFile(KeyStoreFileType.PKCS12).getAbsolutePath(),
             "wrong password",
             KeyStoreFileType.PKCS12.getPropertyValue());
@@ -417,8 +376,7 @@ public class X509UtilTest extends BaseX509ParameterizedTestCase {
 
     @Test
     public void testLoadPKCS12TrustStore() throws Exception {
-        // Make sure we can instantiate a trust manager from the PKCS12 file on disk
-        X509TrustManager tm = X509Util.createTrustManager(
+                X509TrustManager tm = X509Util.createTrustManager(
             x509TestContext.getTrustStoreFile(KeyStoreFileType.PKCS12).getAbsolutePath(),
             x509TestContext.getTrustStorePassword(),
             KeyStoreFileType.PKCS12.getPropertyValue(),
@@ -433,8 +391,7 @@ public class X509UtilTest extends BaseX509ParameterizedTestCase {
         if (!x509TestContext.getTrustStorePassword().isEmpty()) {
             return;
         }
-        // Make sure that empty password and null password are treated the same
-        X509TrustManager tm = X509Util.createTrustManager(
+                X509TrustManager tm = X509Util.createTrustManager(
             x509TestContext.getTrustStoreFile(KeyStoreFileType.PKCS12).getAbsolutePath(),
             null,
             KeyStoreFileType.PKCS12.getPropertyValue(),
@@ -446,12 +403,10 @@ public class X509UtilTest extends BaseX509ParameterizedTestCase {
 
     @Test
     public void testLoadPKCS12TrustStoreAutodetectStoreFileType() throws Exception {
-        // Make sure we can instantiate a trust manager from the PKCS12 file on disk
-        X509TrustManager tm = X509Util.createTrustManager(
+                X509TrustManager tm = X509Util.createTrustManager(
             x509TestContext.getTrustStoreFile(KeyStoreFileType.PKCS12).getAbsolutePath(),
             x509TestContext.getTrustStorePassword(),
-            null,  // null StoreFileType means 'autodetect from file extension'
-            true,
+            null,              true,
             true,
             true,
             true);
@@ -459,8 +414,7 @@ public class X509UtilTest extends BaseX509ParameterizedTestCase {
 
     @Test(expected = X509Exception.TrustManagerException.class)
     public void testLoadPKCS12TrustStoreWithWrongPassword() throws Exception {
-        // Attempting to load with the wrong key password should fail
-        X509TrustManager tm = X509Util.createTrustManager(
+                X509TrustManager tm = X509Util.createTrustManager(
             x509TestContext.getTrustStoreFile(KeyStoreFileType.PKCS12).getAbsolutePath(),
             "wrong password",
             KeyStoreFileType.PKCS12.getPropertyValue(),
@@ -475,23 +429,20 @@ public class X509UtilTest extends BaseX509ParameterizedTestCase {
         Assert.assertEquals(
                 X509Util.DEFAULT_HANDSHAKE_DETECTION_TIMEOUT_MILLIS,
                 x509Util.getSslHandshakeTimeoutMillis());
-        // Note: need to create a new ClientX509Util each time to pick up modified property value
-        String newPropertyString = Integer.toString(X509Util.DEFAULT_HANDSHAKE_DETECTION_TIMEOUT_MILLIS + 1);
+                String newPropertyString = Integer.toString(X509Util.DEFAULT_HANDSHAKE_DETECTION_TIMEOUT_MILLIS + 1);
         System.setProperty(x509Util.getSslHandshakeDetectionTimeoutMillisProperty(), newPropertyString);
         try (X509Util tempX509Util = new ClientX509Util()) {
             Assert.assertEquals(
                     X509Util.DEFAULT_HANDSHAKE_DETECTION_TIMEOUT_MILLIS + 1,
                     tempX509Util.getSslHandshakeTimeoutMillis());
         }
-        // 0 value not allowed, will return the default
-        System.setProperty(x509Util.getSslHandshakeDetectionTimeoutMillisProperty(), "0");
+                System.setProperty(x509Util.getSslHandshakeDetectionTimeoutMillisProperty(), "0");
         try (X509Util tempX509Util = new ClientX509Util()) {
             Assert.assertEquals(
                     X509Util.DEFAULT_HANDSHAKE_DETECTION_TIMEOUT_MILLIS,
                     tempX509Util.getSslHandshakeTimeoutMillis());
         }
-        // Negative value not allowed, will return the default
-        System.setProperty(x509Util.getSslHandshakeDetectionTimeoutMillisProperty(), "-1");
+                System.setProperty(x509Util.getSslHandshakeDetectionTimeoutMillisProperty(), "-1");
         try (X509Util tempX509Util = new ClientX509Util()) {
             Assert.assertEquals(
                     X509Util.DEFAULT_HANDSHAKE_DETECTION_TIMEOUT_MILLIS,
@@ -519,9 +470,7 @@ public class X509UtilTest extends BaseX509ParameterizedTestCase {
         }
     }
 
-    // This test makes sure that client-initiated TLS renegotiation does not
-    // succeed. We explicitly disable it at the top of X509Util.java.
-    @Test(expected = SSLHandshakeException.class)
+            @Test(expected = SSLHandshakeException.class)
     public void testClientRenegotiationFails() throws Throwable {
         int port = PortAssignment.unique();
         ExecutorService workerPool = Executors.newCachedThreadPool();
@@ -548,8 +497,7 @@ public class X509UtilTest extends BaseX509ParameterizedTestCase {
                     });
                     Assert.assertEquals(1, sslSocket.getInputStream().read());
                     try {
-                        // 2nd read is after the renegotiation attempt and will fail
-                        sslSocket.getInputStream().read();
+                                                sslSocket.getInputStream().read();
                         return sslSocket;
                     } catch (Exception e) {
                         forceClose(sslSocket);
@@ -560,11 +508,9 @@ public class X509UtilTest extends BaseX509ParameterizedTestCase {
             clientSocket = x509Util.createSSLSocket();
             clientSocket.connect(localServerAddress);
             clientSocket.getOutputStream().write(1);
-            // Attempt to renegotiate after establishing the connection
-            clientSocket.startHandshake();
+                        clientSocket.startHandshake();
             clientSocket.getOutputStream().write(1);
-            // The exception is thrown on the server side, we need to unwrap it
-            try {
+                        try {
                 serverSocket = acceptFuture.get();
             } catch (ExecutionException e) {
                 throw e.getCause();
@@ -574,9 +520,7 @@ public class X509UtilTest extends BaseX509ParameterizedTestCase {
             forceClose(clientSocket);
             forceClose(listeningSocket);
             workerPool.shutdown();
-            // Make sure the first handshake completed and only the second
-            // one failed.
-            handshakeCompleted.await(5, TimeUnit.SECONDS);
+                                    handshakeCompleted.await(5, TimeUnit.SECONDS);
             Assert.assertEquals(1, handshakesCompleted.get());
         }
     }
@@ -584,36 +528,31 @@ public class X509UtilTest extends BaseX509ParameterizedTestCase {
     @Test
     public void testGetDefaultCipherSuitesJava8() {
         String[] cipherSuites = X509Util.getDefaultCipherSuitesForJavaVersion("1.8");
-        // Java 8 default should have the CBC suites first
-        Assert.assertTrue(cipherSuites[0].contains("CBC"));
+                Assert.assertTrue(cipherSuites[0].contains("CBC"));
     }
 
     @Test
     public void testGetDefaultCipherSuitesJava9() {
         String[] cipherSuites = X509Util.getDefaultCipherSuitesForJavaVersion("9");
-        // Java 9+ default should have the GCM suites first
-        Assert.assertTrue(cipherSuites[0].contains("GCM"));
+                Assert.assertTrue(cipherSuites[0].contains("GCM"));
     }
 
     @Test
     public void testGetDefaultCipherSuitesJava10() {
         String[] cipherSuites = X509Util.getDefaultCipherSuitesForJavaVersion("10");
-        // Java 9+ default should have the GCM suites first
-        Assert.assertTrue(cipherSuites[0].contains("GCM"));
+                Assert.assertTrue(cipherSuites[0].contains("GCM"));
     }
 
     @Test
     public void testGetDefaultCipherSuitesJava11() {
         String[] cipherSuites = X509Util.getDefaultCipherSuitesForJavaVersion("11");
-        // Java 9+ default should have the GCM suites first
-        Assert.assertTrue(cipherSuites[0].contains("GCM"));
+                Assert.assertTrue(cipherSuites[0].contains("GCM"));
     }
 
     @Test
     public void testGetDefaultCipherSuitesUnknownVersion() {
         String[] cipherSuites = X509Util.getDefaultCipherSuitesForJavaVersion("notaversion");
-        // If version can't be parsed, use the more conservative Java 8 default
-        Assert.assertTrue(cipherSuites[0].contains("CBC"));
+                Assert.assertTrue(cipherSuites[0].contains("CBC"));
     }
 
     @Test(expected = NullPointerException.class)
@@ -621,10 +560,8 @@ public class X509UtilTest extends BaseX509ParameterizedTestCase {
         X509Util.getDefaultCipherSuitesForJavaVersion(null);
     }
 
-    // Warning: this will reset the x509Util
-    private void setCustomCipherSuites() {
+        private void setCustomCipherSuites() {
         System.setProperty(x509Util.getCipherSuitesProperty(), customCipherSuites[0] + "," + customCipherSuites[1]);
-        x509Util.close(); // remember to close old instance before replacing it
-        x509Util = new ClientX509Util();
+        x509Util.close();         x509Util = new ClientX509Util();
     }
 }

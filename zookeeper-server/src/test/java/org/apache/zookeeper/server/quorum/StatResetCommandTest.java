@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server.quorum;
 
 import org.apache.zookeeper.server.ServerCnxn;
@@ -58,36 +40,29 @@ public class StatResetCommandTest {
 
     @Test
     public void testStatResetWithZKNotRunning() {
-        // Arrange
-        when(zks.isRunning()).thenReturn(false);
+                when(zks.isRunning()).thenReturn(false);
 
-        // Act
-        statResetCommand.commandRun();
+                statResetCommand.commandRun();
 
-        // Assert
-        String output = outputWriter.toString();
+                String output = outputWriter.toString();
         assertEquals(ZK_NOT_SERVING + "\n", output);
     }
 
     @Test
     public void testStatResetWithFollower() {
-        // Arrange
-        when(zks.isRunning()).thenReturn(true);
+                when(zks.isRunning()).thenReturn(true);
         when(serverStats.getServerState()).thenReturn("follower");
 
-        // Act
-        statResetCommand.commandRun();
+                statResetCommand.commandRun();
 
-        // Assert
-        String output = outputWriter.toString();
+                String output = outputWriter.toString();
         assertEquals("Server stats reset.\n", output);
         verify(serverStats, times(1)).reset();
     }
 
     @Test
     public void testStatResetWithLeader() {
-        // Arrange
-        LeaderZooKeeperServer leaderZks = mock(LeaderZooKeeperServer.class);
+                LeaderZooKeeperServer leaderZks = mock(LeaderZooKeeperServer.class);
         when(leaderZks.isRunning()).thenReturn(true);
         when(leaderZks.serverStats()).thenReturn(serverStats);
         Leader leader = mock(Leader.class);
@@ -99,11 +74,9 @@ public class StatResetCommandTest {
         BufferStats bufferStats = mock(BufferStats.class);
         when(leader.getProposalStats()).thenReturn(bufferStats);
 
-        // Act
-        statResetCommand.commandRun();
+                statResetCommand.commandRun();
 
-        // Assert
-        String output = outputWriter.toString();
+                String output = outputWriter.toString();
         assertEquals("Server stats reset.\n", output);
         verify(serverStats, times(1)).reset();
         verify(bufferStats, times(1)).reset();

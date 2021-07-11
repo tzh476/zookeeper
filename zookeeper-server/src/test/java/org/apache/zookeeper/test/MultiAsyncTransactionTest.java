@@ -1,20 +1,3 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.test;
 
 import static org.junit.Assert.assertEquals;
@@ -69,15 +52,7 @@ public class MultiAsyncTransactionTest extends ClientBase {
         }
     }
 
-    /**
-     * ZOOKEEPER-1624: PendingChanges of create sequential node request didn't
-     * get rollbacked correctly when multi-op failed. This cause
-     * create sequential node request in subsequent multi-op to failed because
-     * sequential node name generation is incorrect.
-     *
-     * The check is to make sure that each request in multi-op failed with
-     * the correct reason.
-     */
+    
     @Test
     public void testSequentialNodeCreateInAsyncMulti() throws Exception {
         final int iteration = 4;
@@ -108,14 +83,12 @@ public class MultiAsyncTransactionTest extends ClientBase {
 
         waitForPendingOps(CONNECTION_TIMEOUT);
 
-        // Check that return code of all request are correct
-        assertEquals(KeeperException.Code.OK.intValue(), results.get(0).rc);
+                assertEquals(KeeperException.Code.OK.intValue(), results.get(0).rc);
         assertEquals(KeeperException.Code.NODEEXISTS.intValue(), results.get(1).rc);
         assertEquals(KeeperException.Code.NODEEXISTS.intValue(), results.get(2).rc);
         assertEquals(KeeperException.Code.NODEEXISTS.intValue(), results.get(3).rc);
 
-        // Check that the first operation is successful in all request
-        assertTrue(results.get(0).results.get(0) instanceof CreateResult);
+                assertTrue(results.get(0).results.get(0) instanceof CreateResult);
         assertEquals(KeeperException.Code.OK.intValue(),
                 ((ErrorResult) results.get(1).results.get(0)).getErr());
         assertEquals(KeeperException.Code.OK.intValue(),
@@ -123,8 +96,7 @@ public class MultiAsyncTransactionTest extends ClientBase {
         assertEquals(KeeperException.Code.OK.intValue(),
                 ((ErrorResult) results.get(3).results.get(0)).getErr());
 
-        // Check that the second operation failed after the first request
-        assertEquals(KeeperException.Code.NODEEXISTS.intValue(),
+                assertEquals(KeeperException.Code.NODEEXISTS.intValue(),
                 ((ErrorResult) results.get(1).results.get(1)).getErr());
         assertEquals(KeeperException.Code.NODEEXISTS.intValue(),
                 ((ErrorResult) results.get(2).results.get(1)).getErr());

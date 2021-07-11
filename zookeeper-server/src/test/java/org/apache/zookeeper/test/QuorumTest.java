@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.test;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -118,14 +100,11 @@ public class QuorumTest extends ZKTestCase {
 
     @Test
     public void testViewContains() {
-        // Test view contains self
-        Assert.assertTrue(qb.s1.viewContains(qb.s1.getId()));
+                Assert.assertTrue(qb.s1.viewContains(qb.s1.getId()));
 
-        // Test view contains other servers
-        Assert.assertTrue(qb.s1.viewContains(qb.s2.getId()));
+                Assert.assertTrue(qb.s1.viewContains(qb.s2.getId()));
 
-        // Test view does not contain non-existant servers
-        Assert.assertFalse(qb.s1.viewContains(-1L));
+                Assert.assertFalse(qb.s1.viewContains(-1L));
     }
 
     volatile int counter = 0;
@@ -168,8 +147,7 @@ public class QuorumTest extends ZKTestCase {
                 }
             }, null);
         }
-        // check if all the followers are alive
-        Assert.assertTrue(qb.s1.isAlive());
+                Assert.assertTrue(qb.s1.isAlive());
         Assert.assertTrue(qb.s2.isAlive());
         Assert.assertTrue(qb.s3.isAlive());
         Assert.assertTrue(qb.s4.isAlive());
@@ -184,14 +162,7 @@ public class QuorumTest extends ZKTestCase {
         ct.testMutipleWatcherObjs();
     }
 
-    /**
-     * Make sure that we can change sessions
-     *  from follower to leader.
-     *
-     * @throws IOException
-     * @throws InterruptedException
-     * @throws KeeperException
-     */
+    
     @Test
     public void testSessionMoved() throws Exception {
         String hostPorts[] = qb.hostPort.split(",");
@@ -200,11 +171,9 @@ public class QuorumTest extends ZKTestCase {
             public void process(WatchedEvent event) {
             }});
         zk.create("/sessionMoveTest", new byte[0], Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
-        // we want to loop through the list twice
-        for(int i = 0; i < hostPorts.length*2; i++) {
+                for(int i = 0; i < hostPorts.length*2; i++) {
             zk.dontReconnect();
-            // This should stomp the zk handle
-            DisconnectableZooKeeper zknew =
+                        DisconnectableZooKeeper zknew =
                 new DisconnectableZooKeeper(hostPorts[(i+1)%hostPorts.length],
                     ClientBase.CONNECTION_TIMEOUT,
                     new Watcher() {public void process(WatchedEvent event) {
@@ -245,10 +214,7 @@ public class QuorumTest extends ZKTestCase {
         }
     }
 
-    /**
-     * Connect to two different servers with two different handles using the same session and
-     * make sure we cannot do any changes.
-     */
+    
     @Test
     @Ignore
     public void testSessionMove() throws Exception {
@@ -258,8 +224,7 @@ public class QuorumTest extends ZKTestCase {
                 ClientBase.CONNECTION_TIMEOUT, oldWatcher);
         zk.create("/t1", new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
         zk.dontReconnect();
-        // This should stomp the zk handle
-        DiscoWatcher watcher = new DiscoWatcher();
+                DiscoWatcher watcher = new DiscoWatcher();
         DisconnectableZooKeeper zknew = new DisconnectableZooKeeper(hps[1],
                 ClientBase.CONNECTION_TIMEOUT, watcher, zk.getSessionId(),
                 zk.getSessionPasswd());
@@ -268,8 +233,7 @@ public class QuorumTest extends ZKTestCase {
             zk.create("/t3", new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
             Assert.fail("Should have lost the connection");
         } catch(KeeperException.ConnectionLossException e) {
-            // wait up to 30 seconds for the disco to be delivered
-            for (int i = 0; i < 30; i++) {
+                        for (int i = 0; i < 30; i++) {
                 if (oldWatcher.zkDisco) {
                     break;
                 }
@@ -280,8 +244,7 @@ public class QuorumTest extends ZKTestCase {
 
         ArrayList<ZooKeeper> toClose = new ArrayList<ZooKeeper>();
         toClose.add(zknew);
-        // Let's just make sure it can still move
-        for(int i = 0; i < 10; i++) {
+                for(int i = 0; i < 10; i++) {
             zknew.dontReconnect();
             zknew = new DisconnectableZooKeeper(hps[1],
                     ClientBase.CONNECTION_TIMEOUT, new DiscoWatcher(),
@@ -295,9 +258,7 @@ public class QuorumTest extends ZKTestCase {
         zk.close();
     }
 
-    /** 
-     * See ZOOKEEPER-790 for details 
-     * */
+    
     @Test
     public void testFollowersStartAfterLeader() throws Exception {
         qu = new QuorumUtil(1);
@@ -308,15 +269,11 @@ public class QuorumTest extends ZKTestCase {
         while(qu.getPeer(index).peer.leader == null)
             index++;
 
-        // break the quorum
-        qu.shutdown(index);
+                qu.shutdown(index);
         
-        // try to reestablish the quorum
-        qu.start(index);
+                qu.start(index);
         
-        // Connect the client after services are restarted (otherwise we would get
-        // SessionExpiredException as the previous local session was not persisted).
-        ZooKeeper zk = new ZooKeeper(
+                        ZooKeeper zk = new ZooKeeper(
                 "127.0.0.1:" + qu.getPeer((index == 1)?2:1).peer.getClientPort(),
                 ClientBase.CONNECTION_TIMEOUT, watcher);
 
@@ -329,17 +286,8 @@ public class QuorumTest extends ZKTestCase {
         zk.close();
     }
 
-    // skip superhammer and clientcleanup as they are too expensive for quorum
-
-    /**
-     * Tests if a multiop submitted to a non-leader propagates to the leader properly
-     * (see ZOOKEEPER-1124).
-     * 
-     * The test works as follows. It has a client connect to a follower and submit a multiop
-     * to the follower. It then verifies that the multiop successfully gets committed by the leader.
-     *
-     * Without the fix in ZOOKEEPER-1124, this fails with a ConnectionLoss KeeperException.
-     */
+    
+    
     @Test
     public void testMultiToFollower() throws Exception {
         qu = new QuorumUtil(1);

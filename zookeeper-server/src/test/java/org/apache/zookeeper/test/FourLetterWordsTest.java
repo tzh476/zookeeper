@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.test;
 
 import java.io.BufferedReader;
@@ -46,7 +28,7 @@ public class FourLetterWordsTest extends ClientBase {
     @Rule
     public Timeout timeout = Timeout.millis(30000);
 
-    /** Test the various four letter words */
+    
     @Test
     public void testFourLetterWords() throws Exception {
         verify("ruok", "imok");
@@ -139,8 +121,7 @@ public class FourLetterWordsTest extends ClientBase {
         BufferedReader in = new BufferedReader(new StringReader(resp));
 
         String line;
-        // first line should be version info
-        line = in.readLine();
+                line = in.readLine();
         Assert.assertTrue(Pattern.matches("^.*\\s\\d+\\.\\d+\\.\\d+-.*$", line));
         Assert.assertTrue(Pattern.matches("^Clients:$", in.readLine()));
 
@@ -149,8 +130,7 @@ public class FourLetterWordsTest extends ClientBase {
             count++;
             Assert.assertTrue(Pattern.matches("^ /.*:\\d+\\[\\d+\\]\\(queued=\\d+,recved=\\d+,sent=\\d+\\)$", line));
         }
-        // ensure at least the two clients we created are accounted for
-        Assert.assertTrue(count >= 2);
+                Assert.assertTrue(count >= 2);
 
         line = in.readLine();
         Assert.assertTrue(Pattern.matches("^Latency min/avg/max: \\d+/\\d+/\\d+$", line));
@@ -187,8 +167,7 @@ public class FourLetterWordsTest extends ClientBase {
             count++;
             Assert.assertTrue(line, Pattern.matches("^ /.*:\\d+\\[\\d+\\]\\(queued=\\d+,recved=\\d+,sent=\\d+.*\\)$", line));
         }
-        // ensure at least the two clients we created are accounted for
-        Assert.assertTrue(count >= 2);
+                Assert.assertTrue(count >= 2);
 
         zk1.close();
         zk2.close();
@@ -196,10 +175,7 @@ public class FourLetterWordsTest extends ClientBase {
 
     @Test(timeout=60000)
     public void testValidateSocketTimeout() throws Exception {
-        /**
-         * testing positive scenario that even with timeout parameter the
-         * functionality works fine
-         */
+        
         String resp = sendRequest("isro", 2000);
         Assert.assertTrue(resp.contains("rw"));
     }
@@ -215,19 +191,11 @@ public class FourLetterWordsTest extends ClientBase {
             verify(buildSetTraceMaskRequest(0), "0");
             verify("gtmk", "0");
         } finally {
-            // Restore former value.
-            sendRequest(buildSetTraceMaskRequest(formerMask));
+                        sendRequest(buildSetTraceMaskRequest(formerMask));
         }
     }
 
-    /**
-     * Builds a SetTraceMask request to be sent to the server, consisting of
-     * "stmk" followed by the 8-byte long representation of the trace mask.
-     *
-     * @param mask trace mask to set
-     * @return built request
-     * @throws IOException if there is an I/O error
-     */
+    
     private String buildSetTraceMaskRequest(long mask) throws IOException {
         ByteArrayOutputStream baos = null;
         DataOutputStream dos = null;

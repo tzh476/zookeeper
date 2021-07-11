@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.test;
 
 import java.io.File;
@@ -74,8 +56,7 @@ public class FLETest extends ZKTestCase {
 
     volatile Vote votes[];
     volatile long leader = -1;
-    //volatile int round = 1;
-    Random rand = new Random();
+        Random rand = new Random();
     Set<Long> joinedThreads;
     
     @Before
@@ -101,10 +82,7 @@ public class FLETest extends ZKTestCase {
     }
 
     
-    /**
-     * Implements the behavior of a peer during the leader election rounds
-     * of tests.
-     */
+    
     class LEThread extends Thread {
         FLETest self;
         int i;
@@ -127,9 +105,7 @@ public class FLETest extends ZKTestCase {
                 Vote v = null;
                 while(true) {
                     
-                    /*
-                     * Set the state of the peer to LOOKING and look for leader
-                     */
+                    
                     peer.setPeerState(ServerState.LOOKING);
                     LOG.info("Going to call leader election again.");
                     v = peer.getElectionAlg().lookForLeader();
@@ -138,26 +114,16 @@ public class FLETest extends ZKTestCase {
                         break;
                     }
 
-                    /*
-                     * Done with the election round, so now we set the vote in
-                     * the peer. A real zookeeper would take care of setting the
-                     * current vote. Here we do it manually.
-                     */
+                    
                     peer.setCurrentVote(v);
 
                     LOG.info("Finished election: " + i + ", " + v.getId());
                     votes[i] = v;
 
-                    /*
-                     * Get the current value of the logical clock for this peer
-                     * so that we know in which round this peer has executed.
-                     */
+                    
                     int lc = (int) ((FastLeaderElection) peer.getElectionAlg()).getLogicalClock();
                     
-                    /*
-                     * The leader executes the following block, which essentially shuts down
-                     * the peer if it is not the last round. 
-                     */
+                    
                     if (v.getId() == i) {
                         LOG.info("I'm the leader: " + i);
                         if (lc < this.totalRounds) {
@@ -165,36 +131,24 @@ public class FLETest extends ZKTestCase {
                             FastLeaderElection election =
                                 (FastLeaderElection) peer.getElectionAlg();
                             election.shutdown();
-                            // Make sure the vote is reset to -1 after shutdown.
-                            Assert.assertEquals(-1, election.getVote().getId());
+                                                        Assert.assertEquals(-1, election.getVote().getId());
                             LOG.info("Leader " + i + " dead");
                             
                             break;
                         } 
                     }
                     
-                    /*
-                     * If the peer has done enough rounds, then consider joining. The thread
-                     * will only join if it is part of a quorum supporting the current 
-                     * leader. Otherwise it will try again.
-                     */
+                    
                     if (lc >= this.totalRounds) {
-                        /*
-                         * quora keeps the supporters of a given leader, so 
-                         * we first update it with the vote of this peer.
-                         */
+                        
                         if(quora.get(v.getId()) == null) quora.put(v.getId(), new HashSet<Integer>());
                         quora.get(v.getId()).add(i);
                         
-                        /*
-                         * we now wait until a quorum supports the same leader.
-                         */
+                        
                         if(waitForQuorum(v.getId())){   
                             synchronized(self){
                                 
-                                /*
-                                 * Assert that the state of the thread is the one expected.
-                                 */
+                                
                                 if(v.getId() == i){
                                     Assert.assertTrue("Wrong state" + peer.getPeerState(), 
                                                                     peer.getPeerState() == ServerState.LEADING);
@@ -204,30 +158,20 @@ public class FLETest extends ZKTestCase {
                                                                     peer.getPeerState() == ServerState.FOLLOWING);
                                 }
                                 
-                                /*
-                                 * Global variable keeping track of 
-                                 * how many peers have successfully 
-                                 * joined.
-                                 */
+                                
                                 successCount++;
                                 joinedThreads.add((long)i);
                                 self.notify();
                             }
                         
-                            /*
-                             * I'm done so joining. 
-                             */
+                            
                             break;
                         } else {
                             quora.get(v.getId()).remove(i);
                         }
                     } 
                     
-                    /*
-                     * This sleep time represents the time a follower
-                     * would take to declare the leader dead and start
-                     * a new leader election.
-                     */
+                    
                     Thread.sleep(100);
                     
                 }
@@ -237,11 +181,7 @@ public class FLETest extends ZKTestCase {
             }
         }
         
-        /**
-         * Auxiliary method to make sure that enough followers terminated.
-         * 
-         * @return boolean  followers successfully joined.
-         */
+        
         boolean waitForQuorum(long id)
         throws InterruptedException {
             int loopCounter = 0;
@@ -289,22 +229,14 @@ public class FLETest extends ZKTestCase {
         }
     }
 
-    /**
-     * Test leader election for a number of rounds. In all rounds but the last one
-     * we kill the leader.
-     * 
-     * @param rounds
-     * @throws Exception
-     */
+    
     private void runElection(int rounds) throws Exception {
         ConcurrentHashMap<Long, HashSet<Integer> > quora = 
             new ConcurrentHashMap<Long, HashSet<Integer> >();
 
         LOG.info("TestLE: " + getTestName()+ ", " + count);
 
-        /*
-         * Creates list of peers.
-         */
+        
         for(int i = 0; i < count; i++) {
             port[i] = PortAssignment.unique();
             peers.put(Long.valueOf(i),
@@ -318,9 +250,7 @@ public class FLETest extends ZKTestCase {
             tmpdir[i] = ClientBase.createTmpDir();           
         }
 
-        /*
-         * Start one LEThread for each peer we want to run.
-         */
+        
         for(int i = 0; i < count; i++) {
             QuorumPeer peer = new QuorumPeer(peers, tmpdir[i], tmpdir[i],
                     port[i], 3, i, 1000, 2, 2);
@@ -342,37 +272,26 @@ public class FLETest extends ZKTestCase {
         }
         LOG.info("Success count: " + successCount);
 
-        /*
-        * Lists what threads haven't joined. A thread doesn't join if
-        * it hasn't decided upon a leader yet. It can happen that a
-        * peer is slow or disconnected, and it can take longer to
-        * nominate and connect to the current leader.
-        */
+        
        for (int i = 0; i < threads.size(); i++) {
             if (threads.get(i).isAlive()) {
                 LOG.info("Threads didn't join: " + i);
             }
         }
 
-       /*
-        * If we have a majority, then we are good to go.
-        */
+       
        if(successCount <= count/2){
            Assert.fail("Fewer than a a majority has joined");
        }
 
-       /*
-        * I'm done so joining.
-        */
+       
        if(!joinedThreads.contains(leader)){
            Assert.fail("Leader hasn't joined: " + leader);
        }
     }
     
     
-    /*
-     * Class to verify of the thread has become a follower
-     */
+    
     static class VerifyState extends Thread {
         volatile private boolean success = false;
         private QuorumPeer peer;
@@ -403,10 +322,7 @@ public class FLETest extends ZKTestCase {
         }
     }
 
-    /*
-     * For ZOOKEEPER-975 verify that a peer joining an established cluster
-     * does not go in LEADING state.
-     */
+    
     @Test
     public void testJoin() throws Exception {
         int sid;
@@ -425,8 +341,7 @@ public class FLETest extends ZKTestCase {
                         "127.0.0.1", port[sid])));
             tmpdir[sid] = ClientBase.createTmpDir();          
         }
-        // start 2 peers and verify if they form the cluster
-        for (sid = 0; sid < 2; sid++) {
+                for (sid = 0; sid < 2; sid++) {
             peer = new QuorumPeer(peers, tmpdir[sid], tmpdir[sid],
                                              port[sid], 3, sid, 2000, 2, 2);
             LOG.info("Starting peer " + peer.getId());
@@ -440,8 +355,7 @@ public class FLETest extends ZKTestCase {
         Assert.assertFalse("Unable to form cluster in " +
             waitTime + " ms",
             !v1.isSuccess());
-        // Start 3rd peer and check if it goes in LEADING state
-        peer = new QuorumPeer(peers, tmpdir[sid], tmpdir[sid],
+                peer = new QuorumPeer(peers, tmpdir[sid], tmpdir[sid],
                  port[sid], 3, sid, 2000, 2, 2);
         LOG.info("Starting peer " + peer.getId());
         peer.start();
@@ -455,8 +369,7 @@ public class FLETest extends ZKTestCase {
         } else if (!v1.isSuccess()) {
                Assert.fail("Incorrect LEADING state for peer " + peer.getId());
         }
-        // cleanup
-        for (int id = 0; id < 3; id++) {
+                for (int id = 0; id < 3; id++) {
             peer = peerList.get(id);
             if (peer != null) {
                 peer.shutdown();
@@ -464,10 +377,7 @@ public class FLETest extends ZKTestCase {
         }
     }
 
-    /*
-     * For ZOOKEEPER-1732 verify that it is possible to join an ensemble with
-     * inconsistent election round information.
-     */
+    
     @Test
     public void testJoinInconsistentEnsemble() throws Exception {
         int sid;
@@ -484,8 +394,7 @@ public class FLETest extends ZKTestCase {
             tmpdir[sid] = ClientBase.createTmpDir();
             port[sid] = PortAssignment.unique();
         }
-        // start 2 peers and verify if they form the cluster
-        for (sid = 0; sid < 2; sid++) {
+                for (sid = 0; sid < 2; sid++) {
             peer = new QuorumPeer(peers, tmpdir[sid], tmpdir[sid],
                                              port[sid], 3, sid, 2000, 2, 2);
             LOG.info("Starting peer " + peer.getId());
@@ -499,16 +408,14 @@ public class FLETest extends ZKTestCase {
         Assert.assertFalse("Unable to form cluster in " +
             waitTime + " ms",
             !v1.isSuccess());
-        // Change the election round for one of the members of the ensemble
-        long leaderSid = peer.getCurrentVote().getId();
+                long leaderSid = peer.getCurrentVote().getId();
         long zxid = peer.getCurrentVote().getZxid();
         long electionEpoch = peer.getCurrentVote().getElectionEpoch();
         ServerState state = peer.getCurrentVote().getState();
         long peerEpoch = peer.getCurrentVote().getPeerEpoch();
         Vote newVote = new Vote(leaderSid, zxid+100, electionEpoch+100, peerEpoch, state);
         peer.setCurrentVote(newVote);
-        // Start 3rd peer and check if it joins the quorum
-        peer = new QuorumPeer(peers, tmpdir[2], tmpdir[2],
+                peer = new QuorumPeer(peers, tmpdir[2], tmpdir[2],
                  port[2], 3, 2, 2000, 2, 2);
         LOG.info("Starting peer " + peer.getId());
         peer.start();
@@ -520,8 +427,7 @@ public class FLETest extends ZKTestCase {
                Assert.fail("Peer " + peer.getId() + " failed to join the cluster " +
                 "within " + waitTime + " ms");
         }
-        // cleanup
-        for (int id = 0; id < 3; id++) {
+                for (int id = 0; id < 3; id++) {
             peer = peerList.get(id);
             if (peer != null) {
                 peer.shutdown();

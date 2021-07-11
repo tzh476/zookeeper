@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.client;
 
 import java.io.BufferedReader;
@@ -40,49 +22,21 @@ import org.slf4j.LoggerFactory;
 
 @InterfaceAudience.Public
 public class FourLetterWordMain {
-    //in milliseconds, socket should connect/read within this period otherwise SocketTimeoutException
-    private static final int DEFAULT_SOCKET_TIMEOUT = 5000;
+        private static final int DEFAULT_SOCKET_TIMEOUT = 5000;
     protected static final Logger LOG = LoggerFactory.getLogger(FourLetterWordMain.class);
-    /**
-     * Send the 4letterword
-     * @param host the destination host
-     * @param port the destination port
-     * @param cmd the 4letterword
-     * @return server response
-     * @throws java.io.IOException
-     * @throws SSLContextException
-     */
+    
     public static String send4LetterWord(String host, int port, String cmd)
             throws IOException, SSLContextException {
         return send4LetterWord(host, port, cmd, false, DEFAULT_SOCKET_TIMEOUT);
     }
 
-    /**
-     * Send the 4letterword
-     * @param host the destination host
-     * @param port the destination port
-     * @param cmd the 4letterword
-     * @param secure whether to use SSL
-     * @return server response
-     * @throws java.io.IOException
-     * @throws SSLContextException
-     */
+    
     public static String send4LetterWord(String host, int port, String cmd, boolean secure)
             throws IOException, SSLContextException {
         return send4LetterWord(host, port, cmd, secure, DEFAULT_SOCKET_TIMEOUT);
     }
 
-    /**
-     * Send the 4letterword
-     * @param host the destination host
-     * @param port the destination port
-     * @param cmd the 4letterword
-     * @param secure whether to use SSL
-     * @param timeout in milliseconds, maximum time to wait while connecting/reading data
-     * @return server response
-     * @throws java.io.IOException
-     * @throws SSLContextException
-     */
+    
     public static String send4LetterWord(String host, int port, String cmd, boolean secure, int timeout)
             throws IOException, SSLContextException {
         LOG.info("connecting to {} {}", host, port);
@@ -110,10 +64,8 @@ public class FourLetterWordMain {
             outstream.write(cmd.getBytes());
             outstream.flush();
 
-            // this replicates NC - close the output stream before reading
-            if (!secure) {
-                // SSL prohibits unilateral half-close
-                sock.shutdownOutput();
+                        if (!secure) {
+                                sock.shutdownOutput();
             }
 
             reader =

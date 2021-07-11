@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.test;
 
 import java.io.IOException;
@@ -35,12 +17,7 @@ public class FourLetterWordsWhiteListTest extends ClientBase {
     protected static final Logger LOG =
         LoggerFactory.getLogger(FourLetterWordsWhiteListTest.class);
 
-    /*
-     * ZOOKEEPER-2693: test white list of four letter words.
-     * For 3.5.x default white list is empty. Verify that is
-     * the case (except 'stat' command which is enabled in ClientBase
-     * which other tests depend on.).
-     */
+    
     @Test(timeout=30000)
     public void testFourLetterWordsAllDisabledByDefault() throws Exception {
         stopServer();
@@ -48,8 +25,7 @@ public class FourLetterWordsWhiteListTest extends ClientBase {
         System.setProperty("zookeeper.4lw.commands.whitelist", "stat");
         startServer();
 
-        // Default white list for 3.5.x is empty, so all command should fail.
-        verifyAllCommandsFail();
+                verifyAllCommandsFail();
 
         TestableZooKeeper zk = createClient();
 
@@ -71,13 +47,11 @@ public class FourLetterWordsWhiteListTest extends ClientBase {
         FourLetterCommands.resetWhiteList();
         System.setProperty("zookeeper.4lw.commands.whitelist", "stat, ruok, isro");
         startServer();
-        // stat, ruok and isro are white listed.
-        verifyFuzzyMatch("stat", "Outstanding");
+                verifyFuzzyMatch("stat", "Outstanding");
         verifyExactMatch("ruok", "imok");
         verifyExactMatch("isro", "rw");
 
-        // Rest of commands fail.
-        verifyExactMatch("conf", generateExpectedMessage("conf"));
+                verifyExactMatch("conf", generateExpectedMessage("conf"));
         verifyExactMatch("cons", generateExpectedMessage("cons"));
         verifyExactMatch("crst", generateExpectedMessage("crst"));
         verifyExactMatch("dirs", generateExpectedMessage("dirs"));
@@ -112,10 +86,8 @@ public class FourLetterWordsWhiteListTest extends ClientBase {
                 "bar :.,@#$%^&*() , , , , bar, bar, stat,        ");
         startServer();
 
-        // Just make sure we are good when admin made some mistakes in config file.
-        verifyAllCommandsFail();
-        // But still, what's valid in white list will get through.
-        verifyFuzzyMatch("stat", "Outstanding");
+                verifyAllCommandsFail();
+                verifyFuzzyMatch("stat", "Outstanding");
     }
 
     @Test(timeout=30000)
@@ -224,8 +196,7 @@ public class FourLetterWordsWhiteListTest extends ClientBase {
         verifyExactMatch("mntr", generateExpectedMessage("mntr"));
         verifyExactMatch("isro", generateExpectedMessage("isro"));
 
-        // srvr is enabled by default due to the sad fact zkServer.sh uses it.
-        verifyFuzzyMatch("srvr", "Outstanding");
+                verifyFuzzyMatch("srvr", "Outstanding");
     }
 
     private String sendRequest(String cmd) throws IOException, SSLContextException {

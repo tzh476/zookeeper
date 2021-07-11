@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server.quorum;
 
 import java.io.PrintWriter;
@@ -30,14 +12,7 @@ import org.apache.zookeeper.server.ZooKeeperServer;
 import org.apache.zookeeper.server.ZooKeeperServerBean;
 import org.apache.zookeeper.server.persistence.FileTxnSnapLog;
 
-/**
- * A ZooKeeperServer which comes into play when peer is partitioned from the
- * majority. Handles read-only clients, but drops connections from not-read-only
- * ones.
- * <p>
- * The very first processor in the chain of request processors is a
- * ReadOnlyRequestProcessor which drops state-changing requests.
- */
+
 public class ReadOnlyZooKeeperServer extends ZooKeeperServer {
 
     protected final QuorumPeer self;
@@ -61,8 +36,7 @@ public class ReadOnlyZooKeeperServer extends ZooKeeperServer {
 
     @Override
     public synchronized void startup() {
-        // check to avoid startup follows shutdown
-        if (shutdown) {
+                if (shutdown) {
             LOG.warn("Not starting Read-only server as startup follows shutdown!");
             return;
         }
@@ -75,8 +49,7 @@ public class ReadOnlyZooKeeperServer extends ZooKeeperServer {
 
     @Override
     protected void registerJMX() {
-        // register with JMX
-        try {
+                try {
             jmxDataTreeBean = new DataTreeBean(getZKDatabase().getDataTree());
             MBeanRegistry.getInstance().register(jmxDataTreeBean, jmxServerBean);
         } catch (Exception e) {
@@ -86,8 +59,7 @@ public class ReadOnlyZooKeeperServer extends ZooKeeperServer {
     }
 
     public void registerJMX(ZooKeeperServerBean serverBean, LocalPeerBean localPeerBean) {
-        // register with JMX
-        try {
+                try {
             jmxServerBean = serverBean;
             MBeanRegistry.getInstance().register(serverBean, localPeerBean);
         } catch (Exception e) {
@@ -98,8 +70,7 @@ public class ReadOnlyZooKeeperServer extends ZooKeeperServer {
 
     @Override
     protected void unregisterJMX() {
-        // unregister from JMX
-        try {
+                try {
             if (jmxDataTreeBean != null) {
                 MBeanRegistry.getInstance().unregister(jmxDataTreeBean);
             }
@@ -110,8 +81,7 @@ public class ReadOnlyZooKeeperServer extends ZooKeeperServer {
     }
 
     protected void unregisterJMX(ZooKeeperServer zks) {
-        // unregister from JMX
-        try {
+                try {
             if (jmxServerBean != null) {
                 MBeanRegistry.getInstance().unregister(jmxServerBean);
             }
@@ -126,10 +96,7 @@ public class ReadOnlyZooKeeperServer extends ZooKeeperServer {
         return "read-only";
     }
 
-    /**
-     * Returns the id of the associated QuorumPeer, which will do for a unique
-     * id of this server.
-     */
+    
     @Override
     public long getServerId() {
         return self.getId();
@@ -144,15 +111,12 @@ public class ReadOnlyZooKeeperServer extends ZooKeeperServer {
         shutdown = true;
         unregisterJMX(this);
 
-        // set peer's server to null
-        self.setZooKeeperServer(null);
-        // clear all the connections
-        self.closeAllConnections();
+                self.setZooKeeperServer(null);
+                self.closeAllConnections();
 
         self.adminServer.setZooKeeperServer(null);
 
-        // shutdown the server itself
-        super.shutdown();
+                super.shutdown();
     }
 
     @Override

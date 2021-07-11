@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.test;
 
 import static org.apache.zookeeper.test.ClientBase.CONNECTION_TIMEOUT;
@@ -127,37 +109,6 @@ public class SessionTest extends ZKTestCase {
         return zk;
     }
 
-// FIXME this test is Assert.failing due to client close race condition fixing in separate patch for ZOOKEEPER-63
-//    /**
-//     * this test checks to see if the sessionid that was created for the
-//     * first zookeeper client can be reused for the second one immidiately
-//     * after the first client closes and the new client resues them.
-//     * @throws IOException
-//     * @throws InterruptedException
-//     * @throws KeeperException
-//     */
-//    public void testSessionReuse() throws IOException, InterruptedException {
-//        ZooKeeper zk = createClient();
-//
-//        long sessionId = zk.getSessionId();
-//        byte[] passwd = zk.getSessionPasswd();
-//        zk.close();
-//
-//        zk.close();
-//
-//        LOG.info("Closed first session");
-//
-//        startSignal = new CountDownLatch(1);
-//        zk = new ZooKeeper(HOSTPORT, CONNECTION_TIMEOUT, this,
-//                sessionId, passwd);
-//        startSignal.await();
-//
-//        LOG.info("Opened reuse");
-//
-//        Assert.assertEquals(sessionId, zk.getSessionId());
-//
-//        zk.close();
-//    }
 
     private class MyWatcher implements Watcher {
         private String name;
@@ -175,11 +126,7 @@ public class SessionTest extends ZKTestCase {
         }
     }
 
-    /**
-     * This test verifies that when the session id is reused, and the original
-     * client is disconnected, but not session closed, that the server
-     * will remove ephemeral nodes created by the original session.
-     */
+    
     @Test
     public void testSession()
         throws IOException, InterruptedException, KeeperException
@@ -190,10 +137,7 @@ public class SessionTest extends ZKTestCase {
         LOG.info("zk with session id 0x" + Long.toHexString(zk.getSessionId())
                 + " was destroyed!");
 
-        // disconnect the client by killing the socket, not sending the
-        // session disconnect to the server as usual. This allows the test
-        // to verify disconnect handling
-        zk.disconnect();
+                                zk.disconnect();
 
         Stat stat = new Stat();
         startSignal = new CountDownLatch(1);
@@ -234,14 +178,7 @@ public class SessionTest extends ZKTestCase {
         Assert.assertEquals(KeeperException.Code.SESSIONEXPIRED.toString(), cb.toString());
     }
 
-    /**
-     * Make sure that we cannot have two connections with the same
-     * session id.
-     *
-     * @throws IOException
-     * @throws InterruptedException
-     * @throws KeeperException
-     */
+    
     @Test
     public void testSessionMove() throws Exception {
         String hostPorts[] = HOSTPORT.split(",");
@@ -249,11 +186,9 @@ public class SessionTest extends ZKTestCase {
                 CONNECTION_TIMEOUT, new MyWatcher("0"));
         zk.create("/sessionMoveTest", new byte[0], Ids.OPEN_ACL_UNSAFE,
                 CreateMode.EPHEMERAL);
-        // we want to loop through the list twice
-        for(int i = 0; i < hostPorts.length*2; i++) {
+                for(int i = 0; i < hostPorts.length*2; i++) {
             zk.dontReconnect();
-            // This should stomp the zk handle
-            DisconnectableZooKeeper zknew = new DisconnectableZooKeeper(
+                        DisconnectableZooKeeper zknew = new DisconnectableZooKeeper(
                     hostPorts[(i+1)%hostPorts.length],
                     CONNECTION_TIMEOUT,
                     new MyWatcher(Integer.toString(i+1)),
@@ -280,18 +215,11 @@ public class SessionTest extends ZKTestCase {
             } catch(KeeperException.ConnectionLossException e) {
                 LOG.info("Got connection loss exception as expected");
             }
-            //zk.close();
-            zk = zknew;
+                        zk = zknew;
         }
         zk.close();
     }
-    /**
-     * This test makes sure that duplicate state changes are not communicated
-     * to the client watcher. For example we should not notify state as
-     * "disconnected" if the watch has already been disconnected. In general
-     * we don't consider a dup state notification if the event type is
-     * not "None" (ie non-None communicates an event).
-     */
+    
     @Test
     public void testSessionStateNoDupStateReporting()
         throws IOException, InterruptedException, KeeperException
@@ -300,46 +228,34 @@ public class SessionTest extends ZKTestCase {
         DupWatcher watcher = new DupWatcher();
         ZooKeeper zk = createClient(TIMEOUT, watcher);
 
-        // shutdown the server
-        serverFactory.shutdown();
+                serverFactory.shutdown();
 
         try {
             Thread.sleep(10000);
         } catch (InterruptedException e) {
-            // ignore
-        }
+                    }
 
-        // verify that the size is just 2 - ie connect then disconnect
-        // if the client attempts reconnect and we are not handling current
-        // state correctly (ie eventing on duplicate disconnects) then we'll
-        // see a disconnect for each Assert.failed connection attempt
-        Assert.assertEquals(2, watcher.states.size());
+                                        Assert.assertEquals(2, watcher.states.size());
 
         zk.close();
     }
 
-    /**
-     * Verify access to the negotiated session timeout.
-     */
+    
     @Test
     public void testSessionTimeoutAccess() throws Exception {
-        // validate typical case - requested == negotiated
-        DisconnectableZooKeeper zk = createClient(TICK_TIME * 4);
+                DisconnectableZooKeeper zk = createClient(TICK_TIME * 4);
         Assert.assertEquals(TICK_TIME * 4, zk.getSessionTimeout());
-        // make sure tostring works in both cases
-        LOG.info(zk.toString());
+                LOG.info(zk.toString());
         zk.close();
         LOG.info(zk.toString());
 
-        // validate lower limit
-        zk = createClient(TICK_TIME);
+                zk = createClient(TICK_TIME);
         Assert.assertEquals(TICK_TIME * 2, zk.getSessionTimeout());
         LOG.info(zk.toString());
         zk.close();
         LOG.info(zk.toString());
 
-        // validate upper limit
-        zk = createClient(TICK_TIME * 30);
+                zk = createClient(TICK_TIME * 30);
         Assert.assertEquals(TICK_TIME * 20, zk.getSessionTimeout());
         LOG.info(zk.toString());
         zk.close();
@@ -358,8 +274,7 @@ public class SessionTest extends ZKTestCase {
 
     @Test
     public void testMinMaxSessionTimeout() throws Exception {
-        // override the defaults
-        final int MINSESS = 20000;
+                final int MINSESS = 20000;
         final int MAXSESS = 240000;
         {
             ZooKeeperServer zs = ClientBase.getServer(serverFactory);
@@ -367,24 +282,20 @@ public class SessionTest extends ZKTestCase {
             zs.setMaxSessionTimeout(MAXSESS);
         }
 
-        // validate typical case - requested == negotiated
-        int timeout = 120000;
+                int timeout = 120000;
         DisconnectableZooKeeper zk = createClient(timeout);
         Assert.assertEquals(timeout, zk.getSessionTimeout());
-        // make sure tostring works in both cases
-        LOG.info(zk.toString());
+                LOG.info(zk.toString());
         zk.close();
         LOG.info(zk.toString());
 
-        // validate lower limit
-        zk = createClient(MINSESS/2);
+                zk = createClient(MINSESS/2);
         Assert.assertEquals(MINSESS, zk.getSessionTimeout());
         LOG.info(zk.toString());
         zk.close();
         LOG.info(zk.toString());
 
-        // validate upper limit
-        zk = createClient(MAXSESS * 2);
+                zk = createClient(MAXSESS * 2);
         Assert.assertEquals(MAXSESS, zk.getSessionTimeout());
         LOG.info(zk.toString());
         zk.close();

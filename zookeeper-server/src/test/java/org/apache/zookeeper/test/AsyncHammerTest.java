@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.test;
 
 import static org.apache.zookeeper.test.ClientBase.CONNECTION_TIMEOUT;
@@ -56,8 +38,7 @@ public class AsyncHammerTest extends ZKTestCase
         LOG.info("RESTARTING " + getTestName());
         qb.tearDown();
 
-        // don't call setup - we don't want to reassign ports/dirs, etc...
-        JMXEnv.setUp();
+                JMXEnv.setUp();
         qb.startServers();
     }
 
@@ -66,9 +47,7 @@ public class AsyncHammerTest extends ZKTestCase
         qb.tearDown();
     }
 
-    /**
-     * Create /test- sequence nodes asynchronously, max 30 outstanding
-     */
+    
     class HammerThread extends Thread implements StringCallback, VoidCallback {
         private static final int MAX_OUTSTANDING = 30;
 
@@ -88,14 +67,12 @@ public class AsyncHammerTest extends ZKTestCase
                         watcher);
                 watcher.waitForConnected(CONNECTION_TIMEOUT);
                 while(bang) {
-                    incOutstanding(); // before create otw race
-                    zk.create("/test-", new byte[0], Ids.OPEN_ACL_UNSAFE,
+                    incOutstanding();                     zk.create("/test-", new byte[0], Ids.OPEN_ACL_UNSAFE,
                             CreateMode.PERSISTENT_SEQUENTIAL, this, null);
                 }
             } catch (InterruptedException e) {
                 if (bang) {
-                    LOG.error("sanity check Assert.failed!!!"); // sanity check
-                    return;
+                    LOG.error("sanity check Assert.failed!!!");                     return;
                 }
             } catch (Exception e) {
                 LOG.error("Client create operation Assert.failed", e);
@@ -128,8 +105,7 @@ public class AsyncHammerTest extends ZKTestCase
         }
 
         public void process(WatchedEvent event) {
-            // ignore for purposes of this test
-        }
+                    }
 
         public void processResult(int rc, String path, Object ctx, String name) {
             if (rc != KeeperException.Code.OK.intValue()) {
@@ -176,8 +152,7 @@ public class AsyncHammerTest extends ZKTestCase
             hammers[i].start();
         }
         LOG.info("Started hammers");
-        Thread.sleep(5000); // allow the clients to run for max 5sec
-        bang = false;
+        Thread.sleep(5000);         bang = false;
         LOG.info("Stopping hammers");
         for (int i = 0; i < hammers.length; i++) {
             hammers[i].interrupt();
@@ -185,14 +160,12 @@ public class AsyncHammerTest extends ZKTestCase
             Assert.assertFalse(hammers[i].failed);
         }
 
-        // before restart
-        LOG.info("Hammers stopped, verifying consistency");
+                LOG.info("Hammers stopped, verifying consistency");
         qb.verifyRootOfAllServersMatch(qb.hostPort);
 
         restart();
 
-        // after restart
-        LOG.info("Verifying hammers 2");
+                LOG.info("Verifying hammers 2");
         qb.verifyRootOfAllServersMatch(qb.hostPort);
         tearDown();
     }
@@ -206,14 +179,12 @@ public class AsyncHammerTest extends ZKTestCase
             hammers[i] = new HammerThread("HammerThread-" + i);
             hammers[i].start();
         }
-        Thread.sleep(5000); // allow the clients to run for max 5sec
-        bang = false;
+        Thread.sleep(5000);         bang = false;
         for (int i = 0; i < hammers.length; i++) {
             hammers[i].interrupt();
             verifyThreadTerminated(hammers[i], 60000);
         }
-        // before restart
-        qb.verifyRootOfAllServersMatch(qb.hostPort);
+                qb.verifyRootOfAllServersMatch(qb.hostPort);
         tearDown();
     }
 

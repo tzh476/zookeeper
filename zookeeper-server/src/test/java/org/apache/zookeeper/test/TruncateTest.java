@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.test;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -75,9 +57,7 @@ public class TruncateTest extends ZKTestCase {
         File tmpdir = ClientBase.createTmpDir();
         FileTxnSnapLog snaplog = new FileTxnSnapLog(tmpdir, tmpdir);
         ZKDatabase zkdb = new ZKDatabase(snaplog);
-        // make sure to snapshot, so that we have something there when
-        // truncateLog reloads the db
-        snaplog.save(zkdb.getDataTree(), zkdb.getSessionWithTimeOuts());
+                        snaplog.save(zkdb.getDataTree(), zkdb.getSessionWithTimeOuts());
 
         for (int i = 1; i <= 100; i++) {
             append(zkdb, i);
@@ -89,9 +69,7 @@ public class TruncateTest extends ZKTestCase {
 
         zkdb.close();
 
-        // verify that the truncation and subsequent append were processed
-        // correctly
-        FileTxnLog txnlog = new FileTxnLog(new File(tmpdir, "version-2"));
+                        FileTxnLog txnlog = new FileTxnLog(new File(tmpdir, "version-2"));
         TxnIterator iter = txnlog.read(1);
 
         TxnHeader hdr = iter.getHeader();
@@ -144,16 +122,14 @@ public class TruncateTest extends ZKTestCase {
 
     @Test
     public void testTruncate() throws Exception {
-        // Prime the server that is going to come in late with 50 txns
-        String hostPort = "127.0.0.1:" + PortAssignment.unique();
+                String hostPort = "127.0.0.1:" + PortAssignment.unique();
         int maxCnxns = 100;
         ServerCnxnFactory factory = ClientBase.createNewServerInstance(null,
                 hostPort, maxCnxns);
         ClientBase.startServerInstance(dataDir1, factory, hostPort, 1);
         ClientBase.shutdownServerInstance(factory, hostPort);
 
-        // standalone starts with 0 epoch while quorum starts with 1
-        File origfile = new File(new File(dataDir1, "version-2"), "snapshot.0");
+                File origfile = new File(new File(dataDir1, "version-2"), "snapshot.0");
         File newfile = new File(new File(dataDir1, "version-2"), "snapshot.100000000");
         origfile.renameTo(newfile);
 
@@ -186,8 +162,7 @@ public class TruncateTest extends ZKTestCase {
         int port2 = PortAssignment.unique();
         int port3 = PortAssignment.unique();
         
-        // Start up two of the quorum and add 10 txns
-        HashMap<Long,QuorumServer> peers = new HashMap<Long,QuorumServer>();
+                HashMap<Long,QuorumServer> peers = new HashMap<Long,QuorumServer>();
         peers.put(Long.valueOf(1), new QuorumServer(1,
                        new InetSocketAddress("127.0.0.1", PortAssignment.unique()),
                        new InetSocketAddress("127.0.0.1", PortAssignment.unique()),
@@ -217,24 +192,16 @@ public class TruncateTest extends ZKTestCase {
             zk2.getData("/10", false, new Stat());
             Assert.fail("Should have gotten an error");
         } catch(KeeperException.NoNodeException e) {
-            // this is what we want
-        }
+                    }
         QuorumPeer s1 = new QuorumPeer(peers, dataDir1, dataDir1, port1, 0, 1, tickTime, initLimit, syncLimit);
         s1.start();
         ZooKeeper zk1 = ClientBase.createZKClient("127.0.0.1:" + port1, 15000);
         zk1.getData("/9", false, new Stat());
         try {
-            // /10 wont work because the session expiration
-            // will match the zxid for /10 and so we wont
-            // actually truncate the zxid for /10 creation
-            // due to an artifact of switching the xid of the standalone
-            // /11 is the last entry in the log for the xid
-            // as a result /12 is the first of the truncated znodes to check for
-            zk1.getData("/12", false, new Stat());
+                                                                                    zk1.getData("/12", false, new Stat());
             Assert.fail("Should have gotten an error");
         } catch(KeeperException.NoNodeException e) {
-            // this is what we want
-        }
+                    }
         zk1.close();
         QuorumBase.shutdown(s1);
         QuorumBase.shutdown(s2);

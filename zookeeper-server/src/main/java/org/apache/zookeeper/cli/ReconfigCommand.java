@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.apache.zookeeper.cli;
 
 import java.io.FileInputStream;
@@ -26,34 +9,21 @@ import org.apache.zookeeper.admin.ZooKeeperAdmin;
 import org.apache.zookeeper.data.Stat;
 import org.apache.zookeeper.server.quorum.QuorumPeerConfig;
 
-/**
- * reconfig command for cli
- */
+
 public class ReconfigCommand extends CliCommand {
 
     private static Options options = new Options();
 
-    /* joining - comma separated list of server config strings for servers to be added to the ensemble.
-     * Each entry is identical in syntax as it would appear in a configuration file. Only used for 
-     * incremental reconfigurations.
-     */
+    
     private String joining;
 
-    /* leaving - comma separated list of server IDs to be removed from the ensemble. Only used for
-     * incremental reconfigurations.
-     */
+    
     private String leaving;
 
-    /* members - comma separated list of new membership information (e.g., contents of a membership
-     * configuration file) - for use only with a non-incremental reconfiguration. This may be specified
-     * manually via the -members flag or it will automatically be filled in by reading the contents
-     * of an actual configuration file using the -file flag.
-     */
+    
     private String members;
 
-    /* version - version of config from which we want to reconfigure - if current config is different
-     * reconfiguration will fail. Should be committed from the CLI to disable this option.
-     */
+    
     long version = -1;
     private CommandLine cl;
 
@@ -101,8 +71,7 @@ public class ReconfigCommand extends CliCommand {
             version = -1;
         }
 
-        // Simple error checking for conflicting modes
-        if ((cl.hasOption("file") || cl.hasOption("members")) && (cl.hasOption("add") || cl.hasOption("remove"))) {
+                if ((cl.hasOption("file") || cl.hasOption("members")) && (cl.hasOption("add") || cl.hasOption("remove"))) {
             throw new CliParseException("Can't use -file or -members together with -add or -remove (mixing incremental" +
             		" and non-incremental modes is not allowed)");
         }
@@ -110,8 +79,7 @@ public class ReconfigCommand extends CliCommand {
             throw new CliParseException("Can't use -file and -members together (conflicting non-incremental modes)");
         }
 
-        // Set the joining/leaving/members values based on the mode we're in
-        if (cl.hasOption("add")) {
+                if (cl.hasOption("add")) {
            joining = cl.getOptionValue("add").toLowerCase();
         }
         if (cl.hasOption("remove")) {
@@ -126,10 +94,7 @@ public class ReconfigCommand extends CliCommand {
                 try (FileInputStream inConfig = new FileInputStream(cl.getOptionValue("file"))) {
                     dynamicCfg.load(inConfig);
                 }
-                //check that membership makes sense; leader will make these checks again
-                //don't check for leader election ports since 
-                //client doesn't know what leader election alg is used
-                members = QuorumPeerConfig.parseDynamicConfig(dynamicCfg, 0, true, false).toString();
+                                                                members = QuorumPeerConfig.parseDynamicConfig(dynamicCfg, 0, true, false).toString();
             } catch (Exception e) {
                 throw new CliParseException("Error processing " + cl.getOptionValue("file") + e.getMessage());
             } 
@@ -142,12 +107,7 @@ public class ReconfigCommand extends CliCommand {
         try {
             Stat stat = new Stat();
             if (!(zk instanceof ZooKeeperAdmin)) {
-                // This should never happen when executing reconfig command line,
-                // because it is guaranteed that we have a ZooKeeperAdmin instance ready
-                // to use in CliCommand stack.
-                // The only exception would be in test code where clients can directly set
-                // ZooKeeper object to ZooKeeperMain.
-                return false;
+                                                                                                return false;
             }
 
             byte[] curConfig = ((ZooKeeperAdmin)zk).reconfigure(joining,

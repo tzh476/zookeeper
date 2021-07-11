@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server.quorum.auth;
 
 import java.io.BufferedOutputStream;
@@ -82,8 +64,7 @@ public class SaslQuorumAuthServer implements QuorumAuthServer {
                     throw new SaslException("Learner not trying to authenticate"
                                             + " and authentication is required");
                 } else {
-                    // let it through, we don't require auth
-                    return;
+                                        return;
                 }
             }
 
@@ -98,8 +79,7 @@ public class SaslQuorumAuthServer implements QuorumAuthServer {
             while (!ss.isComplete()) {
                 challenge = ss.evaluateResponse(token);
                 if (!ss.isComplete()) {
-                    // limited number of retries.
-                    if (++tries > MAX_RETRIES) {
+                                        if (++tries > MAX_RETRIES) {
                         send(dout, challenge, QuorumAuth.Status.ERROR);
                         LOG.warn("Failed to authenticate using SASL, server addr: {}, retries={} exceeded.",
                                 sock.getRemoteSocketAddress(), tries);
@@ -109,8 +89,7 @@ public class SaslQuorumAuthServer implements QuorumAuthServer {
                     token = receive(din);
                 }
             }
-            // Authentication exchange has completed
-            if (ss.isComplete()) {
+                        if (ss.isComplete()) {
                 send(dout, challenge, QuorumAuth.Status.SUCCESS);
                 LOG.info("Successfully completed the authentication using SASL. learner addr: {}",
                         sock.getRemoteSocketAddress());
@@ -118,17 +97,12 @@ public class SaslQuorumAuthServer implements QuorumAuthServer {
         } catch (Exception e) {
             try {
                 if (dout != null) {
-                    // send error message to the learner
-                    send(dout, new byte[0], QuorumAuth.Status.ERROR);
+                                        send(dout, new byte[0], QuorumAuth.Status.ERROR);
                 }
             } catch (IOException ioe) {
                 LOG.warn("Exception while sending failed status", ioe);
             }
-            // If sasl is not required, when a server initializes a
-            // connection it will try to log in, but it will also
-            // accept connections that do not start with a sasl
-            // handshake.
-            if (quorumRequireSasl) {
+                                                            if (quorumRequireSasl) {
                 LOG.error("Failed to authenticate using SASL", e);
                 throw new SaslException(
                         "Failed to authenticate using SASL: " + e.getMessage());
@@ -139,8 +113,7 @@ public class SaslQuorumAuthServer implements QuorumAuthServer {
                         new Object[] { sock.getRemoteSocketAddress(),
                                 QuorumAuth.QUORUM_SERVER_SASL_AUTH_REQUIRED,
                                 quorumRequireSasl });
-                return; // let it through, we don't require auth
-            }
+                return;             }
         } finally {
             if (ss != null) {
                 try {

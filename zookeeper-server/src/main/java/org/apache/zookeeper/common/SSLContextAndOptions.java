@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.apache.zookeeper.common;
 
 import java.io.ByteArrayInputStream;
@@ -38,13 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import static java.util.Objects.requireNonNull;
 
-/**
- * Wrapper class for an SSLContext + some config options that can't be set on the context when it is created but
- * must be set on a secure socket created by the context after the socket creation. By wrapping the options in this
- * class we avoid reading from global system properties during socket configuration. This makes testing easier
- * since we can create different X509Util instances with different configurations in a single test process, and
- * unit test interactions between them.
- */
+
 public class SSLContextAndOptions {
     private static final Logger LOG = LoggerFactory.getLogger(SSLContextAndOptions.class);
 
@@ -56,13 +33,7 @@ public class SSLContextAndOptions {
     private final SSLContext sslContext;
     private final int handshakeDetectionTimeoutMillis;
 
-    /**
-     * Note: constructor is intentionally package-private, only the X509Util class should be creating instances of this
-     * class.
-     * @param x509Util the X509Util that created this object.
-     * @param config a ZKConfig that holds config properties.
-     * @param sslContext the SSLContext.
-     */
+    
     SSLContextAndOptions(final X509Util x509Util, final ZKConfig config, final SSLContext sslContext) {
         this.x509Util = requireNonNull(x509Util);
         this.sslContext = requireNonNull(sslContext);
@@ -164,8 +135,7 @@ public class SSLContextAndOptions {
                     sslParameters.setWantClientAuth(true);
                     break;
                 default:
-                    sslParameters.setNeedClientAuth(false); // also clears the wantClientAuth flag according to docs
-                    break;
+                    sslParameters.setNeedClientAuth(false);                     break;
             }
         }
     }
@@ -199,9 +169,7 @@ public class SSLContextAndOptions {
         } else {
             result = Integer.parseInt(propertyString);
             if (result < 1) {
-                // Timeout of 0 is not allowed, since an infinite timeout can permanently lock up an
-                // accept() thread.
-                LOG.warn("Invalid value for {}: {}, using the default value of {}",
+                                                LOG.warn("Invalid value for {}: {}, using the default value of {}",
                         x509Util.getSslHandshakeDetectionTimeoutMillisProperty(),
                         result,
                         X509Util.DEFAULT_HANDSHAKE_DETECTION_TIMEOUT_MILLIS);

@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.client;
 
 import static org.apache.zookeeper.client.ZKClientConfig.DISABLE_AUTO_WATCH_RESET;
@@ -72,24 +54,18 @@ public class ZKClientConfigTest {
         for (Map.Entry<String, String> e : properties.entrySet()) {
             System.setProperty(e.getKey(), e.getValue());
         }
-        /**
-         * ZKClientConfig should get initialized with system properties
-         */
+        
         ZKClientConfig conf = new ZKClientConfig();
         for (Map.Entry<String, String> e : properties.entrySet()) {
             assertEquals(e.getValue(), conf.getProperty(e.getKey()));
         }
-        /**
-         * clear properties
-         */
+        
         for (Map.Entry<String, String> e : properties.entrySet()) {
             System.clearProperty(e.getKey());
         }
 
         conf = new ZKClientConfig();
-        /**
-         * test that all the properties are null
-         */
+        
         for (Map.Entry<String, String> e : properties.entrySet()) {
             String result = conf.getProperty(e.getKey());
             assertNull(result);
@@ -135,9 +111,7 @@ public class ZKClientConfigTest {
         assertEquals(conf.getProperty(ZOOKEEPER_SERVER_REALM), "HADOOP.COM");
         assertEquals(conf.getProperty("dummyProperty"), "dummyValue");
 
-        // try to delete it now as we have done with the created file, why to
-        // wait for deleteOnExit() deletion
-        file.delete();
+                        file.delete();
 
     }
 
@@ -159,29 +133,23 @@ public class ZKClientConfigTest {
         ZKClientConfig conf = new ZKClientConfig();
         String prop = "UnSetProperty" + System.currentTimeMillis();
         int defaultValue = 100;
-        // property is not set we should get the default value
-        int result = conf.getInt(prop, defaultValue);
+                int result = conf.getInt(prop, defaultValue);
         assertEquals(defaultValue, result);
 
-        // property is set but can not be parsed to int, we should get the
-        // NumberFormatException
-        conf.setProperty(ZKConfig.JUTE_MAXBUFFER, "InvlaidIntValue123");
+                        conf.setProperty(ZKConfig.JUTE_MAXBUFFER, "InvlaidIntValue123");
         try {
             result = conf.getInt(ZKConfig.JUTE_MAXBUFFER, defaultValue);
             fail("NumberFormatException is expected");
         } catch (NumberFormatException exception) {
-            // do nothing
-        }
+                    }
         assertEquals(defaultValue, result);
 
-        // property is set to an valid int, we should get the set value
-        int value = ZKClientConfig.CLIENT_MAX_PACKET_LENGTH_DEFAULT;
+                int value = ZKClientConfig.CLIENT_MAX_PACKET_LENGTH_DEFAULT;
         conf.setProperty(ZKConfig.JUTE_MAXBUFFER, Integer.toString(value));
         result = conf.getInt(ZKConfig.JUTE_MAXBUFFER, defaultValue);
         assertEquals(value, result);
 
-        // property is set but with white spaces
-        value = 12345;
+                value = 12345;
         conf.setProperty(ZKConfig.JUTE_MAXBUFFER,
                 " " + Integer.toString(value) + " ");
         result = conf.getInt(ZKConfig.JUTE_MAXBUFFER, defaultValue);
@@ -193,8 +161,7 @@ public class ZKClientConfigTest {
         int hexaValue = 0x3000000;
         String wrongValue = "0xwel";
         int defaultValue = 100;
-        // property is set in hexadecimal value
-        ZKClientConfig zkClientConfig = new ZKClientConfig();
+                ZKClientConfig zkClientConfig = new ZKClientConfig();
         zkClientConfig.setProperty(ZKConfig.JUTE_MAXBUFFER,
                 Integer.toString(hexaValue));
         int result = zkClientConfig.getInt(ZKConfig.JUTE_MAXBUFFER, defaultValue);
@@ -205,8 +172,7 @@ public class ZKClientConfigTest {
             result = zkClientConfig.getInt(ZKConfig.JUTE_MAXBUFFER, defaultValue);
             fail("NumberFormatException is expected");
         } catch (NumberFormatException exception) {
-            // do nothing
-        }
+                    }
         zkClientConfig.setProperty(ZKConfig.JUTE_MAXBUFFER,
                 " " + hexaValue + " ");
         result = zkClientConfig.getInt(ZKConfig.JUTE_MAXBUFFER, defaultValue);

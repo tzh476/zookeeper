@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server.quorum.auth;
 
 import java.io.File;
@@ -51,10 +33,7 @@ public class QuorumKerberosHostBasedAuthTest extends KerberosSecurityTestcase {
             String hostLearnerPrincipal, String hostNamedLearnerPrincipal) {
         String keytabFilePath = FilenameUtils.normalize(KerberosTestUtils.getKeytabFile(), true);
 
-        // note: we use "refreshKrb5Config=true" to refresh the kerberos config in the JVM,
-        // making sure that we use the latest config even if other tests already have been executed
-        // and initialized the kerberos client configs before)
-        String jaasEntries = ""
+                                String jaasEntries = ""
                 + "QuorumServer {\n"
                 + "       com.sun.security.auth.module.Krb5LoginModule required\n"
                 + "       useKeyTab=true\n"
@@ -87,17 +66,14 @@ public class QuorumKerberosHostBasedAuthTest extends KerberosSecurityTestcase {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        // create keytab
-        keytabFile = new File(KerberosTestUtils.getKeytabFile());
+                keytabFile = new File(KerberosTestUtils.getKeytabFile());
 
-        // Creates principals in the KDC and adds them to a keytab file.
-        String learnerPrincipal = hostLearnerPrincipal.substring(0, hostLearnerPrincipal.lastIndexOf("@"));
+                String learnerPrincipal = hostLearnerPrincipal.substring(0, hostLearnerPrincipal.lastIndexOf("@"));
         learnerPrincipal = KerberosTestUtils.replaceHostPattern(learnerPrincipal);
         String serverPrincipal = hostServerPrincipal.substring(0, hostServerPrincipal.lastIndexOf("@"));
         serverPrincipal = KerberosTestUtils.replaceHostPattern(serverPrincipal);
 
-        // learner with ipaddress in principal
-        String learnerPrincipal2 = hostNamedLearnerPrincipal.substring(0, hostNamedLearnerPrincipal.lastIndexOf("@"));
+                String learnerPrincipal2 = hostNamedLearnerPrincipal.substring(0, hostNamedLearnerPrincipal.lastIndexOf("@"));
         getKdc().createPrincipal(keytabFile, learnerPrincipal, learnerPrincipal2, serverPrincipal);
     }
 
@@ -117,9 +93,7 @@ public class QuorumKerberosHostBasedAuthTest extends KerberosSecurityTestcase {
         cleanupJaasConfig();
     }
 
-    /**
-     * Test to verify that server is able to start with valid credentials
-     */
+    
     @Test(timeout = 120000)
     public void testValidCredentials() throws Exception {
         String serverPrincipal = hostServerPrincipal.substring(0, hostServerPrincipal.lastIndexOf("@"));
@@ -138,9 +112,7 @@ public class QuorumKerberosHostBasedAuthTest extends KerberosSecurityTestcase {
         zk.close();
     }
 
-    /**
-     * Test to verify that the bad server connection to the quorum should be rejected.
-     */
+    
     @Test(timeout = 120000)
     public void testConnectBadServer() throws Exception {
         String serverPrincipal = hostServerPrincipal.substring(0, hostServerPrincipal.lastIndexOf("@"));
@@ -180,8 +152,7 @@ public class QuorumKerberosHostBasedAuthTest extends KerberosSecurityTestcase {
             watcher.waitForConnected(ClientBase.CONNECTION_TIMEOUT/3);
             Assert.fail("Must throw exception as the myHost is not an authorized one!");
         } catch (TimeoutException e){
-            // expected
-        } finally {
+                    } finally {
             zk.close();
             badServer.shutdown();
             badServer.deleteBaseDir();

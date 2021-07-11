@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server;
 
 import org.apache.jute.BinaryOutputArchive;
@@ -98,75 +80,59 @@ public class FinalRequestProcessorTest {
 
     @Test
     public void testACLDigestHashHiding_NoAuth_WorldCanRead() {
-        // Arrange
-
-        // Act
-        Request r = new Request(cnxn, 0, 0, ZooDefs.OpCode.getACL, bb, new ArrayList<Id>());
+        
+                Request r = new Request(cnxn, 0, 0, ZooDefs.OpCode.getACL, bb, new ArrayList<Id>());
         processor.processRequest(r);
 
-        // Assert
-        assertMasked(true);
+                assertMasked(true);
     }
 
     @Test
     public void testACLDigestHashHiding_NoAuth_NoWorld() {
-        // Arrange
-        testACLs.remove(2);
+                testACLs.remove(2);
 
-        // Act
-        Request r = new Request(cnxn, 0, 0, ZooDefs.OpCode.getACL, bb, new ArrayList<Id>());
+                Request r = new Request(cnxn, 0, 0, ZooDefs.OpCode.getACL, bb, new ArrayList<Id>());
         processor.processRequest(r);
 
-        // Assert
-        assertThat(KeeperException.Code.get(replyHeaders[0].getErr()), equalTo(KeeperException.Code.NOAUTH));
+                assertThat(KeeperException.Code.get(replyHeaders[0].getErr()), equalTo(KeeperException.Code.NOAUTH));
     }
 
     @Test
     public void testACLDigestHashHiding_UserCanRead() {
-        // Arrange
-        List<Id> authInfo = new ArrayList<Id>();
+                List<Id> authInfo = new ArrayList<Id>();
         authInfo.add(new Id("digest", "otheruser:somesecrethash"));
 
-        // Act
-        Request r = new Request(cnxn, 0, 0, ZooDefs.OpCode.getACL, bb, authInfo);
+                Request r = new Request(cnxn, 0, 0, ZooDefs.OpCode.getACL, bb, authInfo);
         processor.processRequest(r);
 
-        // Assert
-        assertMasked(true);
+                assertMasked(true);
     }
 
     @Test
     public void testACLDigestHashHiding_UserCanAll() {
-        // Arrange
-        List<Id> authInfo = new ArrayList<Id>();
+                List<Id> authInfo = new ArrayList<Id>();
         authInfo.add(new Id("digest", "user:secrethash"));
 
-        // Act
-        Request r = new Request(cnxn, 0, 0, ZooDefs.OpCode.getACL, bb, authInfo);
+                Request r = new Request(cnxn, 0, 0, ZooDefs.OpCode.getACL, bb, authInfo);
         processor.processRequest(r);
 
-        // Assert
-        assertMasked(false);
+                assertMasked(false);
     }
 
     @Test
     public void testACLDigestHashHiding_AdminUser() {
-        // Arrange
-        List<Id> authInfo = new ArrayList<Id>();
+                List<Id> authInfo = new ArrayList<Id>();
         authInfo.add(new Id("digest", "adminuser:adminsecret"));
 
-        // Act
-        Request r = new Request(cnxn, 0, 0, ZooDefs.OpCode.getACL, bb, authInfo);
+                Request r = new Request(cnxn, 0, 0, ZooDefs.OpCode.getACL, bb, authInfo);
         processor.processRequest(r);
 
-        // Assert
-        assertMasked(false);
+                assertMasked(false);
     }
 
     @Test
     public void testACLDigestHashHiding_OnlyAdmin() {
-        // Arrange
-        testACLs.clear();
+                testACLs.clear();
         testACLs.addAll(Arrays.asList(
                 new ACL(ZooDefs.Perms.READ, new Id("digest", "user:secrethash")),
                 new ACL(ZooDefs.Perms.ADMIN, new Id("digest", "adminuser:adminsecret"))
@@ -174,17 +140,14 @@ public class FinalRequestProcessorTest {
         List<Id> authInfo = new ArrayList<Id>();
         authInfo.add(new Id("digest", "adminuser:adminsecret"));
 
-        // Act
-        Request r = new Request(cnxn, 0, 0, ZooDefs.OpCode.getACL, bb, authInfo);
+                Request r = new Request(cnxn, 0, 0, ZooDefs.OpCode.getACL, bb, authInfo);
         processor.processRequest(r);
 
-        // Assert
-        assertTrue("Not a GetACL response. Auth failed?", responseRecord[0] instanceof GetACLResponse);
+                assertTrue("Not a GetACL response. Auth failed?", responseRecord[0] instanceof GetACLResponse);
         GetACLResponse rsp = (GetACLResponse)responseRecord[0];
         assertThat("Number of ACLs in the response are different", rsp.getAcl().size(), equalTo(2));
 
-        // Verify ACLs in the response
-        assertThat("Password hash mismatch in the response", rsp.getAcl().get(0).getId().getId(), equalTo("user:secrethash"));
+                assertThat("Password hash mismatch in the response", rsp.getAcl().get(0).getId().getId(), equalTo("user:secrethash"));
         assertThat("Password hash mismatch in the response", rsp.getAcl().get(1).getId().getId(), equalTo("adminuser:adminsecret"));
     }
 
@@ -193,8 +156,7 @@ public class FinalRequestProcessorTest {
         GetACLResponse rsp = (GetACLResponse)responseRecord[0];
         assertThat("Number of ACLs in the response are different", rsp.getAcl().size(), equalTo(3));
 
-        // Verify ACLs in the response
-        assertThat("Invalid ACL list in the response", rsp.getAcl().get(0).getPerms(), equalTo(ZooDefs.Perms.ALL));
+                assertThat("Invalid ACL list in the response", rsp.getAcl().get(0).getPerms(), equalTo(ZooDefs.Perms.ALL));
         assertThat("Invalid ACL list in the response", rsp.getAcl().get(0).getId().getScheme(), equalTo("digest"));
         if (masked) {
             assertThat("Password hash is not masked in the response", rsp.getAcl().get(0).getId().getId(), equalTo("user:x"));
@@ -214,8 +176,7 @@ public class FinalRequestProcessorTest {
         assertThat("Invalid ACL list in the response", rsp.getAcl().get(2).getId().getScheme(), equalTo("world"));
         assertThat("Invalid ACL list in the response", rsp.getAcl().get(2).getId().getId(), equalTo("anyone"));
 
-        // Verify that FinalRequestProcessor hasn't changed the original ACL objects
-        assertThat("Original ACL list has been modified", testACLs.get(0).getPerms(), equalTo(ZooDefs.Perms.ALL));
+                assertThat("Original ACL list has been modified", testACLs.get(0).getPerms(), equalTo(ZooDefs.Perms.ALL));
         assertThat("Original ACL list has been modified", testACLs.get(0).getId().getScheme(), equalTo("digest"));
         assertThat("Original ACL list has been modified", testACLs.get(0).getId().getId(), equalTo("user:secrethash"));
 

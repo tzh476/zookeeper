@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server;
 
 import org.apache.jute.InputArchive;
@@ -67,22 +49,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * This class maintains the tree data structure. It doesn't have any networking
- * or client connection code in it so that it can be tested in a stand alone
- * way.
- * <p>
- * The tree maintains two parallel data structures: a hashtable that maps from
- * full paths to DataNodes and a tree of DataNodes. All accesses to a path is
- * through the hashtable. The tree is traversed only when serializing to disk.
- */
+
 public class DataTree {
     private static final Logger LOG = LoggerFactory.getLogger(DataTree.class);
 
-    /**
-     * This hashtable provides a fast lookup to the datanodes. The tree is the
-     * source of truth and is where all the locking occurs
-     */
+    
     private final ConcurrentHashMap<String, DataNode> nodes =
         new ConcurrentHashMap<String, DataNode>();
 
@@ -90,55 +61,41 @@ public class DataTree {
 
     private final WatchManager childWatches = new WatchManager();
 
-    /** the root of zookeeper tree */
+    
     private static final String rootZookeeper = "/";
 
-    /** the zookeeper nodes that acts as the management and status node **/
+    
     private static final String procZookeeper = Quotas.procZookeeper;
 
-    /** this will be the string thats stored as a child of root */
+    
     private static final String procChildZookeeper = procZookeeper.substring(1);
 
-    /**
-     * the zookeeper quota node that acts as the quota management node for
-     * zookeeper
-     */
+    
     private static final String quotaZookeeper = Quotas.quotaZookeeper;
 
-    /** this will be the string thats stored as a child of /zookeeper */
+    
     private static final String quotaChildZookeeper = quotaZookeeper
             .substring(procZookeeper.length() + 1);
 
-    /**
-     * the zookeeper config node that acts as the config management node for
-     * zookeeper
-     */
+    
     private static final String configZookeeper = ZooDefs.CONFIG_NODE;
 
-    /** this will be the string thats stored as a child of /zookeeper */
+    
     private static final String configChildZookeeper = configZookeeper
             .substring(procZookeeper.length() + 1);
 
-    /**
-     * the path trie that keeps track fo the quota nodes in this datatree
-     */
+    
     private final PathTrie pTrie = new PathTrie();
 
-    /**
-     * This hashtable lists the paths of the ephemeral nodes of a session.
-     */
+    
     private final Map<Long, HashSet<String>> ephemerals =
         new ConcurrentHashMap<Long, HashSet<String>>();
 
-    /**
-     * This set contains the paths of all container nodes
-     */
+    
     private final Set<String> containers =
             Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
-    /**
-     * This set contains the paths of all ttl nodes
-     */
+    
     private final Set<String> ttls =
             Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
@@ -189,11 +146,7 @@ public class DataTree {
         return result;
     }
 
-    /**
-     * Get the size of the nodes based on path and data length.
-     *
-     * @return size of the data
-     */
+    
     public long approximateDataSize() {
         long result = 0;
         for (Map.Entry<String, DataNode> entry : nodes.entrySet()) {
@@ -206,29 +159,21 @@ public class DataTree {
         return result;
     }
 
-    /**
-     * This is a pointer to the root of the DataTree. It is the source of truth,
-     * but we usually use the nodes hashmap to find nodes in the tree.
-     */
+    
     private DataNode root = new DataNode(new byte[0], -1L, new StatPersisted());
 
-    /**
-     * create a /zookeeper filesystem that is the proc filesystem of zookeeper
-     */
+    
     private final DataNode procDataNode = new DataNode(new byte[0], -1L, new StatPersisted());
 
-    /**
-     * create a /zookeeper/quota node for maintaining quota properties for
-     * zookeeper
-     */
+    
     private final DataNode quotaDataNode = new DataNode(new byte[0], -1L, new StatPersisted());
 
     public DataTree() {
-        /* Rather than fight it, let root have an alias */
+        
         nodes.put("", root);
         nodes.put(rootZookeeper, root);
 
-        /** add the proc node and quota node */
+        
         root.addChild(procChildZookeeper);
         nodes.put(procZookeeper, procDataNode);
 
@@ -238,35 +183,24 @@ public class DataTree {
         addConfigNode();
     }
 
-    /**
-     * create a /zookeeper/config node for maintaining the configuration (membership and quorum system) info for
-     * zookeeper
-     */
+    
     public void addConfigNode() {
         DataNode zookeeperZnode = nodes.get(procZookeeper);
-        if (zookeeperZnode != null) { // should always be the case
-            zookeeperZnode.addChild(configChildZookeeper);
+        if (zookeeperZnode != null) {             zookeeperZnode.addChild(configChildZookeeper);
         } else {
             assert false : "There's no /zookeeper znode - this should never happen.";
         }
 
         nodes.put(configZookeeper, new DataNode(new byte[0], -1L, new StatPersisted()));
         try {
-            // Reconfig node is access controlled by default (ZOOKEEPER-2014).
-            setACL(configZookeeper, ZooDefs.Ids.READ_ACL_UNSAFE, -1);
+                        setACL(configZookeeper, ZooDefs.Ids.READ_ACL_UNSAFE, -1);
         } catch (KeeperException.NoNodeException e) {
             assert false : "There's no " + configZookeeper +
                     " znode - this should never happen.";
         }
     }
 
-    /**
-     * is the path one of the special paths owned by zookeeper.
-     *
-     * @param path
-     *            the path to be checked
-     * @return true if a special path. false if not.
-     */
+    
     boolean isSpecialPath(String path) {
         if (rootZookeeper.equals(path) || procZookeeper.equals(path)
                 || quotaZookeeper.equals(path) || configZookeeper.equals(path)) {
@@ -301,21 +235,13 @@ public class DataTree {
         to.setNumChildren(from.getNumChildren());
     }
 
-    /**
-     * update the count of this stat datanode
-     *
-     * @param lastPrefix
-     *            the path of the node that is quotaed.
-     * @param diff
-     *            the diff to be added to the count
-     */
+    
     public void updateCount(String lastPrefix, int diff) {
         String statNode = Quotas.statPath(lastPrefix);
         DataNode node = nodes.get(statNode);
         StatsTrack updatedStat = null;
         if (node == null) {
-            // should not happen
-            LOG.error("Missing count node for stat " + statNode);
+                        LOG.error("Missing count node for stat " + statNode);
             return;
         }
         synchronized (node) {
@@ -323,13 +249,11 @@ public class DataTree {
             updatedStat.setCount(updatedStat.getCount() + diff);
             node.data = updatedStat.toString().getBytes();
         }
-        // now check if the counts match the quota
-        String quotaNode = Quotas.quotaPath(lastPrefix);
+                String quotaNode = Quotas.quotaPath(lastPrefix);
         node = nodes.get(quotaNode);
         StatsTrack thisStats = null;
         if (node == null) {
-            // should not happen
-            LOG.error("Missing count node for quota " + quotaNode);
+                        LOG.error("Missing count node for quota " + quotaNode);
             return;
         }
         synchronized (node) {
@@ -343,23 +267,12 @@ public class DataTree {
         }
     }
 
-    /**
-     * update the count of bytes of this stat datanode
-     *
-     * @param lastPrefix
-     *            the path of the node that is quotaed
-     * @param diff
-     *            the diff to added to number of bytes
-     * @throws IOException
-     *             if path is not found
-     */
+    
     public void updateBytes(String lastPrefix, long diff) {
         String statNode = Quotas.statPath(lastPrefix);
         DataNode node = nodes.get(statNode);
         if (node == null) {
-            // should never be null but just to make
-            // findbugs happy
-            LOG.error("Missing stat node for bytes " + statNode);
+                                    LOG.error("Missing stat node for bytes " + statNode);
             return;
         }
         StatsTrack updatedStat = null;
@@ -368,13 +281,10 @@ public class DataTree {
             updatedStat.setBytes(updatedStat.getBytes() + diff);
             node.data = updatedStat.toString().getBytes();
         }
-        // now check if the bytes match the quota
-        String quotaNode = Quotas.quotaPath(lastPrefix);
+                String quotaNode = Quotas.quotaPath(lastPrefix);
         node = nodes.get(quotaNode);
         if (node == null) {
-            // should never be null but just to make
-            // findbugs happy
-            LOG.error("Missing quota node for bytes " + quotaNode);
+                                    LOG.error("Missing quota node for bytes " + quotaNode);
             return;
         }
         StatsTrack thisStats = null;
@@ -389,50 +299,14 @@ public class DataTree {
         }
     }
 
-    /**
-     * Add a new node to the DataTree.
-     * @param path
-     * 			  Path for the new node.
-     * @param data
-     *            Data to store in the node.
-     * @param acl
-     *            Node acls
-     * @param ephemeralOwner
-     *            the session id that owns this node. -1 indicates this is not
-     *            an ephemeral node.
-     * @param zxid
-     *            Transaction ID
-     * @param time
-     * @throws NodeExistsException
-     * @throws NoNodeException
-     * @throws KeeperException
-     */
+    
     public void createNode(final String path, byte data[], List<ACL> acl,
             long ephemeralOwner, int parentCVersion, long zxid, long time)
     		throws NoNodeException, NodeExistsException {
     	createNode(path, data, acl, ephemeralOwner, parentCVersion, zxid, time, null);
     }
 
-    /**
-     * Add a new node to the DataTree.
-     * @param path
-     * 			  Path for the new node.
-     * @param data
-     *            Data to store in the node.
-     * @param acl
-     *            Node acls
-     * @param ephemeralOwner
-     *            the session id that owns this node. -1 indicates this is not
-     *            an ephemeral node.
-     * @param zxid
-     *            Transaction ID
-     * @param time
-     * @param outputStat
-     * 			  A Stat object to store Stat output results into.
-     * @throws NodeExistsException
-     * @throws NoNodeException
-     * @throws KeeperException
-     */
+    
     public void createNode(final String path, byte data[], List<ACL> acl,
             long ephemeralOwner, int parentCVersion, long zxid, long time, Stat outputStat)
             throws KeeperException.NoNodeException,
@@ -488,24 +362,18 @@ public class DataTree {
             	child.copyStat(outputStat);
             }
         }
-        // now check if its one of the zookeeper node child
-        if (parentName.startsWith(quotaZookeeper)) {
-            // now check if its the limit node
-            if (Quotas.limitNode.equals(childName)) {
-                // this is the limit node
-                // get the parent and add it to the trie
-                pTrie.addPath(parentName.substring(quotaZookeeper.length()));
+                if (parentName.startsWith(quotaZookeeper)) {
+                        if (Quotas.limitNode.equals(childName)) {
+                                                pTrie.addPath(parentName.substring(quotaZookeeper.length()));
             }
             if (Quotas.statNode.equals(childName)) {
                 updateQuotaForPath(parentName
                         .substring(quotaZookeeper.length()));
             }
         }
-        // also check to update the quotas for this node
-        String lastPrefix = getMaxPrefixWithQuota(path);
+                String lastPrefix = getMaxPrefixWithQuota(path);
         if(lastPrefix != null) {
-            // ok we have some match and need to update
-            updateCount(lastPrefix, 1);
+                        updateCount(lastPrefix, 1);
             updateBytes(lastPrefix, data == null ? 0 : data.length);
         }
         dataWatches.triggerWatch(path, Event.EventType.NodeCreated);
@@ -513,34 +381,20 @@ public class DataTree {
                 Event.EventType.NodeChildrenChanged);
     }
 
-    /**
-     * remove the path from the datatree
-     *
-     * @param path
-     *            the path to of the node to be deleted
-     * @param zxid
-     *            the current zxid
-     * @throws KeeperException.NoNodeException
-     */
+    
     public void deleteNode(String path, long zxid)
             throws KeeperException.NoNodeException {
         int lastSlash = path.lastIndexOf('/');
         String parentName = path.substring(0, lastSlash);
         String childName = path.substring(lastSlash + 1);
 
-        // The child might already be deleted during taking fuzzy snapshot,
-        // but we still need to update the pzxid here before throw exception
-        // for no such child
-        DataNode parent = nodes.get(parentName);
+                                DataNode parent = nodes.get(parentName);
         if (parent == null) {
             throw new KeeperException.NoNodeException();
         }
         synchronized (parent) {
             parent.removeChild(childName);
-            // Only update pzxid when the zxid is larger than the current pzxid,
-            // otherwise we might override higher pzxid set by a following create 
-            // Txn, which could cause the cversion and pzxid inconsistent
-            if (zxid > parent.stat.getPzxid()) {
+                                                if (zxid > parent.stat.getPzxid()) {
                 parent.stat.setPzxid(zxid);
             }
         }
@@ -554,10 +408,7 @@ public class DataTree {
             aclCache.removeUsage(node.acl);
         }
 
-        // Synchronized to sync the containers and ttls change, probably
-        // only need to sync on containers and ttls, will update it in a
-        // separate patch.
-        synchronized (parent) {
+                                synchronized (parent) {
             long eowner = node.stat.getEphemeralOwner();
             EphemeralType ephemeralType = EphemeralType.get(eowner);
             if (ephemeralType == EphemeralType.CONTAINER) {
@@ -575,16 +426,12 @@ public class DataTree {
         }
 
         if (parentName.startsWith(procZookeeper) && Quotas.limitNode.equals(childName)) {
-            // delete the node in the trie.
-            // we need to update the trie as well
-            pTrie.deletePath(parentName.substring(quotaZookeeper.length()));
+                                    pTrie.deletePath(parentName.substring(quotaZookeeper.length()));
         }
 
-        // also check to update the quotas for this node
-        String lastPrefix = getMaxPrefixWithQuota(path);
+                String lastPrefix = getMaxPrefixWithQuota(path);
         if(lastPrefix != null) {
-            // ok we have some match and need to update
-            updateCount(lastPrefix, -1);
+                        updateCount(lastPrefix, -1);
             int bytes = 0;
             synchronized (node) {
                 bytes = (node.data == null ? 0 : -(node.data.length));
@@ -620,8 +467,7 @@ public class DataTree {
             n.stat.setVersion(version);
             n.copyStat(s);
         }
-        // now update if the path is in a quota subtree.
-        String lastPrefix = getMaxPrefixWithQuota(path);
+                String lastPrefix = getMaxPrefixWithQuota(path);
         if(lastPrefix != null) {
           this.updateBytes(lastPrefix, (data == null ? 0 : data.length)
               - (lastdata == null ? 0 : lastdata.length));
@@ -630,17 +476,9 @@ public class DataTree {
         return s;
     }
 
-    /**
-     * If there is a quota set, return the appropriate prefix for that quota
-     * Else return null
-     * @param path The ZK path to check for quota
-     * @return Max quota prefix, or null if none
-     */
+    
     public String getMaxPrefixWithQuota(String path) {
-        // do nothing for the root.
-        // we are not keeping a quota on the zookeeper
-        // root node for now.
-        String lastPrefix = pTrie.findMaxPrefix(path);
+                                String lastPrefix = pTrie.findMaxPrefix(path);
 
         if (rootZookeeper.equals(lastPrefix) || "".equals(lastPrefix)) {
             return null;
@@ -755,12 +593,7 @@ public class DataTree {
 
         public List<ProcessTxnResult> multiResult;
 
-        /**
-         * Equality is defined as the clientId and the cxid being the same. This
-         * allows us to use hash tables to track completion of transactions.
-         *
-         * @see java.lang.Object#equals(java.lang.Object)
-         */
+        
         @Override
         public boolean equals(Object o) {
             if (o instanceof ProcessTxnResult) {
@@ -770,12 +603,7 @@ public class DataTree {
             return false;
         }
 
-        /**
-         * See equals() to find the rational for how this hashcode is generated.
-         *
-         * @see ProcessTxnResult#equals(Object)
-         * @see java.lang.Object#hashCode()
-         */
+        
         @Override
         public int hashCode() {
             return (int) ((clientId ^ cxid) % Integer.MAX_VALUE);
@@ -964,55 +792,15 @@ public class DataTree {
         }
 
 
-        /*
-         * Things we can only update after the whole txn is applied to data
-         * tree.
-         *
-         * If we update the lastProcessedZxid with the first sub txn in multi
-         * and there is a snapshot in progress, it's possible that the zxid
-         * associated with the snapshot only include partial of the multi op.
-         *
-         * When loading snapshot, it will only load the txns after the zxid
-         * associated with snapshot file, which could cause data inconsistency
-         * due to missing sub txns.
-         *
-         * To avoid this, we only update the lastProcessedZxid when the whole
-         * multi-op txn is applied to DataTree.
-         */
+        
         if (!isSubTxn) {
-            /*
-             * A snapshot might be in progress while we are modifying the data
-             * tree. If we set lastProcessedZxid prior to making corresponding
-             * change to the tree, then the zxid associated with the snapshot
-             * file will be ahead of its contents. Thus, while restoring from
-             * the snapshot, the restore method will not apply the transaction
-             * for zxid associated with the snapshot file, since the restore
-             * method assumes that transaction to be present in the snapshot.
-             *
-             * To avoid this, we first apply the transaction and then modify
-             * lastProcessedZxid.  During restore, we correctly handle the
-             * case where the snapshot contains data ahead of the zxid associated
-             * with the file.
-             */
+            
             if (rc.zxid > lastProcessedZxid) {
                 lastProcessedZxid = rc.zxid;
             }
         }
 
-        /*
-         * Snapshots are taken lazily. It can happen that the child
-         * znodes of a parent are created after the parent
-         * is serialized. Therefore, while replaying logs during restore, a
-         * create might fail because the node was already
-         * created.
-         *
-         * After seeing this failure, we should increment
-         * the cversion of the parent znode since the parent was serialized
-         * before its children.
-         *
-         * Note, such failures on DT should be seen only during
-         * restore.
-         */
+        
         if (header.getType() == OpCode.create &&
                 rc.err == Code.NODEEXISTS.intValue()) {
             LOG.debug("Adjusting parent cversion for Txn: " + header.getType() +
@@ -1036,13 +824,7 @@ public class DataTree {
     }
 
     void killSession(long session, long zxid) {
-        // the list is already removed from the ephemerals
-        // so we do not have to worry about synchronizing on
-        // the list. This is only called from FinalRequestProcessor
-        // so there is no need for synchronization. The list is not
-        // changed here. Only create and delete change the list which
-        // are again called from FinalRequestProcessor in sequence.
-        HashSet<String> list = ephemerals.remove(session);
+                                                        HashSet<String> list = ephemerals.remove(session);
         if (list != null) {
             for (String path : list) {
                 try {
@@ -1062,22 +844,13 @@ public class DataTree {
         }
     }
 
-    /**
-     * a encapsultaing class for return value
-     */
+    
     private static class Counts {
         long bytes;
         int count;
     }
 
-    /**
-     * this method gets the count of nodes and the bytes under a subtree
-     *
-     * @param path
-     *            the path to be used
-     * @param counts
-     *            the int count
-     */
+    
     private void getCounts(String path, Counts counts) {
         DataNode node = getNode(path);
         if (node == null) {
@@ -1090,20 +863,14 @@ public class DataTree {
             children = childs.toArray(new String[childs.size()]);
             len = (node.data == null ? 0 : node.data.length);
         }
-        // add itself
-        counts.count += 1;
+                counts.count += 1;
         counts.bytes += len;
         for (String child : children) {
             getCounts(path + "/" + child, counts);
         }
     }
 
-    /**
-     * update the quota for the given path
-     *
-     * @param path
-     *            the path to be used
-     */
+    
     private void updateQuotaForPath(String path) {
         Counts c = new Counts();
         getCounts(path, c);
@@ -1112,8 +879,7 @@ public class DataTree {
         strack.setCount(c.count);
         String statPath = Quotas.quotaZookeeper + path + "/" + Quotas.statNode;
         DataNode node = getNode(statPath);
-        // it should exist
-        if (node == null) {
+                if (node == null) {
             LOG.warn("Missing quota stat node " + statPath);
             return;
         }
@@ -1122,11 +888,7 @@ public class DataTree {
         }
     }
 
-    /**
-     * this method traverses the quota path and update the path trie and sets
-     *
-     * @param path
-     */
+    
     private void traverseNode(String path) {
         DataNode node = getNode(path);
         String children[] = null;
@@ -1135,15 +897,9 @@ public class DataTree {
             children = childs.toArray(new String[childs.size()]);
         }
         if (children.length == 0) {
-            // this node does not have a child
-            // is the leaf node
-            // check if its the leaf node
-            String endString = "/" + Quotas.limitNode;
+                                                String endString = "/" + Quotas.limitNode;
             if (path.endsWith(endString)) {
-                // ok this is the limit node
-                // get the real node and update
-                // the count and the bytes
-                String realPath = path.substring(Quotas.quotaZookeeper
+                                                                String realPath = path.substring(Quotas.quotaZookeeper
                         .length(), path.indexOf(endString));
                 updateQuotaForPath(realPath);
                 this.pTrie.addPath(realPath);
@@ -1155,9 +911,7 @@ public class DataTree {
         }
     }
 
-    /**
-     * this method sets up the path trie and sets up stats for quota nodes
-     */
+    
     private void setupQuota() {
         String quotaPath = Quotas.quotaZookeeper;
         DataNode node = getNode(quotaPath);
@@ -1167,17 +921,7 @@ public class DataTree {
         traverseNode(quotaPath);
     }
 
-    /**
-     * this method uses a stringbuilder to create a new path for children. This
-     * is faster than string appends ( str1 + str2).
-     *
-     * @param oa
-     *            OutputArchive to write to.
-     * @param path
-     *            a string builder.
-     * @throws IOException
-     * @throws InterruptedException
-     */
+    
     void serializeNode(OutputArchive oa, StringBuilder path) throws IOException {
         String pathString = path.toString();
         DataNode node = getNode(pathString);
@@ -1189,9 +933,7 @@ public class DataTree {
         synchronized (node) {
             StatPersisted statCopy = new StatPersisted();
             copyStatPersisted(node.stat, statCopy);
-            //we do not need to make a copy of node.data because the contents
-            //are never changed
-            nodeCopy = new DataNode(node.data, node.acl, statCopy);
+                                    nodeCopy = new DataNode(node.data, node.acl, statCopy);
             Set<String> childs = node.getChildren();
             children = childs.toArray(new String[childs.size()]);
         }
@@ -1199,17 +941,13 @@ public class DataTree {
         path.append('/');
         int off = path.length();
         for (String child : children) {
-            // since this is single buffer being resused
-            // we need
-            // to truncate the previous bytes of string.
-            path.delete(off, Integer.MAX_VALUE);
+                                                path.delete(off, Integer.MAX_VALUE);
             path.append(child);
             serializeNode(oa, path);
         }
     }
 
-    // visiable for test
-    public void serializeNodeData(OutputArchive oa, String path, DataNode node) throws IOException {
+        public void serializeNodeData(OutputArchive oa, String path, DataNode node) throws IOException {
         oa.writeString(path, "path");
         oa.writeRecord(node, "node");
     }
@@ -1217,9 +955,7 @@ public class DataTree {
     public void serialize(OutputArchive oa, String tag) throws IOException {
         aclCache.serialize(oa);
         serializeNode(oa, new StringBuilder(""));
-        // / marks end of stream
-        // we need to check if clear had been called in between the snapshot.
-        if (root != null) {
+                        if (root != null) {
             oa.writeString("/", "path");
         }
     }
@@ -1265,66 +1001,37 @@ public class DataTree {
             path = ia.readString("path");
         }
         nodes.put("/", root);
-        // we are done with deserializing the
-        // the datatree
-        // update the quotas - create path trie
-        // and also update the stat nodes
-        setupQuota();
+                                        setupQuota();
 
         aclCache.purgeUnused();
     }
 
-    /**
-     * Summary of the watches on the datatree.
-     * @param pwriter the output to write to
-     */
+    
     public synchronized void dumpWatchesSummary(PrintWriter pwriter) {
         pwriter.print(dataWatches.toString());
     }
 
-    /**
-     * Write a text dump of all the watches on the datatree.
-     * Warning, this is expensive, use sparingly!
-     * @param pwriter the output to write to
-     */
+    
     public synchronized void dumpWatches(PrintWriter pwriter, boolean byPath) {
         dataWatches.dumpWatches(pwriter, byPath);
     }
 
-    /**
-     * Returns a watch report.
-     *
-     * @return watch report
-     * @see WatchesReport
-     */
+    
     public synchronized WatchesReport getWatches() {
         return dataWatches.getWatches();
     }
 
-    /**
-     * Returns a watch report by path.
-     *
-     * @return watch report
-     * @see WatchesPathReport
-     */
+    
     public synchronized WatchesPathReport getWatchesByPath() {
         return dataWatches.getWatchesByPath();
     }
 
-    /**
-     * Returns a watch summary.
-     *
-     * @return watch summary
-     * @see WatchesSummary
-     */
+    
     public synchronized WatchesSummary getWatchesSummary() {
         return dataWatches.getWatchesSummary();
     }
 
-    /**
-     * Write a text dump of all the ephemerals in the datatree.
-     * @param pwriter the output to write to
-     */
+    
     public void dumpEphemerals(PrintWriter pwriter) {
         pwriter.println("Sessions with Ephemerals ("
                 + ephemerals.keySet().size() + "):");
@@ -1342,11 +1049,7 @@ public class DataTree {
         }
     }
 
-    /**
-     * Returns a mapping of session ID to ephemeral znodes.
-     *
-     * @return map of session ID to sets of ephemeral znodes
-     */
+    
     public Map<Long, Set<String>> getEphemerals() {
         HashMap<Long, Set<String>> ephemeralsCopy = new HashMap<Long, Set<String>>();
         for (Entry<Long, HashSet<String>> e : ephemerals.entrySet()) {
@@ -1401,22 +1104,7 @@ public class DataTree {
         }
     }
 
-     /**
-      * This method sets the Cversion and Pzxid for the specified node to the
-      * values passed as arguments. The values are modified only if newCversion
-      * is greater than the current Cversion. A NoNodeException is thrown if
-      * a znode for the specified path is not found.
-      *
-      * @param path
-      *     Full path to the znode whose Cversion needs to be modified.
-      *     A "/" at the end of the path is ignored.
-      * @param newCversion
-      *     Value to be assigned to Cversion
-      * @param zxid
-      *     Value to be assigned to Pzxid
-      * @throws KeeperException.NoNodeException
-      *     If znode not found.
-      **/
+     
     public void setCversionPzxid(String path, int newCversion, long zxid)
         throws KeeperException.NoNodeException {
         if (path.endsWith("/")) {
@@ -1479,8 +1167,7 @@ public class DataTree {
         return removed;
     }
 
-    // visible for testing
-    public ReferenceCountedACLCache getReferenceCountedAclCache() {
+        public ReferenceCountedACLCache getReferenceCountedAclCache() {
         return aclCache;
     }
 }

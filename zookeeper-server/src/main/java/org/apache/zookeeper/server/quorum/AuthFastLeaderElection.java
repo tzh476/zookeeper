@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server.quorum;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -48,65 +30,44 @@ import org.apache.zookeeper.server.quorum.Vote;
 import org.apache.zookeeper.server.quorum.QuorumPeer.QuorumServer;
 import org.apache.zookeeper.server.quorum.QuorumPeer.ServerState;
 
-/**
- * @deprecated This class has been deprecated as of release 3.4.0. 
- */
+
 @Deprecated
 public class AuthFastLeaderElection implements Election {
     private static final Logger LOG = LoggerFactory.getLogger(AuthFastLeaderElection.class);
 
-    /* Sequence numbers for messages */
+    
     static int sequencer = 0;
     static int maxTag = 0;
 
-    /*
-     * Determine how much time a process has to wait once it believes that it
-     * has reached the end of leader election.
-     */
+    
     static int finalizeWait = 100;
 
-    /*
-     * Challenge counter to avoid replay attacks
-     */
+    
 
     static int challengeCounter = 0;
 
-    /*
-     * Flag to determine whether to authenticate or not
-     */
+    
 
     private boolean authEnabled = false;
 
     static public class Notification {
-        /*
-         * Proposed leader
-         */
+        
         long leader;
 
-        /*
-         * zxid of the proposed leader
-         */
+        
         long zxid;
 
-        /*
-         * Epoch
-         */
+        
         long epoch;
 
-        /*
-         * current state of sender
-         */
+        
         QuorumPeer.ServerState state;
 
-        /*
-         * Address of the sender
-         */
+        
         InetSocketAddress addr;
     }
 
-    /*
-     * Messages to send, both Notifications and Acks
-     */
+    
     static public class ToSend {
         static enum mType {
             crequest, challenge, notification, ack
@@ -161,34 +122,22 @@ public class AuthFastLeaderElection implements Election {
             }
         }
 
-        /*
-         * Message type: 0 notification, 1 acknowledgement
-         */
+        
         int type;
 
-        /*
-         * Proposed leader in the case of notification
-         */
+        
         long leader;
 
-        /*
-         * id contains the tag for acks, and zxid for notifications
-         */
+        
         long zxid;
 
-        /*
-         * Epoch
-         */
+        
         long epoch;
 
-        /*
-         * Current state;
-         */
+        
         QuorumPeer.ServerState state;
 
-        /*
-         * Message tag
-         */
+        
         long tag;
 
         InetSocketAddress addr;
@@ -245,15 +194,13 @@ public class AuthFastLeaderElection implements Election {
                 DatagramPacket responsePacket = new DatagramPacket(
                         responseBytes, responseBytes.length);
                 while (true) {
-                    // Sleeps on receive
-                    try {
+                                        try {
                         responseBuffer.clear();
                         mySocket.receive(responsePacket);
                     } catch (IOException e) {
                         LOG.warn("Ignoring exception receiving", e);
                     }
-                    // Receive new message
-                    if (responsePacket.getLength() != responseBytes.length) {
+                                        if (responsePacket.getLength() != responseBytes.length) {
                         LOG.warn("Got a short response: "
                                 + responsePacket.getLength() + " "
                                 + responsePacket.toString());
@@ -287,8 +234,7 @@ public class AuthFastLeaderElection implements Election {
 
                     switch (type) {
                     case 0:
-                        // Receive challenge request
-                        ToSend c = new ToSend(ToSend.mType.challenge, tag,
+                                                ToSend c = new ToSend(ToSend.mType.challenge, tag,
                                 current.getId(), current.getZxid(),
                                 logicalclock.get(), self.getPeerState(),
                                 (InetSocketAddress) responsePacket
@@ -296,8 +242,7 @@ public class AuthFastLeaderElection implements Election {
                         sendqueue.offer(c);
                         break;
                     case 1:
-                        // Receive challenge and store somewhere else
-                        long challenge = responseBuffer.getLong();
+                                                long challenge = responseBuffer.getLong();
                         saveChallenge(tag, challenge);
 
                         break;
@@ -361,9 +306,7 @@ public class AuthFastLeaderElection implements Election {
                         }
                         break;
 
-                    // Upon reception of an ack message, remove it from the
-                    // queue
-                    case 3:
+                                                            case 3:
                         Semaphore s = ackMutex.get(tag);
                         
                         if(s != null)
@@ -396,8 +339,7 @@ public class AuthFastLeaderElection implements Election {
                         }
 
                         break;
-                    // Default case
-                    default:
+                                        default:
                         LOG.warn("Received message of incorrect type " + type);
                         break;
                     }
@@ -411,9 +353,7 @@ public class AuthFastLeaderElection implements Election {
             int maxAttempts;
             int ackWait = finalizeWait;
 
-            /*
-             * Receives a socket and max number of attempts as input
-             */
+            
 
             WorkerSender(int attempts) {
                 super("WorkerSender");
@@ -472,9 +412,7 @@ public class AuthFastLeaderElection implements Election {
 
                 switch (m.type) {
                 case 0:
-                    /*
-                     * Building challenge request packet to send
-                     */
+                    
                     requestBuffer.clear();
                     requestBuffer.putInt(ToSend.mType.crequest.ordinal());
                     requestBuffer.putLong(m.tag);
@@ -486,10 +424,7 @@ public class AuthFastLeaderElection implements Election {
                     try {
                         requestPacket.setSocketAddress(m.addr);
                     } catch (IllegalArgumentException e) {
-                        // Sun doesn't include the address that causes this
-                        // exception to be thrown, so we wrap the exception
-                        // in order to capture this critical detail.
-                        throw new IllegalArgumentException(
+                                                                                                throw new IllegalArgumentException(
                                 "Unable to set socket address on packet, msg:"
                                 + e.getMessage() + " with addr:" + m.addr,
                                 e);
@@ -505,9 +440,7 @@ public class AuthFastLeaderElection implements Election {
 
                     break;
                 case 1:
-                    /*
-                     * Building challenge packet to send
-                     */
+                    
 
                     long newChallenge;
                     ConcurrentHashMap<Long, Long> tmpMap = addrChallengeMap.get(m.addr); 
@@ -533,10 +466,7 @@ public class AuthFastLeaderElection implements Election {
                         try {
                             requestPacket.setSocketAddress(m.addr);
                         } catch (IllegalArgumentException e) {
-                            // Sun doesn't include the address that causes this
-                            // exception to be thrown, so we wrap the exception
-                            // in order to capture this critical detail.
-                            throw new IllegalArgumentException(
+                                                                                                                throw new IllegalArgumentException(
                                     "Unable to set socket address on packet, msg:"
                                     + e.getMessage() + " with addr:" + m.addr,
                                     e);
@@ -555,9 +485,7 @@ public class AuthFastLeaderElection implements Election {
                     break;
                 case 2:
 
-                    /*
-                     * Building notification packet to send
-                     */
+                    
 
                     requestBuffer.clear();
                     requestBuffer.putInt(m.type);
@@ -573,10 +501,7 @@ public class AuthFastLeaderElection implements Election {
                     try {
                         requestPacket.setSocketAddress(m.addr);
                     } catch (IllegalArgumentException e) {
-                        // Sun doesn't include the address that causes this
-                        // exception to be thrown, so we wrap the exception
-                        // in order to capture this critical detail.
-                        throw new IllegalArgumentException(
+                                                                                                throw new IllegalArgumentException(
                                 "Unable to set socket address on packet, msg:"
                                 + e.getMessage() + " with addr:" + m.addr,
                                 e);
@@ -588,10 +513,7 @@ public class AuthFastLeaderElection implements Election {
 
                     while (attempts < maxAttempts) {
                         try {
-                            /*
-                             * Try to obtain a challenge only if does not have
-                             * one yet
-                             */
+                            
 
                             if (!myChallenge && authEnabled) {
                                 ToSend crequest = new ToSend(
@@ -616,10 +538,7 @@ public class AuthFastLeaderElection implements Election {
                                 } 
                             }
 
-                            /*
-                             * If don't have challenge yet, skip sending
-                             * notification
-                             */
+                            
 
                             if (authEnabled && !myChallenge) {
                                 attempts++;
@@ -652,24 +571,17 @@ public class AuthFastLeaderElection implements Election {
                         
                         } catch (IOException e) {
                             LOG.warn("Sending exception: ", e);
-                            /*
-                             * Do nothing, just try again
-                             */
+                            
                         }
                         if (myAck) {
-                            /*
-                             * Received ack successfully, so return
-                             */
+                            
                             challengeMap.remove(m.tag);
                             
                             return;
                         } else
                             attempts++;
                     }
-                    /*
-                     * Return message to queue for another attempt later if
-                     * epoch hasn't changed.
-                     */
+                    
                     if (m.epoch == logicalclock.get()) {
                         challengeMap.remove(m.tag);
                         sendqueue.offer(m);
@@ -689,10 +601,7 @@ public class AuthFastLeaderElection implements Election {
                     try {
                         requestPacket.setSocketAddress(m.addr);
                     } catch (IllegalArgumentException e) {
-                        // Sun doesn't include the address that causes this
-                        // exception to be thrown, so we wrap the exception
-                        // in order to capture this critical detail.
-                        throw new IllegalArgumentException(
+                                                                                                throw new IllegalArgumentException(
                                 "Unable to set socket address on packet, msg:"
                                 + e.getMessage() + " with addr:" + m.addr,
                                 e);
@@ -745,7 +654,7 @@ public class AuthFastLeaderElection implements Election {
 
     QuorumPeer self;
     int port;
-    AtomicLong logicalclock = new AtomicLong(); /* Election instance */
+    AtomicLong logicalclock = new AtomicLong(); 
     DatagramSocket mySocket;
     long proposedLeader;
     long proposedZxid;
@@ -768,8 +677,7 @@ public class AuthFastLeaderElection implements Election {
 
         try {
             mySocket = new DatagramSocket(port);
-            // mySocket.setSoTimeout(20000);
-        } catch (SocketException e1) {
+                    } catch (SocketException e1) {
             e1.printStackTrace();
             throw new RuntimeException();
         }
@@ -810,10 +718,7 @@ public class AuthFastLeaderElection implements Election {
 
         Collection<Vote> votesCast = votes.values();
         int count = 0;
-        /*
-         * First make the views consistent. Sometimes peers will have different
-         * zxids for a server depending on timing.
-         */
+        
         for (Vote v : votesCast) {
             if ((v.getId() == l) && (v.getZxid() == zxid))
                 count++;
@@ -826,17 +731,10 @@ public class AuthFastLeaderElection implements Election {
 
     }
 
-    /**
-     * There is nothing to shutdown in this implementation of
-     * leader election, so we simply have an empty method.
-     */
+    
     public void shutdown(){}
     
-    /**
-     * Invoked in QuorumPeer to find or elect a new leader.
-     * 
-     * @throws InterruptedException
-     */
+    
     public Vote lookForLeader() throws InterruptedException {
         try {
             self.jmxLeaderElectionBean = new LeaderElectionBean();
@@ -862,22 +760,14 @@ public class AuthFastLeaderElection implements Election {
             LOG.info("Election tally");
             sendNotifications();
     
-            /*
-             * Loop in which we exchange notifications until we find a leader
-             */
+            
     
             while (self.getPeerState() == ServerState.LOOKING) {
-                /*
-                 * Remove next notification from queue, times out after 2 times
-                 * the termination time
-                 */
+                
                 Notification n = recvqueue.poll(2 * finalizeWait,
                         TimeUnit.MILLISECONDS);
     
-                /*
-                 * Sends more notifications if haven't received enough.
-                 * Otherwise processes new notification.
-                 */
+                
                 if (n == null) {
                     if (((!outofelection.isEmpty()) || (recvset.size() > 1)))
                         sendNotifications();
@@ -903,35 +793,26 @@ public class AuthFastLeaderElection implements Election {
     
                         recvset.put(n.addr, new Vote(n.leader, n.zxid));
     
-                        // If have received from all nodes, then terminate
-                        if (self.getVotingView().size() == recvset.size()) {
+                                                if (self.getVotingView().size() == recvset.size()) {
                             self.setPeerState((proposedLeader == self.getId()) ? 
                                     ServerState.LEADING: ServerState.FOLLOWING);
-                            // if (self.state == ServerState.FOLLOWING) {
-                            // Thread.sleep(100);
-                            // }
-                            leaveInstance();
+                                                                                                                leaveInstance();
                             return new Vote(proposedLeader, proposedZxid);
     
                         } else if (termPredicate(recvset, proposedLeader,
                                 proposedZxid)) {
-                            // Otherwise, wait for a fixed amount of time
-                            LOG.info("Passed predicate");
+                                                        LOG.info("Passed predicate");
                             Thread.sleep(finalizeWait);
     
-                            // Notification probe = recvqueue.peek();
-    
-                            // Verify if there is any change in the proposed leader
-                            while ((!recvqueue.isEmpty())
+                                
+                                                        while ((!recvqueue.isEmpty())
                                     && !totalOrderPredicate(
                                             recvqueue.peek().leader, recvqueue
                                                     .peek().zxid)) {
                                 recvqueue.poll();
                             }
                             if (recvqueue.isEmpty()) {
-                                // LOG.warn("Proposed leader: " +
-                                // proposedLeader);
-                                self.setPeerState(
+                                                                                                self.setPeerState(
                                         (proposedLeader == self.getId()) ? 
                                          ServerState.LEADING :
                                          ServerState.FOLLOWING);

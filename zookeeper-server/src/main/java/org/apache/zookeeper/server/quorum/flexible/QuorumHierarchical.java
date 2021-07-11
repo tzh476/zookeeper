@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server.quorum.flexible;
 
 import java.io.File;
@@ -37,34 +19,7 @@ import org.apache.zookeeper.server.quorum.QuorumPeer.QuorumServer;
 import org.apache.zookeeper.server.quorum.QuorumPeerConfig.ConfigException;
 
 
-/**
- * This class implements a validator for hierarchical quorums. With this
- * construction, zookeeper servers are split into disjoint groups, and 
- * each server has a weight. We obtain a quorum if we get more than half
- * of the total weight of a group for a majority of groups.
- * 
- * The configuration of quorums uses two parameters: group and weight. 
- * Groups are sets of ZooKeeper servers, and we set a group by passing
- * a colon-separated list of server ids. It is also necessary to assign
- * weights to server. Here is an example of a configuration that creates
- * three groups and assigns a weight of 1 to each server:
- * 
- *  group.1=1:2:3
- *  group.2=4:5:6
- *  group.3=7:8:9
- *  
- *  weight.1=1
- *  weight.2=1
- *  weight.3=1
- *  weight.4=1
- *  weight.5=1
- *  weight.6=1
- *  weight.7=1
- *  weight.8=1
- *  weight.9=1
- * 
- * Note that it is still necessary to define peers using the server keyword.
- */
+
 
 public class QuorumHierarchical implements QuorumVerifier {
     private static final Logger LOG = LoggerFactory.getLogger(QuorumHierarchical.class);
@@ -83,8 +38,7 @@ public class QuorumHierarchical implements QuorumVerifier {
     
     public int hashCode() {
          assert false : "hashCode not designed";
-         return 42; // any arbitrary constant will do 
-    }
+         return 42;     }
     
    public boolean equals(Object o){
        if (!(o instanceof QuorumHierarchical)) {
@@ -116,39 +70,25 @@ public class QuorumHierarchical implements QuorumVerifier {
        }
        return true;
    }
-    /**
-     * This contructor requires the quorum configuration
-     * to be declared in a separate file, and it takes the
-     * file as an input parameter.
-     */
+    
     public QuorumHierarchical(String filename)
     throws ConfigException {
         readConfigFile(filename);    
     }
     
-    /**
-     * This constructor takes a set of properties. We use
-     * it in the unit test for this feature.
-     */
+    
     
     public QuorumHierarchical(Properties qp) throws ConfigException {
         parse(qp);
         LOG.info(serverWeight.size() + ", " + serverGroup.size() + ", " + groupWeight.size());
     }
   
-    /**
-     * Returns the weight of a server.
-     * 
-     * @param id
-     */
+    
     public long getWeight(long id){
         return serverWeight.get(id);
     }
     
-    /**
-     * Reads a configration file. Called from the constructor
-     * that takes a file as an input.
-     */
+    
     private void readConfigFile(String filename)
     throws ConfigException{
         File configFile = new File(filename);
@@ -179,11 +119,7 @@ public class QuorumHierarchical implements QuorumVerifier {
     }
     
     
-    /**
-     * Parse properties if configuration given in a separate file.
-     * Assumes that allMembers has been already assigned
-     * @throws ConfigException 
-     */
+    
     private void parse(Properties quorumProp) throws ConfigException{
         for (Entry<Object, Object> entry : quorumProp.entrySet()) {
             String key = entry.getKey().toString();
@@ -289,11 +225,7 @@ public class QuorumHierarchical implements QuorumVerifier {
        return sw.toString();        
     }
     
-    /**
-     * This method pre-computes the weights of groups to speed up processing
-     * when validating a given set. We compute the weights of groups in 
-     * different places, so we have a separate method.
-     */
+    
     private void computeGroupWeight(){
         for (Entry<Long, Long> entry : serverGroup.entrySet()) {
             Long sid = entry.getKey();
@@ -306,9 +238,7 @@ public class QuorumHierarchical implements QuorumVerifier {
             }
         }
         
-        /*
-         * Do not consider groups with weight zero
-         */
+        
         for(long weight: groupWeight.values()){
             LOG.debug("Group weight: " + weight);
             if(weight == ((long) 0)){
@@ -318,15 +248,11 @@ public class QuorumHierarchical implements QuorumVerifier {
         }
     }
     
-    /**
-     * Verifies if a given set is a quorum.
-     */
+    
     public boolean containsQuorum(Set<Long> set){
         HashMap<Long, Long> expansion = new HashMap<Long, Long>();
         
-        /*
-         * Adds up weights per group
-         */
+        
         if(set.size() == 0) return false;
         else LOG.debug("Set size: " + set.size());
         
@@ -341,9 +267,7 @@ public class QuorumHierarchical implements QuorumVerifier {
             }
         }
   
-        /*
-         * Check if all groups have majority
-         */
+        
         int majGroupCounter = 0;
         for (Entry<Long, Long> entry : expansion.entrySet()) {
             Long gid = entry.getKey();

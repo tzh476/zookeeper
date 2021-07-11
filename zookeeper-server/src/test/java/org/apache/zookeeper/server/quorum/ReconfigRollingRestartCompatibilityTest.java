@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server.quorum;
 
 import java.io.IOException;
@@ -38,16 +20,7 @@ import org.junit.Test;
 
 import static org.apache.zookeeper.test.ClientBase.CONNECTION_TIMEOUT;
 
-/**
- * ReconfigRollingRestartCompatibilityTest - we want to make sure that users
- * can continue using the rolling restart approach when reconfig feature is disabled.
- * It is important to stay compatible with rolling restart because dynamic reconfig
- * has its limitation: it requires a quorum of server to work. When no quorum can be formed,
- * rolling restart is the only approach to reconfigure the ensemble (e.g. removing bad nodes
- * such that a new quorum with smaller number of nodes can be formed.).
- *
- * See ZOOKEEPER-2819 for more details.
- */
+
 public class ReconfigRollingRestartCompatibilityTest extends QuorumPeerTestBase {
     private static final String ZOO_CFG_BAK_FILE = "zoo.cfg.bak";
 
@@ -90,9 +63,7 @@ public class ReconfigRollingRestartCompatibilityTest extends QuorumPeerTestBase 
     }
 
     @Test(timeout = 60000)
-    // Verify no zoo.cfg.dynamic and zoo.cfg.bak files existing locally
-    // when reconfig feature flag is off by default.
-    public void testNoLocalDynamicConfigAndBackupFiles()
+            public void testNoLocalDynamicConfigAndBackupFiles()
             throws InterruptedException, IOException {
         int serverCount = 3;
         String config = generateNewQuorumConfig(serverCount);
@@ -124,11 +95,7 @@ public class ReconfigRollingRestartCompatibilityTest extends QuorumPeerTestBase 
     }
 
     @Test(timeout = 60000)
-    // This test simulate the usual rolling restart with no membership change:
-    // 1. A node is shutdown first (e.g. to upgrade software, or hardware, or cleanup local data.).
-    // 2. After upgrade, start the node.
-    // 3. Do this for every node, one at a time.
-    public void testRollingRestartWithoutMembershipChange() throws Exception {
+                    public void testRollingRestartWithoutMembershipChange() throws Exception {
         int serverCount = 3;
         String config = generateNewQuorumConfig(serverCount);
         List<String> joiningServers = new ArrayList<>();
@@ -159,11 +126,7 @@ public class ReconfigRollingRestartCompatibilityTest extends QuorumPeerTestBase 
     }
 
     @Test(timeout = 90000)
-    // This test simulate the use case of change of membership through rolling
-    // restart. For a 3 node ensemble we expand it to a 5 node ensemble, verify
-    // during the process each node has the expected configuration setting pushed
-    // via updating local zoo.cfg file.
-    public void testRollingRestartWithMembershipChange() throws Exception {
+                    public void testRollingRestartWithMembershipChange() throws Exception {
         int serverCount = 3;
         String config = generateNewQuorumConfig(serverCount);
         QuorumPeerTestBase.MainThread mt[] = new QuorumPeerTestBase.MainThread[serverCount];
@@ -193,11 +156,7 @@ public class ReconfigRollingRestartCompatibilityTest extends QuorumPeerTestBase 
         serverCount = serverAddress.size();
         Assert.assertEquals("Server count should be 5 after config update.", serverCount, 5);
 
-        // We are adding two new servers to the ensemble. These two servers should have the config which includes
-        // all five servers (the old three servers, plus the two servers added). The old three servers should only
-        // have the old three server config, because disabling reconfig will prevent synchronizing configs between
-        // peers.
-        mt = Arrays.copyOf(mt, mt.length + 2);
+                                        mt = Arrays.copyOf(mt, mt.length + 2);
         for (int i = 3; i < 5; ++i) {
             mt[i] = new QuorumPeerTestBase.MainThread(i, clientPorts.get(i),
                     config, false);
@@ -211,8 +170,7 @@ public class ReconfigRollingRestartCompatibilityTest extends QuorumPeerTestBase 
 
         Set<String> expectedConfigs = new HashSet<>();
         for (String conf : oldServerAddress.values()) {
-            // Remove "server.x=" prefix which quorum peer does not include.
-            expectedConfigs.add(conf.substring(conf.indexOf('=') + 1));
+                        expectedConfigs.add(conf.substring(conf.indexOf('=') + 1));
         }
 
         for (int i = 0; i < 3; ++i) {
@@ -225,16 +183,14 @@ public class ReconfigRollingRestartCompatibilityTest extends QuorumPeerTestBase 
         }
     }
 
-    // Verify each quorum peer has expected config in its config zNode.
-    private void verifyQuorumConfig(int sid, List<String> joiningServers, List<String> leavingServers) throws Exception {
+        private void verifyQuorumConfig(int sid, List<String> joiningServers, List<String> leavingServers) throws Exception {
         ZooKeeper zk = ClientBase.createZKClient("127.0.0.1:" + clientPorts.get(sid));
         ReconfigTest.testNormalOperation(zk, zk);
         ReconfigTest.testServerHasConfig(zk, joiningServers, leavingServers);
         zk.close();
     }
 
-    // Verify each quorum peer has expected quorum member view.
-    private void verifyQuorumMembers(QuorumPeerTestBase.MainThread mt) {
+        private void verifyQuorumMembers(QuorumPeerTestBase.MainThread mt) {
         Set<String> expectedConfigs = new HashSet<>();
         for (String config : serverAddress.values()) {
             expectedConfigs.add(config.substring(config.indexOf('=') + 1));

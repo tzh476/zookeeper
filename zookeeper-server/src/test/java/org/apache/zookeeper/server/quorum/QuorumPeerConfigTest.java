@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server.quorum;
 
 import static org.junit.Assert.assertEquals;
@@ -32,9 +14,7 @@ import org.junit.Test;
 
 public class QuorumPeerConfigTest {
 
-    /**
-     * test case for https://issues.apache.org/jira/browse/ZOOKEEPER-2264
-     */
+    
     @Test
     public void testErrorMessageWhensecureClientPortNotSetButsecureClientPortAddressSet()
             throws IOException, ConfigException {
@@ -50,10 +30,7 @@ public class QuorumPeerConfigTest {
         }
     }
 
-    /**
-     * 
-     * Test case for https://issues.apache.org/jira/browse/ZOOKEEPER-2264
-     */
+    
     @Test
     public void testErrorMessageWhenclientPortNotSetButclientPortAddressSet()
             throws IOException, ConfigException {
@@ -69,9 +46,7 @@ public class QuorumPeerConfigTest {
         }
     }
 
-    /**
-     * https://issues.apache.org/jira/browse/ZOOKEEPER-2297
-     */
+    
     @Test
     public void testConfigureSSLAuthGetsConfiguredIfSecurePortConfigured()
             throws IOException, ConfigException {
@@ -85,9 +60,7 @@ public class QuorumPeerConfigTest {
         assertEquals(expected, result); 
     }
 
-    /**
-     * https://issues.apache.org/jira/browse/ZOOKEEPER-2297
-     */
+    
     @Test
     public void testCustomSSLAuth() throws IOException {
         try (ClientX509Util x509Util = new ClientX509Util()) {
@@ -104,9 +77,7 @@ public class QuorumPeerConfigTest {
         }
     }
 
-    /**
-     * Test case for https://issues.apache.org/jira/browse/ZOOKEEPER-2873
-     */
+    
     @Test(expected = ConfigException.class)
     public void testSamePortConfiguredForClientAndElection() throws IOException, ConfigException {
         QuorumPeerConfig quorumPeerConfig = new QuorumPeerConfig();

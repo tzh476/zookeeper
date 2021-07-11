@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server;
 
 import org.apache.zookeeper.AsyncCallback;
@@ -139,8 +121,7 @@ public class CreateTTLTest extends ClientBase {
         AsyncCallback.Create2Callback callback = new AsyncCallback.Create2Callback() {
             @Override
             public void processResult(int rc, String path, Object ctx, String name, Stat stat) {
-                // NOP
-            }
+                            }
         };
         zk.create("/foo", new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_WITH_TTL, callback, null, 100);
 
@@ -214,23 +195,20 @@ public class CreateTTLTest extends ClientBase {
                 zk.create("/foo", new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, createMode, new Stat(), createMode.isTTL() ? 0 : 100);
                 Assert.fail("should have thrown IllegalArgumentException");
             } catch (IllegalArgumentException dummy) {
-                // correct
-            }
+                            }
         }
 
         for ( CreateMode createMode : CreateMode.values() ) {
             AsyncCallback.Create2Callback callback = new AsyncCallback.Create2Callback() {
                 @Override
                 public void processResult(int rc, String path, Object ctx, String name, Stat stat) {
-                    // NOP
-                }
+                                    }
             };
             try {
                 zk.create("/foo", new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, createMode, callback, null, createMode.isTTL() ? 0 : 100);
                 Assert.fail("should have thrown IllegalArgumentException");
             } catch (IllegalArgumentException dummy) {
-                // correct
-            }
+                            }
         }
 
         try {
@@ -238,21 +216,18 @@ public class CreateTTLTest extends ClientBase {
             zk.multi(Collections.singleton(op));
             Assert.fail("should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException dummy) {
-            // correct
-        }
+                    }
         try {
             Op op = Op.create("/foo", new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_SEQUENTIAL_WITH_TTL, 0);
             zk.multi(Collections.singleton(op));
             Assert.fail("should have thrown IllegalArgumentException");
         } catch (IllegalArgumentException dummy) {
-            // correct
-        }
+                    }
     }
 
     @Test(expected = KeeperException.UnimplementedException.class)
     public void testDisabled() throws KeeperException, InterruptedException {
-        // note, setUp() enables this test based on the test name
-        zk.create("/foo", new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_WITH_TTL, new Stat(), 100);
+                zk.create("/foo", new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_WITH_TTL, new Stat(), 100);
     }
 
     private ContainerManager newContainerManager(final AtomicLong fakeElapsed) {

@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.apache.zookeeper.server;
 
 import static org.apache.zookeeper.client.FourLetterWordMain.send4LetterWord;
@@ -37,9 +20,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * This class tests the startup behavior of ZooKeeper server.
- */
+
 public class ZooKeeperServerStartupTest extends ZKTestCase {
     private static final Logger LOG = LoggerFactory
             .getLogger(ZooKeeperServerStartupTest.class);
@@ -54,9 +35,7 @@ public class ZooKeeperServerStartupTest extends ZKTestCase {
 
     @After
     public void teardown() throws Exception {
-        // count down to avoid infinite blocking call due to this latch, if
-        // any.
-        startupDelayLatch.countDown();
+                        startupDelayLatch.countDown();
 
         if (servcnxnf != null) {
             servcnxnf.shutdown();
@@ -70,10 +49,7 @@ public class ZooKeeperServerStartupTest extends ZKTestCase {
         ClientBase.recursiveDelete(tmpDir);
     }
 
-    /**
-     * Test case for
-     * {@link https://issues.apache.org/jira/browse/ZOOKEEPER-2383}.
-     */
+    
     @Test(timeout = 30000)
     public void testClientConnectionRequestDuringStartupWithNIOServerCnxn()
             throws Exception {
@@ -108,10 +84,7 @@ public class ZooKeeperServerStartupTest extends ZKTestCase {
         zkClient.close();
     }
 
-    /**
-     * Test case for
-     * {@link https://issues.apache.org/jira/browse/ZOOKEEPER-2383}.
-     */
+    
     @Test(timeout = 30000)
     public void testClientConnectionRequestDuringStartupWithNettyServerCnxn()
             throws Exception {
@@ -150,8 +123,7 @@ public class ZooKeeperServerStartupTest extends ZKTestCase {
             watcher.waitForConnected(ClientBase.CONNECTION_TIMEOUT);
             zkClient.close();
         } finally {
-            // reset cnxn factory
-            if (originalServerCnxnFactory == null) {
+                        if (originalServerCnxnFactory == null) {
                 System.clearProperty(
                         ServerCnxnFactory.ZOOKEEPER_SERVER_CNXN_FACTORY);
                 return;
@@ -161,10 +133,7 @@ public class ZooKeeperServerStartupTest extends ZKTestCase {
         }
     }
 
-    /**
-     * Test case for
-     * {@link https://issues.apache.org/jira/browse/ZOOKEEPER-2383}.
-     */
+    
     @Test(timeout = 30000)
     public void testFourLetterWords() throws Exception {
         startSimpleZKServer(startupDelayLatch);
@@ -208,13 +177,9 @@ public class ZooKeeperServerStartupTest extends ZKTestCase {
                     servcnxnf.startup(zks);
                 } catch (IOException e) {
                     LOG.error("Unexcepted exception during server startup", e);
-                    // Ignoring exception. If there is an ioexception
-                    // then one of the following assertion will fail
-                } catch (InterruptedException e) {
+                                                        } catch (InterruptedException e) {
                     LOG.error("Unexcepted exception during server startup", e);
-                    // Ignoring exception. If there is an interrupted exception
-                    // then one of the following assertion will fail
-                }
+                                                        }
             };
         };
         LOG.info("Starting zk server {}", HOSTPORT);
@@ -237,13 +202,7 @@ public class ZooKeeperServerStartupTest extends ZKTestCase {
         public synchronized void startup() {
             try {
                 startupInvokedLatch.countDown();
-                // Delaying the zk server startup so that
-                // ZooKeeperServer#sessionTracker reference won't be
-                // initialized. In the defect scenario, while processing the
-                // connection request zkServer needs sessionTracker reference,
-                // but this is not yet initialized and the server is still in
-                // the startup phase, resulting in NPE.
-                startupDelayLatch.await();
+                                                                                                                startupDelayLatch.await();
             } catch (InterruptedException e) {
                 Assert.fail(
                         "Unexpected InterruptedException while startinng up!");

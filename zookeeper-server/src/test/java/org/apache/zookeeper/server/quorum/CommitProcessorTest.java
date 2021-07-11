@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server.quorum;
 
 import java.io.ByteArrayOutputStream;
@@ -51,25 +33,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * The following are invariant regardless of the particular implementation
- * of the CommitProcessor, and are tested for:
- *
- * 1. For each session, requests are processed and the client sees its
- *    responses in order.
- * 2. Write requests are processed in zxid order across all sessions.
- *
- * The following are also tested for here, but are specific to this
- * particular implementation. The underlying issue is that watches can be
- * reset while reading the data. For reads/writes on two different sessions
- * on different nodes, or with reads that do not set watches, the reads can
- * happen in any order relative to the writes. For a read in one session that
- * resets a watch that is triggered by a write on another session, however,
- * we need to ensure that there is no race condition
- *
- * 3. The pipeline needs to be drained before a write request can enter.
- * 4. No in-flight write requests while processing a read request.
- */
+
 public class CommitProcessorTest extends ZKTestCase {
     protected static final Logger LOG =
         LoggerFactory.getLogger(CommitProcessorTest.class);
@@ -154,8 +118,7 @@ public class CommitProcessorTest extends ZKTestCase {
             try {
                 sendWriteRequest();
                 for(int i=0; i<1000; ++i) {
-                    // Do 25% write / 75% read request mix
-                    if (rand.nextInt(100) < 25) {
+                                        if (rand.nextInt(100) < 25) {
                         sendWriteRequest();
                     } else {
                         sendReadRequest();
@@ -225,14 +188,10 @@ public class CommitProcessorTest extends ZKTestCase {
             return sessionTracker;
         }
 
-        // Leader mock: Prep -> MockProposal -> Commit -> validate -> Final
-        // Have side thread call commitProc.commit()
-        @Override
+                        @Override
         protected void setupRequestProcessors() {
             RequestProcessor finalProcessor = new FinalRequestProcessor(zks);
-            // ValidateProcessor is set up in a similar fashion to ToBeApplied
-            // processor, so it can do pre/post validating of requests
-            ValidateProcessor validateProcessor =
+                                    ValidateProcessor validateProcessor =
                 new ValidateProcessor(finalProcessor);
             commitProcessor = new CommitProcessor(validateProcessor, "1", true,
                     getZooKeeperServerListener());
@@ -266,8 +225,7 @@ public class CommitProcessorTest extends ZKTestCase {
                     commitProcessor.commit(request);
                 }
             } catch (InterruptedException e) {
-                // ignore
-            }
+                            }
         }
 
         @Override
@@ -275,15 +233,13 @@ public class CommitProcessorTest extends ZKTestCase {
                 throws RequestProcessorException {
             commitProcessor.processRequest(request);
             if (request.getHdr() != null) {
-                // fake propose request
-                proposals.add(request);
+                                proposals.add(request);
             }
         }
 
         @Override
         public void shutdown() {
-            // TODO Auto-generated method stub
-
+            
         }
     }
 
@@ -323,19 +279,13 @@ public class CommitProcessorTest extends ZKTestCase {
                 validateReadRequestVariant(request);
             }
 
-            // Insert random delay to test thread race conditions
-            try {
+                        try {
                 Thread.sleep(10 + rand.nextInt(290));
             } catch(InterruptedException e) {
-                // ignore
-            }
+                            }
             nextProcessor.processRequest(request);
 
-            /*
-             * The commit workers will have to execute this line before they
-             * wake up the commit processor. So this value is up-to-date when
-             * variant check is performed
-             */
+            
             if (isWriteRequest) {
                 outstandingWriteRequests.decrementAndGet();
                 LOG.debug("Done write request zxid=" + request.zxid);
@@ -350,9 +300,7 @@ public class CommitProcessorTest extends ZKTestCase {
             validateRequest(request);
         }
 
-        /**
-         * Validate that this is the only request in the pipeline
-         */
+        
         private void validateWriteRequestVariant(Request request) {
             long zxid = request.getHdr().getZxid();
             int readRequests = outstandingReadRequests.get();
@@ -369,10 +317,7 @@ public class CommitProcessorTest extends ZKTestCase {
             }
         }
 
-        /**
-         * Validate that no write request is in the pipeline while working
-         * on a read request
-         */
+        
         private void validateReadRequestVariant(Request request) {
             int writeRequests = outstandingWriteRequests.get();
             if (writeRequests != 0) {
@@ -386,8 +331,7 @@ public class CommitProcessorTest extends ZKTestCase {
         private void validateRequest(Request request) {
             LOG.info("Got request " + request);
 
-            // Zxids should always be in order for write requests
-            if (request.getHdr() != null) {
+                        if (request.getHdr() != null) {
                 long zxid = request.getHdr().getZxid();
                 if (!expectedZxid.compareAndSet(zxid, zxid + 1)) {
                     failTest("Write request, expected_zxid="
@@ -395,8 +339,7 @@ public class CommitProcessorTest extends ZKTestCase {
                 }
             }
 
-            // Each session should see its cxids in order
-            AtomicInteger sessionCxid = cxidMap.get(request.sessionId);
+                        AtomicInteger sessionCxid = cxidMap.get(request.sessionId);
             if (sessionCxid == null) {
                 sessionCxid = new AtomicInteger(request.cxid + 1);
                 AtomicInteger existingSessionCxid =
@@ -418,8 +361,7 @@ public class CommitProcessorTest extends ZKTestCase {
 
         @Override
         public void shutdown() {
-            // TODO Auto-generated method stub
-        }
+                    }
     }
 
 }

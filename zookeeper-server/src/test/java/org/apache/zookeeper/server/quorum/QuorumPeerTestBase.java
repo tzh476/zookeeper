@@ -1,24 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-/**
- * 
- */
 package org.apache.zookeeper.server.quorum;
 
 import java.io.File;
@@ -43,10 +22,7 @@ import org.apache.zookeeper.server.admin.JettyAdminServer;
 import org.apache.zookeeper.test.ClientBase;
 import org.apache.zookeeper.test.QuorumBase;
 
-/**
- * Has some common functionality for tests that work with QuorumPeers. Override
- * process(WatchedEvent) to implement the Watcher interface
- */
+
 public class QuorumPeerTestBase extends ZKTestCase implements Watcher {
     protected static final Logger LOG = LoggerFactory
             .getLogger(QuorumPeerTestBase.class);
@@ -54,13 +30,11 @@ public class QuorumPeerTestBase extends ZKTestCase implements Watcher {
     public static final int TIMEOUT = 5000;
 
     public void process(WatchedEvent event) {
-        // ignore for this test
-    }
+            }
 
     public static class TestQPMain extends QuorumPeerMain {
         public void shutdown() {
-            // ensure it closes - in particular wait for thread to exit
-            if (quorumPeer != null) {
+                        if (quorumPeer != null) {
                 QuorumBase.shutdown(quorumPeer);
             }
         }
@@ -71,8 +45,7 @@ public class QuorumPeerTestBase extends ZKTestCase implements Watcher {
         final File tmpDir;
 
         public static final int UNSET_STATIC_CLIENTPORT = -1;
-        // standalone mode doens't need myid
-        public static final int UNSET_MYID = -1;
+                public static final int UNSET_MYID = -1;
 
         volatile TestQPMain main;
 
@@ -82,16 +55,7 @@ public class QuorumPeerTestBase extends ZKTestCase implements Watcher {
         private String quorumCfgSection;
         private Map<String, String> otherConfigs;
 
-        /**
-         * Create a MainThread
-         *
-         * @param myid
-         * @param clientPort
-         * @param quorumCfgSection
-         * @param otherConfigs
-         * @param tickTime initLimit will be 10 and syncLimit will be 5
-         * @throws IOException
-         */
+        
         public MainThread(int myid, int clientPort, String quorumCfgSection,
                           Map<String, String> otherConfigs, int tickTime) throws IOException {
             baseDir = ClientBase.createTmpDir();
@@ -113,8 +77,7 @@ public class QuorumPeerTestBase extends ZKTestCase implements Watcher {
                 throw new IOException("Unable to mkdir " + tmpDir);
             }
 
-            // Convert windows path to UNIX to avoid problems with "\"
-            String dir = tmpDir.toString();
+                        String dir = tmpDir.toString();
             String osname = java.lang.System.getProperty("os.name");
             if (osname.toLowerCase().contains("windows")) {
                 dir = dir.replace('\\', '/');
@@ -123,8 +86,7 @@ public class QuorumPeerTestBase extends ZKTestCase implements Watcher {
 
             fwriter.write("clientPort=" + clientPort + "\n");
 
-            // write extra configurations
-            Set<Entry<String, String>> entrySet = otherConfigs.entrySet();
+                        Set<Entry<String, String>> entrySet = otherConfigs.entrySet();
             for (Entry<String, String> entry : entrySet) {
                 fwriter.write(entry.getKey() + "=" + entry.getValue() + "\n");
             }
@@ -209,16 +171,12 @@ public class QuorumPeerTestBase extends ZKTestCase implements Watcher {
                 fwriter.write(configs);
             }
 
-            // Convert windows path to UNIX to avoid problems with "\"
-            String dir = PathUtils.normalizeFileSystemPath(dataDir.toString());
+                        String dir = PathUtils.normalizeFileSystemPath(dataDir.toString());
 
             fwriter.write("dataDir=" + dir + "\n");
             fwriter.write("admin.serverPort=" + adminServerPort + "\n");
 
-            // For backward compatibility test, some tests create dynamic configuration
-            // without setting client port.
-            // This could happen both in static file or dynamic file.
-            if (clientPort != UNSET_STATIC_CLIENTPORT) {
+                                                if (clientPort != UNSET_STATIC_CLIENTPORT) {
                 fwriter.write("clientPort=" + clientPort + "\n");
             }
 
@@ -318,8 +276,7 @@ public class QuorumPeerTestBase extends ZKTestCase implements Watcher {
             try {
                 main.initializeAndRun(args);
             } catch (Exception e) {
-                // test will still fail even though we just log/ignore
-                LOG.error("unexpected exception in run", e);
+                                LOG.error("unexpected exception in run", e);
             } finally {
                 currentThread = null;
             }

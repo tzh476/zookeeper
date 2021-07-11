@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server.quorum.auth;
 
 import java.io.IOException;
@@ -69,9 +51,7 @@ public class QuorumDigestAuthTest extends QuorumAuthTestBase {
         cleanupJaasConfig();
     }
 
-    /**
-     * Test to verify that server is able to start with valid credentials
-     */
+    
     @Test(timeout = 30000)
     public void testValidCredentials() throws Exception {
         Map<String, String> authConfigs = new HashMap<String, String>();
@@ -91,11 +71,7 @@ public class QuorumDigestAuthTest extends QuorumAuthTestBase {
         zk.close();
     }
 
-    /**
-     * Test to verify that server is able to start with invalid credentials if
-     * the configuration is set to quorum.auth.serverRequireSasl=false.
-     * Quorum will talk each other even if the authentication is not succeeded
-     */
+    
     @Test(timeout = 30000)
     public void testSaslNotRequiredWithInvalidCredentials() throws Exception {
         Map<String, String> authConfigs = new HashMap<String, String>();
@@ -114,11 +90,7 @@ public class QuorumDigestAuthTest extends QuorumAuthTestBase {
         zk.close();
     }
 
-    /**
-     * Test to verify that server shouldn't start with invalid credentials
-     * if the configuration is set to quorum.auth.serverRequireSasl=true,
-     * quorum.auth.learnerRequireSasl=true
-     */
+    
     @Test(timeout = 30000)
     public void testSaslRequiredInvalidCredentials() throws Exception {
         Map<String, String> authConfigs = new HashMap<String, String>();
@@ -137,11 +109,7 @@ public class QuorumDigestAuthTest extends QuorumAuthTestBase {
         }
     }
 
-    /**
-     * If quorumpeer learner is not auth enabled then self won't be able to join
-     * quorum. So this test is ensuring that the quorumpeer learner is also auth
-     * enabled while enabling quorum server require sasl.
-     */
+    
     @Test(timeout = 10000)
     public void testEnableQuorumServerRequireSaslWithoutQuorumLearnerRequireSasl()
             throws Exception {
@@ -165,16 +133,11 @@ public class QuorumDigestAuthTest extends QuorumAuthTestBase {
             }.initializeAndRun(args);
             Assert.fail("Must throw exception as quorumpeer learner is not enabled!");
         } catch (ConfigException e) {
-            // expected
-        }
+                    }
     }
 
 
-    /**
-     * If quorumpeer learner is not auth enabled then self won't be able to join
-     * quorum. So this test is ensuring that the quorumpeer learner is also auth
-     * enabled while enabling quorum server require sasl.
-     */
+    
     @Test(timeout = 10000)
     public void testEnableQuorumAuthenticationConfigurations()
             throws Exception {
@@ -183,8 +146,7 @@ public class QuorumDigestAuthTest extends QuorumAuthTestBase {
                 "QuorumLearner");
         authConfigs.put(QuorumAuth.QUORUM_SASL_AUTH_ENABLED, "false");
 
-        // case-1) 'quorum.auth.enableSasl' is off. Tries to enable server sasl.
-        authConfigs.put(QuorumAuth.QUORUM_SERVER_SASL_AUTH_REQUIRED, "true");
+                authConfigs.put(QuorumAuth.QUORUM_SERVER_SASL_AUTH_REQUIRED, "true");
         authConfigs.put(QuorumAuth.QUORUM_LEARNER_SASL_AUTH_REQUIRED, "false");
         MainThread mthread = new MainThread(1, PortAssignment.unique(), "",
                 authConfigs);
@@ -200,11 +162,9 @@ public class QuorumDigestAuthTest extends QuorumAuthTestBase {
             }.initializeAndRun(args);
             Assert.fail("Must throw exception as quorum sasl is not enabled!");
         } catch (ConfigException e) {
-            // expected
-        }
+                    }
 
-        // case-1) 'quorum.auth.enableSasl' is off. Tries to enable learner sasl.
-        authConfigs.put(QuorumAuth.QUORUM_SERVER_SASL_AUTH_REQUIRED, "false");
+                authConfigs.put(QuorumAuth.QUORUM_SERVER_SASL_AUTH_REQUIRED, "false");
         authConfigs.put(QuorumAuth.QUORUM_LEARNER_SASL_AUTH_REQUIRED, "true");
         try {
             new QuorumPeerMain() {
@@ -216,7 +176,6 @@ public class QuorumDigestAuthTest extends QuorumAuthTestBase {
             }.initializeAndRun(args);
             Assert.fail("Must throw exception as quorum sasl is not enabled!");
         } catch (ConfigException e) {
-            // expected
-        }
+                    }
     }
 }

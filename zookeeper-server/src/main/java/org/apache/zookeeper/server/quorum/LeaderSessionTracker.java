@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.apache.zookeeper.server.quorum;
 
 import java.io.PrintWriter;
@@ -31,18 +14,14 @@ import org.apache.zookeeper.server.ZooKeeperServerListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * The leader session tracker tracks local and global sessions on the leader.
- */
+
 public class LeaderSessionTracker extends UpgradeableSessionTracker {
     private static final Logger LOG = LoggerFactory.getLogger(LeaderSessionTracker.class);
 
     private final boolean localSessionsEnabled;
     private final SessionTrackerImpl globalSessionTracker;
 
-    /**
-     * Server id of the leader
-     */
+    
     private final long serverId;
 
     public LeaderSessionTracker(SessionExpirer expirer,
@@ -89,9 +68,7 @@ public class LeaderSessionTracker extends UpgradeableSessionTracker {
         boolean added =
             globalSessionTracker.addSession(sessionId, sessionTimeout);
         if (localSessionsEnabled && added) {
-            // Only do extra logging so we know what kind of session this is
-            // if we're supporting both kinds of sessions
-            LOG.info("Adding global session 0x" + Long.toHexString(sessionId));
+                                    LOG.info("Adding global session 0x" + Long.toHexString(sessionId));
         }
         return added;
     }
@@ -100,8 +77,7 @@ public class LeaderSessionTracker extends UpgradeableSessionTracker {
         boolean added;
         if (localSessionsEnabled && !isGlobalSession(sessionId)) {
             added = localSessionTracker.addSession(sessionId, sessionTimeout);
-            // Check for race condition with session upgrading
-            if (isGlobalSession(sessionId)) {
+                        if (isGlobalSession(sessionId)) {
                 added = false;
                 localSessionTracker.removeSession(sessionId);
             } else if (added) {
@@ -128,8 +104,7 @@ public class LeaderSessionTracker extends UpgradeableSessionTracker {
         return globalSessionTracker.createSession(sessionTimeout);
     }
 
-    // Returns the serverId from the sessionId (the high order byte)
-    public static long getServerIdFromSessionId(long sessionId) {
+        public static long getServerIdFromSessionId(long sessionId) {
         return sessionId >> 56;
     }
 
@@ -139,27 +114,19 @@ public class LeaderSessionTracker extends UpgradeableSessionTracker {
         if (localSessionTracker != null) {
             try {
                 localSessionTracker.checkSession(sessionId, owner);
-                // A session can both be a local and global session during
-                // upgrade
-                if (!isGlobalSession(sessionId)) {
+                                                if (!isGlobalSession(sessionId)) {
                     return;
                 }
             } catch(UnknownSessionException e) {
-                // Ignore. We'll check instead whether it's a global session
-            }
+                            }
         }
         try {
             globalSessionTracker.checkSession(sessionId, owner);
-            // if we can get here, it is a valid global session
-            return;
+                        return;
         } catch (UnknownSessionException e) {
-            // Ignore. This may be local session from other servers.
-        }
+                    }
 
-        /*
-         * if local session is not enabled or it used to be our local session
-         * throw sessions expires
-         */
+        
         if (!localSessionsEnabled
                 || (getServerIdFromSessionId(sessionId) == serverId)) {
             throw new SessionExpiredException();
@@ -171,8 +138,7 @@ public class LeaderSessionTracker extends UpgradeableSessionTracker {
         try {
             globalSessionTracker.checkSession(sessionId, owner);
         } catch (UnknownSessionException e) {
-            // For global session, if we don't know it, it is already expired
-            throw new SessionExpiredException();
+                        throw new SessionExpiredException();
         }
     }
 
@@ -183,8 +149,7 @@ public class LeaderSessionTracker extends UpgradeableSessionTracker {
                 localSessionTracker.setOwner(sessionId, owner);
                 return;
             } catch(SessionExpiredException e) {
-                // Ignore. We'll check instead whether it's a global session
-            }
+                            }
         }
         globalSessionTracker.setOwner(sessionId, owner);
     }
@@ -199,8 +164,7 @@ public class LeaderSessionTracker extends UpgradeableSessionTracker {
     }
 
     public void setSessionClosing(long sessionId) {
-        // call is no-op if session isn't tracked so safe to call both
-        if (localSessionTracker != null) {
+                if (localSessionTracker != null) {
             localSessionTracker.setSessionClosing(sessionId);
         }
         globalSessionTracker.setSessionClosing(sessionId);
@@ -208,9 +172,7 @@ public class LeaderSessionTracker extends UpgradeableSessionTracker {
 
     public Map<Long, Set<Long>> getSessionExpiryMap() {
         Map<Long, Set<Long>> sessionExpiryMap;
-        // combine local and global sessions, getting local first so upgrades
-        // to global are caught
-        if (localSessionTracker != null) {
+                        if (localSessionTracker != null) {
             sessionExpiryMap = localSessionTracker.getSessionExpiryMap();
         } else {
             sessionExpiryMap = new TreeMap<Long, Set<Long>>();

@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *uuuuu
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "/RequuuAS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper.server;
 
 import java.nio.ByteBuffer;
@@ -29,11 +11,7 @@ import org.apache.zookeeper.data.Id;
 import org.apache.zookeeper.server.quorum.flexible.QuorumVerifier;
 import org.apache.zookeeper.txn.TxnHeader;
 
-/**
- * This is the structure that represents a request moving through a chain of
- * RequestProcessors. There are various pieces of information that is tacked
- * onto the request as it is processed.
- */
+
 public class Request {
     public final static Request requestOfDeath = new Request(null, 0, 0, 0, null, null);
 
@@ -84,9 +62,7 @@ public class Request {
 
     public QuorumVerifier qv = null;
     
-    /**
-     * If this is a create or close request for a local-only session.
-     */
+    
     private boolean isLocalSession = false;
 
     public boolean isLocalSession() {
@@ -121,16 +97,9 @@ public class Request {
         this.txn = txn;
     }
 
-    /**
-     * is the packet type a valid packet in zookeeper
-     *
-     * @param type
-     *                the type of the packet
-     * @return true if a valid packet, false if not
-     */
+    
     static boolean isValid(int type) {
-        // make sure this is always synchronized with Zoodefs!!
-        switch (type) {
+                switch (type) {
         case OpCode.notification:
             return false;
         case OpCode.check:
@@ -259,8 +228,7 @@ public class Request {
             .append(" txntype:").append(hdr == null ?
                     "unknown" : "" + hdr.getType());
 
-        // best effort to print the path assoc with this request
-        String path = "n/a";
+                String path = "n/a";
         if (type != OpCode.createSession
                 && type != OpCode.setWatches
                 && type != OpCode.closeSession
@@ -268,12 +236,10 @@ public class Request {
                 && request.remaining() >= 4)
         {
             try {
-                // make sure we don't mess with request itself
-                ByteBuffer rbuf = request.asReadOnlyBuffer();
+                                ByteBuffer rbuf = request.asReadOnlyBuffer();
                 rbuf.clear();
                 int pathLen = rbuf.getInt();
-                // sanity check
-                if (pathLen >= 0
+                                if (pathLen >= 0
                         && pathLen < 4096
                         && rbuf.remaining() >= pathLen)
                 {
@@ -282,8 +248,7 @@ public class Request {
                     path = new String(b);
                 }
             } catch (Exception e) {
-                // ignore - can't find the path, will output "n/a" instead
-            }
+                            }
         }
         sb.append(" reqpath:").append(path);
 

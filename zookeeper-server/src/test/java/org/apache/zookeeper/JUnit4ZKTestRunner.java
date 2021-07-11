@@ -1,21 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.zookeeper;
 
 import org.slf4j.Logger;
@@ -29,10 +11,7 @@ import org.junit.runners.model.Statement;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * The sole responsibility of this class is to print to the log when a test
- * starts and when it finishes.
- */
+
 public class JUnit4ZKTestRunner extends BlockJUnit4ClassRunner {
     private static final Logger LOG = LoggerFactory.getLogger(JUnit4ZKTestRunner.class);
 
@@ -87,10 +66,7 @@ public class JUnit4ZKTestRunner extends BlockJUnit4ClassRunner {
                 }
                 LOG.info("Number of threads {}", tg.activeCount());
             } catch (Throwable t) {
-                // The test method threw an exception, but it might be an
-                // expected exception as defined in the @Test annotation.
-                // Check the annotation and log an appropriate message.
-                Test annotation = this.method.getAnnotation(Test.class);
+                                                                Test annotation = this.method.getAnnotation(Test.class);
                 if (annotation != null && annotation.expected() != null &&
                         annotation.expected().isAssignableFrom(t.getClass())) {
                     LOG.info("TEST METHOD {} THREW EXPECTED EXCEPTION {}", name,
